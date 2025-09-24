@@ -5,7 +5,7 @@ import type { User } from "../types/types.ts";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const usersFile = path.join(__dirname, "../data/users.json");
+const usersFile = path.join(__dirname, "../../data/users.json");
 
 export const loadUsers = () => {
   if (!fs.existsSync(usersFile)) return;
