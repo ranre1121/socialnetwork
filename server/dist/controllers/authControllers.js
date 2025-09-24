@@ -26,7 +26,7 @@ export function loginUser(req, res) {
         return res.status(400).json({ msg: "Invalid password" });
     }
     const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
-        expiresIn: "15s",
+        expiresIn: "1h",
     });
     return res.status(200).json({ token });
 }

@@ -1,1 +1,1 @@
-{"version":3,"file":"dataController.d.ts","sourceRoot":"","sources":["../../controllers/dataController.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAIjD,wBAAgB,WAAW,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ,QAQtD"}
+{"version":3,"file":"dataController.d.ts","sourceRoot":"","sources":["../../controllers/dataController.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,MAAM,SAAS,CAAC;AAIjD,wBAAgB,WAAW,CAAC,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,QAAQ,QAOtD"}

@@ -39,7 +39,7 @@ export function loginUser(req: Request, res: Response) {
     { username: user.username },
     process.env.JWT_SECRET as string,
     {
-      expiresIn: "15s",
+      expiresIn: "1h",
     }
   );
 

@@ -11,7 +11,6 @@ export function verifyToken(req, res, next) {
         return res.status(400).json({ msg: "No token provided" });
     try {
         const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
-        //@ts-ignore
         req.user = decoded;
         next();
     }
