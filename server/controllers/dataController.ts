@@ -9,5 +9,5 @@ export function getUsername(req: Request, res: Response) {
     //@ts-ignore
     (u: User) => u.username === req.user.username
   ).username;
-  res.status(200).json({ username });
+  res.status(200).json({ username: "zb nahu" });
 }

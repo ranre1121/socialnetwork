@@ -4,6 +4,6 @@ export function getUsername(req, res) {
     const username = users.find(
     //@ts-ignore
     (u) => u.username === req.user.username).username;
-    res.status(200).json({ username });
+    res.status(200).json({ username: "zb nahu" });
 }
 //# sourceMappingURL=dataController.js.map
