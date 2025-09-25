@@ -5,6 +5,8 @@ const Register = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [message, setMessage] = useState("");
 
@@ -17,7 +19,7 @@ const Register = () => {
       const res = await fetch("http://localhost:8000/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, name, surname }),
       });
 
       const data = await res.json();
@@ -54,6 +56,26 @@ const Register = () => {
                 className="h-7 w-full px-2 py-5 rounded-sm border border-gray-500"
                 onChange={(e) => {
                   setUsername(e.target.value);
+                }}
+              />
+            </div>
+            <div>
+              <p>Name</p>
+              <input
+                type="text"
+                className="h-7 w-full px-2 py-5 rounded-sm border border-gray-500"
+                onChange={(e) => {
+                  setName(e.target.value);
+                }}
+              />
+            </div>
+            <div>
+              <p>Surname</p>
+              <input
+                type="text"
+                className="h-7 w-full px-2 py-5 rounded-sm border border-gray-500"
+                onChange={(e) => {
+                  setSurname(e.target.value);
                 }}
               />
             </div>

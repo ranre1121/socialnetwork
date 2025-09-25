@@ -5,12 +5,12 @@ import dotenv from "dotenv";
 dotenv.config();
 export function registerUser(req, res) {
     const users = loadUsers();
-    const { username, password } = req.body;
+    const { username, password, name, surname } = req.body;
     if (users.find((u) => u.username === username)) {
         return res.status(400).json({ msg: "Username is taken" });
     }
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUser = { username, password: hashedPassword };
+    const newUser = { username, password: hashedPassword, name, surname };
     users.push(newUser);
     saveUser(users);
     res.status(200).json(newUser);

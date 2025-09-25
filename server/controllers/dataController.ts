@@ -5,8 +5,8 @@ import type { User } from "../types/types.js";
 export function getUsername(req: Request, res: Response) {
   const users = loadUsers();
 
-  const username = users.find(
-    (u: User) => u.username === req.user.username
-  ).username;
-  res.status(200).json({ username });
+  const user = users.find((u: User) => u.username === req.user.username);
+  res
+    .status(200)
+    .json({ username: user.username, name: user.name, surname: user.surname });
 }

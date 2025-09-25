@@ -7,7 +7,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useState } from "react";
-import Content from "./sections/Content";
+import Me from "./sections/Me";
 
 const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -19,12 +19,13 @@ const App = () => {
           <Route
             path="/"
             element={
-              isLoggedIn ? <Navigate to="/content" /> : <Navigate to="/login" />
+              isLoggedIn ? <Navigate to="/me" /> : <Navigate to="/login" />
             }
           />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/content" element={<Content />} />
+
+          <Route path="/me" element={<Me />} />
         </Routes>
       </Router>
     </div>
