@@ -1,18 +1,32 @@
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { Compass, Users, Mail, UserCircle } from "lucide-react";
-import { useState } from "react";
+
 import { useUser } from "../context/UserContext"; // ⬅️ grab user directly
+import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const buttons = [
-  { icon: <Compass />, text: "Feed" },
+  { icon: <Compass />, text: "Me" },
   { icon: <Mail />, text: "Messages" },
   { icon: <Users />, text: "Friends" },
   { icon: <UserCircle />, text: "Profile" },
 ];
 
-const Navbar: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState("feed");
-  const { user } = useUser(); // ⬅️ no props needed
+type NavbarProps = {
+  currentPage: string;
+};
+const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
+  const navigate = useNavigate();
+  const { user } = useUser();
+
+  useEffect(() => {
+    if (user === null) return; // still loading
+    if (!user?.username) navigate("/login");
+  }, [user, navigate]);
+
+  const handleClick = (page: string) => {
+    navigate(`/${page}`);
+  };
 
   return (
     <nav className="flex flex-col gap-10 border w-[250px] items-center px-3">
@@ -34,7 +48,7 @@ const Navbar: React.FC = () => {
                 ? "bg-black text-white"
                 : "bg-white text-black"
             }`}
-            onClick={() => setCurrentPage(button.text.toLowerCase())}
+            onClick={() => handleClick(button.text.toLowerCase())}
           >
             <span>{button.icon}</span>
             <p>{button.text}</p>

@@ -1,11 +1,11 @@
 import Navbar from "../components/Navbar";
 
-const Me = () => {
+const Friends = () => {
   return (
     <div className="flex px-[50px] py-[20px]">
-      <Navbar currentPage="me" />
+      <Navbar currentPage="friends" />
     </div>
   );
 };
 
-export default Me;
+export default Friends;
