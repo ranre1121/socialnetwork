@@ -38,7 +38,7 @@ const Me = () => {
   }, []);
 
   return (
-    <div className="flex">
+    <div className="flex px-[50px] py-[20px]">
       <Navbar username={username} name={name} surname={surname} />
     </div>
   );
