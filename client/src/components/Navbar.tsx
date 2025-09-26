@@ -1,8 +1,8 @@
-import profilePlaceholder from "../../public/images/profile-placeholder.png";
+// src/components/Navbar.tsx
+import profilePlaceholder from "/images/profile-placeholder.png"; // or import from src/assets
 import { Compass, Users, Mail, UserCircle } from "lucide-react";
-
-import { useUser } from "../context/UserContext"; // ⬅️ grab user directly
-import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 const buttons = [
@@ -12,17 +12,23 @@ const buttons = [
   { icon: <UserCircle />, text: "Profile" },
 ];
 
-type NavbarProps = {
-  currentPage: string;
-};
-const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
+const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const location = useLocation();
+  const { user, loading } = useUser();
+
+  // Derive current page from pathname, default to "me"
+  const currentPage = location.pathname.split("/")[1] || "me";
 
   useEffect(() => {
-    if (user === null) return; // still loading
-    if (!user?.username) navigate("/login");
-  }, [user, navigate]);
+    // Wait until loading finishes.
+    if (loading) return;
+
+    // If not authenticated and not already on /login, redirect to /login
+    if (!user?.username && location.pathname !== "/login") {
+      navigate("/login");
+    }
+  }, [loading, user, navigate, location.pathname]);
 
   const handleClick = (page: string) => {
     navigate(`/${page}`);
@@ -31,7 +37,11 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
   return (
     <nav className="flex flex-col gap-10 border w-[250px] items-center px-3">
       <div className="flex flex-col items-center justify-center gap-5">
-        <img src={profilePlaceholder} className="size-20 rounded-full" />
+        <img
+          src={profilePlaceholder}
+          className="size-20 rounded-full"
+          alt="profile"
+        />
         <span className="flex flex-col items-center">
           <p className="font-bold">
             {user?.name} {user?.surname}
@@ -39,21 +49,25 @@ const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
           <p className="text-gray-400">@{user?.username}</p>
         </span>
       </div>
+
       <div className="flex flex-col gap-3 w-full">
-        {buttons.map((button) => (
-          <button
-            key={button.text}
-            className={`flex gap-2 w-full py-3 px-4 cursor-pointer rounded-lg ${
-              currentPage === button.text.toLowerCase()
-                ? "bg-black text-white"
-                : "bg-white text-black"
-            }`}
-            onClick={() => handleClick(button.text.toLowerCase())}
-          >
-            <span>{button.icon}</span>
-            <p>{button.text}</p>
-          </button>
-        ))}
+        {buttons.map((button) => {
+          const page = button.text.toLowerCase();
+          return (
+            <button
+              key={button.text}
+              className={`flex gap-2 w-full py-3 px-4 cursor-pointer rounded-lg ${
+                currentPage === page
+                  ? "bg-black text-white"
+                  : "bg-white text-black"
+              }`}
+              onClick={() => handleClick(page)}
+            >
+              <span>{button.icon}</span>
+              <p>{button.text}</p>
+            </button>
+          );
+        })}
       </div>
     </nav>
   );
