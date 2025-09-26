@@ -4,6 +4,7 @@ import { Compass, Users, Mail, UserCircle } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { LogOut } from "lucide-react";
 
 const buttons = [
   { icon: <Compass />, text: "Me" },
@@ -43,10 +44,19 @@ const Navbar: React.FC = () => {
           alt="profile"
         />
         <span className="flex flex-col items-center">
-          <p className="font-bold">
+          <p className="font-bold flex gap-2 items-center px-7 relative">
             {user?.name} {user?.surname}
+            <LogOut
+              className="size-4.5 hover:text-red-500 absolute right-0 cursor-pointer"
+              onClick={() => {
+                localStorage.removeItem("token");
+                navigate("/login");
+              }}
+            />
           </p>
-          <p className="text-gray-400">@{user?.username}</p>
+          <span className="text-gray-400 flex gap-2">
+            <p>@{user?.username} </p>
+          </span>
         </span>
       </div>
 
