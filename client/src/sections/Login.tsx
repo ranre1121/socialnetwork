@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext"; // 👈 import context
 
-const Login = ({}) => {
+const Login = () => {
   const navigate = useNavigate();
+  const { setUser } = useUser(); // 👈 grab setUser from context
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -18,6 +20,12 @@ const Login = ({}) => {
 
     if (data.token) {
       localStorage.setItem("token", data.token);
+
+      // 👇 Immediately update context so app knows user is logged in
+
+      setUser(data.user);
+
+      // 👇 Then redirect
       navigate("/me");
     } else {
       alert(data.message || "Login failed");
@@ -28,15 +36,8 @@ const Login = ({}) => {
     <div className="px-[100px] ">
       <div className="h-screen flex justify-center items-center">
         <div className="border-gray-400 rounded-lg px-5 py-5 border flex flex-col w-[350px]">
-          <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font bold">Log in</h1>
-            {/* <span className="flex text-xl items-center gap-1">
-              to
-              <p className="text-xl font-semibold bg-gradient-to-r  from-yellow-200 to-yellow-300 w-fit px-1">
-                Notes
-              </p>
-            </span> */}
-          </div>
+          <h1 className="text-4xl font-bold">Log in</h1>
+
           <div className="flex flex-col gap-5 mt-7">
             <div>
               <p>Username</p>
@@ -55,6 +56,7 @@ const Login = ({}) => {
               />
             </div>
           </div>
+
           <p className="mt-2 text-blue-500 cursor-pointer">Forgot password?</p>
           <button
             className="py-3 text-white bg-blue-400 rounded-md mt-5 cursor-pointer"
@@ -62,6 +64,7 @@ const Login = ({}) => {
           >
             Log In
           </button>
+
           <p className="mt-5 self-center">
             Don't have an account?{" "}
             <Link to={"/register"}>

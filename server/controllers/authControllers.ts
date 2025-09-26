@@ -42,6 +42,9 @@ export function loginUser(req: Request, res: Response) {
       expiresIn: "1h",
     }
   );
-
-  return res.status(200).json({ token });
+  const { password: _, ...publicUser } = user;
+  return res.status(200).json({
+    token,
+    user: publicUser,
+  });
 }

@@ -41,7 +41,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
         if (!mounted) return;
 
         if (!res.ok) {
-          // token invalid / server rejects -> explicitly mark unauthenticated
           setUser(null);
         } else {
           const data = await res.json();

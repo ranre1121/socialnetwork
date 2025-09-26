@@ -28,6 +28,10 @@ export function loginUser(req, res) {
     const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
         expiresIn: "1h",
     });
-    return res.status(200).json({ token });
+    const { password: _, ...publicUser } = user;
+    return res.status(200).json({
+        token,
+        user: publicUser,
+    });
 }
 //# sourceMappingURL=authControllers.js.map
