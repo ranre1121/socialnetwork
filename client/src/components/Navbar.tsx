@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="flex flex-col gap-10 border w-[250px] items-center px-3">
+    <nav className="absolute left-[100px] flex flex-col gap-5 w-[250px] items-center bg-white rounded-xl py-5 pb-10 shadow-lg">
       <div className="flex flex-col items-center justify-center gap-5">
         <img
           src={profilePlaceholder}
@@ -59,8 +59,8 @@ const Navbar: React.FC = () => {
           </span>
         </span>
       </div>
-
-      <div className="flex flex-col gap-3 w-full">
+      <div className="border border-gray-200 w-full h-0 " />
+      <div className="flex flex-col gap-3 w-full px-2">
         {buttons.map((button) => {
           const page = button.text.toLowerCase();
           return (
