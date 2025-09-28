@@ -27,6 +27,35 @@ const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
         receiverUsername,
       }),
     });
+
+    // 🔹 Update local UI immediately
+    setMatches((prev) =>
+      prev.map((u) =>
+        u.username === receiverUsername ? { ...u, alreadySent: true } : u
+      )
+    );
+  };
+
+  const handleCancelRequest = async (receiverUsername: string) => {
+    const token = localStorage.getItem("token");
+    await fetch("http://localhost:8000/friends/cancel", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        senderUsername: user?.username,
+        receiverUsername,
+      }),
+    });
+
+    // Update local UI
+    setMatches((prev) =>
+      prev.map((u) =>
+        u.username === receiverUsername ? { ...u, alreadySent: false } : u
+      )
+    );
   };
 
   useEffect(() => {
@@ -36,7 +65,6 @@ const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
       return;
     }
 
-    // immediately show loader while waiting for debounce + fetch
     setLoading(true);
 
     const timeout = setTimeout(async () => {
@@ -55,12 +83,12 @@ const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
           },
           body: JSON.stringify({
             query,
-            currentUser: user?.username, // 🔹 include this
+            currentUser: user?.username,
           }),
         });
 
         if (res.status === 401) {
-          localStorage.removeItem("token"); // invalid token cleanup
+          localStorage.removeItem("token");
           window.location.href = "/login";
           return;
         }
@@ -86,7 +114,6 @@ const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
         className="w-[600px] h-[500px] bg-white rounded-2xl shadow-xl p-6 flex flex-col gap-4 relative"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition"
@@ -134,26 +161,18 @@ const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
                   <p className="text-sm text-gray-500">@{m.username}</p>
                 </span>
 
-                {/* Actions */}
                 <div className="ml-auto">
                   {m.alreadySent ? (
-                    <X />
+                    <X
+                      className="hover:text-red-500 cursor-pointer"
+                      onClick={() => handleCancelRequest(m.username)}
+                    />
                   ) : m.alreadyReceived ? (
-                    <Plus />
+                    <Plus className="hover:text-green-500" />
                   ) : (
                     <UserPlus
                       className="hover:text-blue-500 cursor-pointer"
-                      onClick={async () => {
-                        await handleAddRequest(m.username);
-                        // 🔹 Update state to reflect new "sent" request
-                        setMatches((prev) =>
-                          prev.map((u) =>
-                            u.username === m.username
-                              ? { ...u, alreadySent: true }
-                              : u
-                          )
-                        );
-                      }}
+                      onClick={() => handleAddRequest(m.username)}
                     />
                   )}
                 </div>

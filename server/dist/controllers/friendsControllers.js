@@ -72,4 +72,19 @@ export function addRequest(req, res) {
     saveUser(users);
     res.json({ message: "Friend request sent" });
 }
+export function cancelRequest(req, res) {
+    const users = loadUsers();
+    const { senderUsername, receiverUsername } = req.body;
+    const sender = users.find((u) => u.username === senderUsername);
+    const receiver = users.find((u) => u.username === receiverUsername);
+    if (!sender || !receiver) {
+        return res.status(400).json({ error: "Invalid users" });
+    }
+    sender.requestsSent =
+        sender.requestsSent?.filter((u) => u !== receiverUsername) || [];
+    receiver.requestsReceived =
+        receiver.requestsReceived?.filter((u) => u !== senderUsername) || [];
+    saveUser(users);
+    res.json({ message: "Friend request cancelled" });
+}
 //# sourceMappingURL=friendsControllers.js.map
