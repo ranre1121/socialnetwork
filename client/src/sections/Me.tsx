@@ -16,7 +16,7 @@ const Me = () => {
       {/* Centered content */}
       <div className="flex flex-1 flex-col items-center justify-start gap-5">
         {/* Create Post Card */}
-        <div className="w-[850px] bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4">
+        <div className="w-[850px] card-theme rounded-2xl shadow-md p-6 flex flex-col gap-4">
           <h1 className="text-xl font-semibold ">Create a Post</h1>
 
           <motion.textarea
@@ -39,7 +39,7 @@ const Me = () => {
         </div>
 
         {/* Second Card */}
-        <div className="w-[850px] bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4 h-[350px]">
+        <div className="w-[850px] card-theme rounded-2xl shadow-md p-6 flex flex-col gap-4 h-[350px]">
           <h1 className="text-xl font-semibold ">Posts</h1>
         </div>
       </div>

@@ -6,30 +6,18 @@ body {
 
 /* index.css */
 
-/* Light theme (default) */
+/* Light (default) */
 body {
   @apply bg-white text-black;
   transition: background 0.3s, color 0.3s;
 }
 
-button {
-  @apply transition;
-}
-
-/* Dark theme */
+/* Dark */
 body.dark {
   @apply bg-gray-900 text-white;
 }
 
-/* Elements that need borders */
-.border-theme {
-  @apply border-gray-200;
-}
-body.dark .border-theme {
-  @apply border-gray-700;
-}
-
-/* Cards, containers, modals */
+/* Shared theme helpers */
 .card-theme {
   @apply bg-white text-black;
 }
@@ -37,7 +25,13 @@ body.dark .card-theme {
   @apply bg-gray-800 text-white;
 }
 
-/* Muted text */
+.border-theme {
+  @apply border-gray-200;
+}
+body.dark .border-theme {
+  @apply border-gray-700;
+}
+
 .text-muted {
   @apply text-gray-400;
 }

@@ -70,7 +70,7 @@ const Friends = () => {
       <Navbar />
 
       <div className="flex flex-1 flex-col items-center justify-start">
-        <div className="w-[850px] h-[1000px] bg-white rounded-2xl shadow-md p-6 flex flex-col">
+        <div className="w-[850px] h-[1000px] card-theme rounded-2xl shadow-md p-6 flex flex-col">
           <div className="flex items-center">
             <h1 className="text-xl font-semibold">Friends</h1>
 
@@ -100,38 +100,46 @@ const Friends = () => {
               </p>
             ) : (
               friends.map((f, i) => (
-                <div
-                  key={i}
-                  className="py-5 rounded-lg flex items-center gap-3 border-b border-gray-100"
-                >
-                  <img
-                    src={profilePlaceholder}
-                    alt="profile"
-                    className="size-10 rounded-full"
-                  />
-                  <span className="leading-5">
-                    <p>
-                      {f.name} {f.surname}
-                    </p>
-                    <p className="text-sm text-gray-500">@{f.username}</p>
-                  </span>
+                <div>
+                  <div
+                    key={i}
+                    className="py-5 rounded-lg flex items-center gap-3 "
+                  >
+                    <img
+                      src={profilePlaceholder}
+                      alt="profile"
+                      className="size-10 rounded-full"
+                    />
+                    <span className="leading-5">
+                      <p>
+                        {f.name} {f.surname}
+                      </p>
+                      <p className="text-sm text-gray-500">@{f.username}</p>
+                    </span>
 
-                  {confirmDelete === f.username ? (
-                    <div className="ml-auto flex gap-3 items-center">
-                      <p className="text-sm">Remove a friend?</p>
-                      <div className="flex gap-2">
-                        <Check className="size-5 hover:text-green-500 cursor-pointer" />
-                        <X className="size-5 hover:text-red-500 cursor-pointer" />
+                    {confirmDelete === f.username ? (
+                      <div className="ml-auto flex gap-3 items-center">
+                        <p className="text-md">Remove a friend?</p>
+                        <div className="flex gap-2">
+                          <Check className=" hover:text-green-500 cursor-pointer" />
+                          <X
+                            className=" hover:text-red-500 cursor-pointer"
+                            onClick={() => {
+                              setConfirmDelete(null);
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setConfirmDelete(f.username)}
-                      className="ml-auto text-gray-600 hover:text-red-500"
-                    >
-                      <UserMinusIcon />
-                    </button>
-                  )}
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDelete(f.username)}
+                        className="ml-auto text-gray-600 hover:text-red-500"
+                      >
+                        <UserMinusIcon />
+                      </button>
+                    )}
+                  </div>
+                  <div className="border-t border-gray-200" />
                 </div>
               ))
             )}

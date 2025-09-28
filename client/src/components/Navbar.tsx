@@ -5,8 +5,8 @@ import {
   Mail,
   UserCircle,
   LogOut,
-  Sun,
   Moon,
+  Sun,
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -23,11 +23,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading } = useUser();
-
-  // check if dark mode is active on load
-  const [darkMode, setDarkMode] = useState(() =>
-    document.documentElement.classList.contains("dark")
-  );
+  const [dark, setDark] = useState(false);
 
   const currentPage = location.pathname.split("/")[1] || "me";
 
@@ -42,25 +38,14 @@ const Navbar: React.FC = () => {
     navigate(`/${page}`);
   };
 
+  // toggle dark class on body
   const toggleTheme = () => {
-    const html = document.documentElement;
-    if (html.classList.contains("dark")) {
-      html.classList.remove("dark");
-      setDarkMode(false);
-    } else {
-      html.classList.add("dark");
-      setDarkMode(true);
-    }
+    document.body.classList.toggle("dark");
+    setDark(document.body.classList.contains("dark"));
   };
 
   return (
-    <nav
-      className="absolute left-[100px] flex flex-col gap-5 w-[250px] items-center 
-      bg-white text-black 
-      dark:bg-gray-900 dark:text-white 
-      rounded-xl py-5 pb-10 shadow-lg transition-colors duration-300"
-    >
-      {/* Profile */}
+    <nav className="absolute left-[100px] flex flex-col gap-5 w-[250px] items-center card-theme rounded-xl py-5 pb-10 shadow-lg">
       <div className="flex flex-col items-center justify-center gap-5">
         <img
           src={profilePlaceholder}
@@ -78,26 +63,22 @@ const Navbar: React.FC = () => {
               }}
             />
           </p>
-          <span className="text-gray-400 dark:text-gray-500 flex gap-2">
+          <span className="text-muted flex gap-2">
             <p>@{user?.username} </p>
           </span>
         </span>
       </div>
 
-      {/* Divider */}
-      <div className="border border-gray-200 dark:border-gray-700 w-full h-0 " />
+      <div className="border border-theme w-full h-0" />
 
-      {/* Nav buttons */}
       <div className="flex flex-col gap-3 w-full px-2">
         {buttons.map((button) => {
           const page = button.text.toLowerCase();
           return (
             <button
               key={button.text}
-              className={`flex gap-2 w-full py-3 px-4 cursor-pointer rounded-lg transition-colors duration-200 ${
-                currentPage === page
-                  ? "bg-black text-white dark:bg-white dark:text-black"
-                  : "bg-white text-black dark:bg-gray-800 dark:text-white"
+              className={`flex gap-2 w-full py-3 px-4 cursor-pointer rounded-lg ${
+                currentPage === page ? "bg-black text-white" : "card-theme"
               }`}
               onClick={() => handleClick(page)}
             >
@@ -108,17 +89,13 @@ const Navbar: React.FC = () => {
         })}
       </div>
 
-      {/* Theme toggle */}
+      {/* Dark mode toggle */}
       <button
         onClick={toggleTheme}
-        className="mt-5 flex items-center gap-2 px-4 py-2 rounded-lg 
-        border border-gray-200 dark:border-gray-700 
-        bg-white dark:bg-gray-800 
-        hover:bg-gray-100 dark:hover:bg-gray-700 
-        transition-colors duration-200"
+        className="mt-5 px-3 py-2 rounded-lg card-theme border border-theme flex items-center gap-2"
       >
-        {darkMode ? <Sun /> : <Moon />}
-        <span>{darkMode ? "Light Mode" : "Dark Mode"}</span>
+        {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+        <span>{dark ? "Light Mode" : "Dark Mode"}</span>
       </button>
     </nav>
   );
