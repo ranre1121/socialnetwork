@@ -4,24 +4,22 @@ import type { User } from "../types/types.js";
 
 export function findFriends(req: Request, res: Response) {
   const users: User[] = loadUsers();
-  const currentUsername = req.body.currentUser; // who is searching
-  const query = (req.body.query as string)?.toLowerCase() || "";
+  const currentUsername = req.body.currentUser;
+  const query = (req.body.query as string)?.toLowerCase().trim() || "";
 
-  if (!query.trim()) {
+  if (!query) {
     return res.json([]);
   }
 
   const currentUser = users.find((u) => u.username === currentUsername);
 
+  const tokens = query.split(/\s+/); // split on spaces (e.g., "john s" → ["john","s"])
+
   const matches = users
     .filter((u) => {
-      // 🔹 hide self
       if (u.username === currentUsername) return false;
-
-      // 🔹 hide existing friends
       if (currentUser?.friends.includes(u.username)) return false;
-
-      return true; // keep everyone else, even if requests exist
+      return true;
     })
     .map((u) => {
       const name = u.name.toLowerCase();
@@ -29,13 +27,16 @@ export function findFriends(req: Request, res: Response) {
       const username = u.username.toLowerCase();
 
       let score = 0;
-      if (name.startsWith(query)) score += 2;
-      if (surname.startsWith(query)) score += 2;
-      if (username.startsWith(query)) score += 3;
 
-      if (name.includes(query)) score += 1;
-      if (surname.includes(query)) score += 1;
-      if (username.includes(query)) score += 2;
+      for (const token of tokens) {
+        if (name.startsWith(token)) score += 2;
+        if (surname.startsWith(token)) score += 2;
+        if (username.startsWith(token)) score += 3;
+
+        if (name.includes(token)) score += 1;
+        if (surname.includes(token)) score += 1;
+        if (username.includes(token)) score += 2;
+      }
 
       const alreadySent =
         currentUser?.requestsSent.includes(u.username) ?? false;
@@ -107,4 +108,75 @@ export function cancelRequest(req: Request, res: Response) {
   saveUser(users);
 
   res.json({ message: "Friend request cancelled" });
+}
+
+export function getRequests(req: Request, res: Response) {
+  const users: User[] = loadUsers();
+  const { username, type } = req.body; // type = "received" | "sent"
+
+  const user = users.find((u) => u.username === username);
+  if (!user) return res.status(404).json({ error: "User not found" });
+
+  let list: string[] = [];
+  if (type === "received") list = user.requestsReceived || [];
+  if (type === "sent") list = user.requestsSent || [];
+
+  // Return user objects for display
+  const result = list
+    .map((uname) => users.find((u) => u.username === uname))
+    .filter(Boolean)
+    .map((u) => ({
+      username: u!.username,
+      name: u!.name,
+      surname: u!.surname,
+    }));
+
+  res.json(result);
+}
+
+export function acceptRequest(req: Request, res: Response) {
+  const users: User[] = loadUsers();
+  const { receiverUsername, senderUsername } = req.body;
+
+  const receiver = users.find((u) => u.username === receiverUsername);
+  const sender = users.find((u) => u.username === senderUsername);
+
+  if (!receiver || !sender) {
+    return res.status(400).json({ error: "Invalid users" });
+  }
+
+  // remove from pending
+  receiver.requestsReceived =
+    receiver.requestsReceived?.filter((u) => u !== senderUsername) || [];
+  sender.requestsSent =
+    sender.requestsSent?.filter((u) => u !== receiverUsername) || [];
+
+  // add to friends list
+  receiver.friends = [...(receiver.friends || []), senderUsername];
+  sender.friends = [...(sender.friends || []), receiverUsername];
+
+  saveUser(users);
+
+  res.json({ message: "Friend request accepted" });
+}
+
+export function declineRequest(req: Request, res: Response) {
+  const users: User[] = loadUsers();
+  const { receiverUsername, senderUsername } = req.body;
+
+  const receiver = users.find((u) => u.username === receiverUsername);
+  const sender = users.find((u) => u.username === senderUsername);
+
+  if (!receiver || !sender) {
+    return res.status(400).json({ error: "Invalid users" });
+  }
+
+  receiver.requestsReceived =
+    receiver.requestsReceived?.filter((u) => u !== senderUsername) || [];
+  sender.requestsSent =
+    sender.requestsSent?.filter((u) => u !== receiverUsername) || [];
+
+  saveUser(users);
+
+  res.json({ message: "Friend request declined" });
 }
