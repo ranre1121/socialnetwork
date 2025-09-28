@@ -5,9 +5,13 @@ import profilePlaceholder from "../../public/images/profile-placeholder.png";
 
 interface FriendRequestsModalProps {
   onClose: () => void;
+  onAccepted: () => void;
 }
 
-const FriendRequestsModal = ({ onClose }: FriendRequestsModalProps) => {
+const FriendRequestsModal = ({
+  onClose,
+  onAccepted,
+}: FriendRequestsModalProps) => {
   const { user } = useUser();
   const [type, setType] = useState<"received" | "sent">("received");
   const [requests, setRequests] = useState<any[]>([]);
@@ -44,6 +48,7 @@ const FriendRequestsModal = ({ onClose }: FriendRequestsModalProps) => {
       }),
     });
     fetchRequests();
+    onAccepted();
   };
 
   const handleDecline = async (senderUsername: string) => {

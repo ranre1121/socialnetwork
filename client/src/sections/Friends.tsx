@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import AddFriendModal from "../components/AddFriendModal";
 import FriendRequestsModal from "../components/FriendRequests";
 import Navbar from "../components/Navbar";
@@ -12,36 +12,36 @@ const Friends = () => {
   const [friends, setFriends] = useState<any[]>([]);
   const { user } = useUser();
 
-  useEffect(() => {
-    const fetchFriends = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token || !user) return;
+  const fetchFriends = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token || !user) return;
 
-        const res = await fetch("http://localhost:8000/friends/list", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ username: user.username }),
-        });
+      const res = await fetch("http://localhost:8000/friends/list", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ username: user.username }),
+      });
 
-        if (res.status === 401) {
-          localStorage.removeItem("token");
-          window.location.href = "/login";
-          return;
-        }
-
-        const data = await res.json();
-        setFriends(data);
-      } catch (err) {
-        console.error("Error fetching friends:", err);
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+        return;
       }
-    };
 
-    fetchFriends();
+      const data = await res.json();
+      setFriends(data);
+    } catch (err) {
+      console.error("Error fetching friends:", err);
+    }
   }, [user]);
+
+  useEffect(() => {
+    fetchFriends();
+  }, [fetchFriends]);
 
   return (
     <div className="flex h-screen w-screen py-10">
@@ -104,7 +104,10 @@ const Friends = () => {
         <AddFriendModal onClose={() => setIsAddModalOpen(false)} />
       )}
       {isRequestsModalOpen && (
-        <FriendRequestsModal onClose={() => setIsRequestsModalOpen(false)} />
+        <FriendRequestsModal
+          onClose={() => setIsRequestsModalOpen(false)}
+          onAccepted={fetchFriends}
+        />
       )}
     </div>
   );
