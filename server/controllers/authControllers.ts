@@ -15,7 +15,15 @@ export function registerUser(req: Request, res: Response) {
   }
 
   const hashedPassword = bcrypt.hashSync(password, 10);
-  const newUser: User = { username, password: hashedPassword, name, surname };
+  const newUser: User = {
+    username,
+    password: hashedPassword,
+    name,
+    surname,
+    requestsReceived: [],
+    requestsSent: [],
+    friends: [],
+  };
 
   users.push(newUser);
   saveUser(users);

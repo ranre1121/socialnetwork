@@ -10,7 +10,15 @@ export function registerUser(req, res) {
         return res.status(400).json({ msg: "Username is taken" });
     }
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUser = { username, password: hashedPassword, name, surname };
+    const newUser = {
+        username,
+        password: hashedPassword,
+        name,
+        surname,
+        requestsReceived: [],
+        requestsSent: [],
+        friends: [],
+    };
     users.push(newUser);
     saveUser(users);
     res.status(200).json(newUser);

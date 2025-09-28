@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, UserPlus } from "lucide-react";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
+import { useUser } from "../context/UserContext";
+import { Plus } from "lucide-react";
 
 interface AddFriendModalProps {
   onClose: () => void;
@@ -10,6 +12,22 @@ const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
   const [query, setQuery] = useState("");
   const [matches, setMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const { user } = useUser();
+
+  const handleAddRequest = async (receiverUsername: string) => {
+    const token = localStorage.getItem("token");
+    await fetch("http://localhost:8000/friends/add", {
+      method: "POST",
+      headers: {
+        "Content-type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        senderUsername: user?.username,
+        receiverUsername,
+      }),
+    });
+  };
 
   useEffect(() => {
     if (!query.trim()) {
@@ -35,7 +53,10 @@ const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ query }),
+          body: JSON.stringify({
+            query,
+            currentUser: user?.username, // 🔹 include this
+          }),
         });
 
         if (res.status === 401) {
@@ -113,7 +134,29 @@ const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
                   <p className="text-sm text-gray-500">@{m.username}</p>
                 </span>
 
-                <UserPlus className="hover:text-blue-500 ml-auto cursor-pointer" />
+                {/* Actions */}
+                <div className="ml-auto">
+                  {m.alreadySent ? (
+                    <X />
+                  ) : m.alreadyReceived ? (
+                    <Plus />
+                  ) : (
+                    <UserPlus
+                      className="hover:text-blue-500 cursor-pointer"
+                      onClick={async () => {
+                        await handleAddRequest(m.username);
+                        // 🔹 Update state to reflect new "sent" request
+                        setMatches((prev) =>
+                          prev.map((u) =>
+                            u.username === m.username
+                              ? { ...u, alreadySent: true }
+                              : u
+                          )
+                        );
+                      }}
+                    />
+                  )}
+                </div>
               </div>
             ))
           )}
