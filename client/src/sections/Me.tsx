@@ -23,8 +23,8 @@ const Me = () => {
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
             placeholder={`What's on your mind, ${user?.name}?`}
-            initial={{ height: "80px" }}
-            animate={{ height: focused ? "200px" : "80px" }}
+            initial={{ height: "40px" }}
+            animate={{ height: focused ? "200px" : "40px" }}
             transition={{ duration: 0.3 }}
             className="w-full resize-none px-4 py-2 border border-gray-300 rounded-lg focus:outline-none"
           />
