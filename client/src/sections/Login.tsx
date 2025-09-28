@@ -1,10 +1,10 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useUser } from "../context/UserContext"; // 👈 import context
+import { useUser } from "../context/UserContext";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setUser } = useUser(); // 👈 grab setUser from context
+  const { setUser } = useUser();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,11 +21,8 @@ const Login = () => {
     if (data.token) {
       localStorage.setItem("token", data.token);
 
-      // 👇 Immediately update context so app knows user is logged in
-
       setUser(data.user);
 
-      // 👇 Then redirect
       navigate("/me");
     } else {
       alert(data.message || "Login failed");

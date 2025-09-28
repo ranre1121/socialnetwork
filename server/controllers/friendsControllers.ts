@@ -13,7 +13,7 @@ export function findFriends(req: Request, res: Response) {
 
   const currentUser = users.find((u) => u.username === currentUsername);
 
-  const tokens = query.split(/\s+/); // split on spaces (e.g., "john s" → ["john","s"])
+  const tokens = query.split(/\s+/);
 
   const matches = users
     .filter((u) => {
@@ -70,11 +70,9 @@ export function addRequest(req: Request, res: Response) {
     return res.status(400).json({ error: "Invalid users" });
   }
 
-  // Make sure arrays exist
   sender.requestsSent = sender.requestsSent || [];
   receiver.requestsReceived = receiver.requestsReceived || [];
 
-  // Avoid duplicates
   if (!sender.requestsSent.includes(receiverUsername)) {
     sender.requestsSent.push(receiverUsername);
   }
@@ -82,7 +80,6 @@ export function addRequest(req: Request, res: Response) {
     receiver.requestsReceived.push(senderUsername);
   }
 
-  // ✅ Save all users back to file
   saveUser(users);
 
   res.json({ message: "Friend request sent" });
@@ -112,7 +109,7 @@ export function cancelRequest(req: Request, res: Response) {
 
 export function getRequests(req: Request, res: Response) {
   const users: User[] = loadUsers();
-  const { username, type } = req.body; // type = "received" | "sent"
+  const { username, type } = req.body;
 
   const user = users.find((u) => u.username === username);
   if (!user) return res.status(404).json({ error: "User not found" });
@@ -121,7 +118,6 @@ export function getRequests(req: Request, res: Response) {
   if (type === "received") list = user.requestsReceived || [];
   if (type === "sent") list = user.requestsSent || [];
 
-  // Return user objects for display
   const result = list
     .map((uname) => users.find((u) => u.username === uname))
     .filter(Boolean)
@@ -179,4 +175,24 @@ export function declineRequest(req: Request, res: Response) {
   saveUser(users);
 
   res.json({ message: "Friend request declined" });
+}
+
+export function listFriends(req: Request, res: Response) {
+  const users: User[] = loadUsers();
+  const { username } = req.body;
+
+  const user = users.find((u) => u.username === username);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const friends = users
+    .filter((u) => user.friends.includes(u.username))
+    .map((u) => ({
+      username: u.username,
+      name: u.name,
+      surname: u.surname,
+    }));
+
+  res.json(friends);
 }

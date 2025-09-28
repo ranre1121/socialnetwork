@@ -9,7 +9,7 @@ interface FriendRequestsModalProps {
 
 const FriendRequestsModal = ({ onClose }: FriendRequestsModalProps) => {
   const { user } = useUser();
-  const [type, setType] = useState<"received" | "sent">("received"); // default
+  const [type, setType] = useState<"received" | "sent">("received");
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -131,10 +131,7 @@ const FriendRequestsModal = ({ onClose }: FriendRequestsModalProps) => {
             <p className="text-gray-500 self-center mt-4">No {type} requests</p>
           ) : (
             requests.map((r, i) => (
-              <div
-                key={i}
-                className="py-2 rounded-lg flex items-center gap-3 border-b"
-              >
+              <div key={i} className="py-2 rounded-lg flex items-center gap-3 ">
                 <img
                   src={profilePlaceholder}
                   className="size-10 rounded-full"

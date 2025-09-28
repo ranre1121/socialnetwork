@@ -1,5 +1,4 @@
-// src/components/Navbar.tsx
-import profilePlaceholder from "/images/profile-placeholder.png"; // or import from src/assets
+import profilePlaceholder from "/images/profile-placeholder.png";
 import { Compass, Users, Mail, UserCircle } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -18,14 +17,11 @@ const Navbar: React.FC = () => {
   const location = useLocation();
   const { user, loading } = useUser();
 
-  // Derive current page from pathname, default to "me"
   const currentPage = location.pathname.split("/")[1] || "me";
 
   useEffect(() => {
-    // Wait until loading finishes.
     if (loading) return;
 
-    // If not authenticated and not already on /login, redirect to /login
     if (!user?.username && location.pathname !== "/login") {
       navigate("/login");
     }
