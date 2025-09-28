@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import AddFriendModal from "../components/AddFriendModal";
 import FriendRequestsModal from "../components/FriendRequests";
 import Navbar from "../components/Navbar";
-import { UserPlus, Users } from "lucide-react";
+import { UserMinusIcon, UserPlus, Users, Check, X } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 
@@ -10,6 +10,7 @@ const Friends = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
   const [friends, setFriends] = useState<any[]>([]);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null); // 🔹 track which friend is being deleted
   const { user } = useUser();
 
   const fetchFriends = useCallback(async () => {
@@ -43,12 +44,33 @@ const Friends = () => {
     fetchFriends();
   }, [fetchFriends]);
 
+  const handleDelete = async (username: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      await fetch("http://localhost:8000/friends/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ username }),
+      });
+
+      setConfirmDelete(null);
+      fetchFriends();
+    } catch (err) {
+      console.error("Error deleting friend:", err);
+    }
+  };
+
   return (
     <div className="flex h-screen w-screen py-10">
       <Navbar />
 
-      <div className="flex flex-1 flex-col items-center justify-start gap-5">
-        <div className="w-[850px] h-[1000px] bg-white rounded-2xl shadow-md p-6 flex flex-col gap-4">
+      <div className="flex flex-1 flex-col items-center justify-start">
+        <div className="w-[850px] h-[1000px] bg-white rounded-2xl shadow-md p-6 flex flex-col">
           <div className="flex items-center">
             <h1 className="text-xl font-semibold">Friends</h1>
 
@@ -69,7 +91,7 @@ const Friends = () => {
             </button>
           </div>
 
-          <div className="border-t border-gray-200" />
+          <div className="border-t border-gray-200 mt-5" />
 
           <div className="flex-1 overflow-y-auto flex flex-col gap-2">
             {friends.length === 0 ? (
@@ -80,7 +102,7 @@ const Friends = () => {
               friends.map((f, i) => (
                 <div
                   key={i}
-                  className="py-2 rounded-lg flex items-center gap-3 border-b border-gray-100"
+                  className="py-5 rounded-lg flex items-center gap-3 border-b border-gray-100"
                 >
                   <img
                     src={profilePlaceholder}
@@ -93,6 +115,23 @@ const Friends = () => {
                     </p>
                     <p className="text-sm text-gray-500">@{f.username}</p>
                   </span>
+
+                  {confirmDelete === f.username ? (
+                    <div className="ml-auto flex gap-3 items-center">
+                      <p className="text-sm">Remove a friend?</p>
+                      <div className="flex gap-2">
+                        <Check className="size-5 hover:text-green-500 cursor-pointer" />
+                        <X className="size-5 hover:text-red-500 cursor-pointer" />
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmDelete(f.username)}
+                      className="ml-auto text-gray-600 hover:text-red-500"
+                    >
+                      <UserMinusIcon />
+                    </button>
+                  )}
                 </div>
               ))
             )}

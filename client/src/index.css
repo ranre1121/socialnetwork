@@ -3,3 +3,44 @@
 body {
   background-color: rgb(244, 244, 244);
 }
+
+/* index.css */
+
+/* Light theme (default) */
+body {
+  @apply bg-white text-black;
+  transition: background 0.3s, color 0.3s;
+}
+
+button {
+  @apply transition;
+}
+
+/* Dark theme */
+body.dark {
+  @apply bg-gray-900 text-white;
+}
+
+/* Elements that need borders */
+.border-theme {
+  @apply border-gray-200;
+}
+body.dark .border-theme {
+  @apply border-gray-700;
+}
+
+/* Cards, containers, modals */
+.card-theme {
+  @apply bg-white text-black;
+}
+body.dark .card-theme {
+  @apply bg-gray-800 text-white;
+}
+
+/* Muted text */
+.text-muted {
+  @apply text-gray-400;
+}
+body.dark .text-muted {
+  @apply text-gray-500;
+}
