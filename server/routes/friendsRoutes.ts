@@ -7,6 +7,7 @@ import {
   declineRequest,
   getRequests,
   listFriends,
+  deleteFriend,
 } from "../controllers/friendsControllers.js";
 import { verifyToken } from "../middlewares/authMiddlewares.js";
 
@@ -25,5 +26,7 @@ router.post("/decline", verifyToken, declineRequest);
 router.post("/requests", verifyToken, getRequests);
 
 router.post("/list", verifyToken, listFriends);
+
+router.post("/delete", verifyToken, deleteFriend);
 
 export default router;

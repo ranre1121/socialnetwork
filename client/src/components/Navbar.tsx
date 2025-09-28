@@ -23,7 +23,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading } = useUser();
-  const [dark, setDark] = useState(false);
+  const [dark, setDark] = useState(true);
 
   const currentPage = location.pathname.split("/")[1] || "me";
 
@@ -33,6 +33,12 @@ const Navbar: React.FC = () => {
       navigate("/login");
     }
   }, [loading, user, navigate, location.pathname]);
+
+  useEffect(() => {
+    // force dark mode on mount
+    document.body.classList.add("dark");
+    setDark(true);
+  }, []);
 
   const handleClick = (page: string) => {
     navigate(`/${page}`);

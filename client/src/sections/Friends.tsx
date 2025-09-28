@@ -44,19 +44,27 @@ const Friends = () => {
     fetchFriends();
   }, [fetchFriends]);
 
-  const handleDelete = async (username: string) => {
+  const handleDelete = async (friendUsername: string) => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!token || !user) return;
 
-      await fetch("http://localhost:8000/friends/delete", {
+      const res = await fetch("http://localhost:8000/friends/delete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({
+          username: user.username, // кто удаляет
+          friendUsername: friendUsername, // кого удаляем
+        }),
       });
+
+      if (!res.ok) {
+        console.error("Failed to delete friend");
+        return;
+      }
 
       setConfirmDelete(null);
       fetchFriends();
@@ -93,7 +101,7 @@ const Friends = () => {
 
           <div className="border-t border-gray-200 mt-5" />
 
-          <div className="flex-1 overflow-y-auto flex flex-col gap-2">
+          <div className="flex-1 overflow-y-auto mt-2 flex flex-col gap-2">
             {friends.length === 0 ? (
               <p className="text-gray-400 self-center mt-4">
                 You don’t have any friends yet
@@ -121,7 +129,10 @@ const Friends = () => {
                       <div className="ml-auto flex gap-3 items-center">
                         <p className="text-md">Remove a friend?</p>
                         <div className="flex gap-2">
-                          <Check className=" hover:text-green-500 cursor-pointer" />
+                          <Check
+                            className=" hover:text-green-500 cursor-pointer"
+                            onClick={() => handleDelete(f.username)}
+                          />
                           <X
                             className=" hover:text-red-500 cursor-pointer"
                             onClick={() => {

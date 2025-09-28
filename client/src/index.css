@@ -9,7 +9,7 @@ body {
 /* Light (default) */
 body {
   @apply bg-white text-black;
-  transition: background 0.3s, color 0.3s;
+  transition: background;
 }
 
 /* Dark */

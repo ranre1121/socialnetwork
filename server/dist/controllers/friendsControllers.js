@@ -156,4 +156,18 @@ export function listFriends(req, res) {
     }));
     res.json(friends);
 }
+export function deleteFriend(req, res) {
+    const users = loadUsers();
+    const { username, friendUsername } = req.body;
+    const user = users.find((u) => u.username === username);
+    const friend = users.find((u) => u.username === friendUsername);
+    if (!user || !friend) {
+        return res.status(400).json({ error: "Invalid users" });
+    }
+    // remove from both users' friends lists
+    user.friends = user.friends?.filter((u) => u !== friendUsername) || [];
+    friend.friends = friend.friends?.filter((u) => u !== username) || [];
+    saveUser(users);
+    res.json({ message: "Friend deleted" });
+}
 //# sourceMappingURL=friendsControllers.js.map

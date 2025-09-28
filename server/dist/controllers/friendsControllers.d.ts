@@ -6,4 +6,5 @@ export declare function getRequests(req: Request, res: Response): Response<any, 
 export declare function acceptRequest(req: Request, res: Response): Response<any, Record<string, any>> | undefined;
 export declare function declineRequest(req: Request, res: Response): Response<any, Record<string, any>> | undefined;
 export declare function listFriends(req: Request, res: Response): Response<any, Record<string, any>> | undefined;
+export declare function deleteFriend(req: Request, res: Response): Response<any, Record<string, any>> | undefined;
 //# sourceMappingURL=friendsControllers.d.ts.map
