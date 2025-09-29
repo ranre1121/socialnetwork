@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 const buttons = [
   { icon: <Compass />, text: "Me" },
@@ -19,11 +19,13 @@ const buttons = [
   { icon: <UserCircle />, text: "Profile" },
 ];
 
-const Navbar: React.FC = () => {
+const Navbar: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
+  dark,
+  toggleTheme,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, loading } = useUser();
-  const [dark, setDark] = useState(true);
 
   const currentPage = location.pathname.split("/")[1] || "me";
 
@@ -34,24 +36,12 @@ const Navbar: React.FC = () => {
     }
   }, [loading, user, navigate, location.pathname]);
 
-  useEffect(() => {
-    // force dark mode on mount
-    document.body.classList.add("dark");
-    setDark(true);
-  }, []);
-
   const handleClick = (page: string) => {
     navigate(`/${page}`);
   };
 
-  // toggle dark class on body
-  const toggleTheme = () => {
-    document.body.classList.toggle("dark");
-    setDark(document.body.classList.contains("dark"));
-  };
-
   return (
-    <nav className="absolute left-[100px] flex flex-col gap-5 w-[250px] items-center card-theme rounded-xl py-5 pb-10 shadow-lg">
+    <nav className="absolute top-10 left-[100px] flex flex-col gap-5 w-[250px] items-center bg-white dark:bg-gray-900 rounded-xl py-5 pb-10 shadow-lg border border-gray-200 dark:border-gray-700">
       <div className="flex flex-col items-center justify-center gap-5">
         <img
           src={profilePlaceholder}
@@ -59,7 +49,7 @@ const Navbar: React.FC = () => {
           alt="profile"
         />
         <span className="flex flex-col items-center">
-          <p className="font-bold flex gap-2 items-center px-7 relative">
+          <p className="font-bold flex gap-2 items-center px-7 relative text-black dark:text-white">
             {user?.name} {user?.surname}
             <LogOut
               className="size-4.5 hover:text-red-500 absolute right-0 cursor-pointer"
@@ -69,13 +59,13 @@ const Navbar: React.FC = () => {
               }}
             />
           </p>
-          <span className="text-muted flex gap-2">
+          <span className="text-gray-500 dark:text-gray-400 flex gap-2">
             <p>@{user?.username} </p>
           </span>
         </span>
       </div>
 
-      <div className="border border-theme w-full h-0" />
+      <div className="border border-gray-200 dark:border-gray-700 w-full h-0" />
 
       <div className="flex flex-col gap-3 w-full px-2">
         {buttons.map((button) => {
@@ -84,7 +74,9 @@ const Navbar: React.FC = () => {
             <button
               key={button.text}
               className={`flex gap-2 w-full py-3 px-4 cursor-pointer rounded-lg ${
-                currentPage === page ? "bg-black text-white" : "card-theme"
+                currentPage === page
+                  ? "bg-black text-white"
+                  : "bg-white dark:bg-gray-800 text-black dark:text-white"
               }`}
               onClick={() => handleClick(page)}
             >
@@ -98,7 +90,7 @@ const Navbar: React.FC = () => {
       {/* Dark mode toggle */}
       <button
         onClick={toggleTheme}
-        className="mt-5 px-3 py-2 rounded-lg card-theme border border-theme flex items-center gap-2"
+        className="mt-5 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center gap-2 bg-white dark:bg-gray-800 text-black dark:text-white"
       >
         {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
         <span>{dark ? "Light Mode" : "Dark Mode"}</span>

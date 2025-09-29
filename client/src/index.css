@@ -1,40 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 body {
   background-color: rgb(244, 244, 244);
-}
-
-/* index.css */
-
-/* Light (default) */
-body {
-  @apply bg-white text-black;
-  transition: background;
-}
-
-/* Dark */
-body.dark {
-  @apply bg-gray-900 text-white;
-}
-
-/* Shared theme helpers */
-.card-theme {
-  @apply bg-white text-black;
-}
-body.dark .card-theme {
-  @apply bg-gray-800 text-white;
-}
-
-.border-theme {
-  @apply border-gray-200;
-}
-body.dark .border-theme {
-  @apply border-gray-700;
-}
-
-.text-muted {
-  @apply text-gray-400;
-}
-body.dark .text-muted {
-  @apply text-gray-500;
 }

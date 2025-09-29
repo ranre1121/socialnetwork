@@ -93,31 +93,37 @@ const FriendRequestsModal = ({
       onClick={onClose}
     >
       <div
-        className="w-[600px] h-[500px] bg-white rounded-2xl shadow-xl p-6 flex flex-col gap-4 relative"
+        className="w-[600px] h-[500px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 flex flex-col gap-4 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-100 transition"
+          className="absolute top-4 right-4 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
         >
-          <X className="w-5 h-5 text-gray-500" />
+          <X className="w-5 h-5 text-gray-500 dark:text-gray-300" />
         </button>
 
-        <h1 className="text-xl font-semibold">Friend Requests</h1>
+        <h1 className="text-xl font-semibold text-black dark:text-white">
+          Friend Requests
+        </h1>
 
         {/* Toggle */}
         <div className="flex gap-4">
           <button
-            className={`px-4 py-2 rounded-lg ${
-              type === "received" ? "bg-blue-500 text-white" : "bg-gray-100"
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              type === "received"
+                ? "bg-blue-500 text-white dark:bg-blue-400 dark:text-black"
+                : "bg-gray-200 text-black dark:bg-gray-700 dark:text-white"
             }`}
             onClick={() => setType("received")}
           >
             Received
           </button>
           <button
-            className={`px-4 py-2 rounded-lg ${
-              type === "sent" ? "bg-blue-500 text-white" : "bg-gray-100"
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              type === "sent"
+                ? "bg-blue-500 text-white dark:bg-blue-400 dark:text-black"
+                : "bg-gray-200 text-black dark:bg-gray-700 dark:text-white"
             }`}
             onClick={() => setType("sent")}
           >
@@ -125,27 +131,34 @@ const FriendRequestsModal = ({
           </button>
         </div>
 
-        <div className="border-t border-gray-200" />
+        <div className="border-t border-gray-200 dark:border-gray-700" />
 
         <div className="flex-1 overflow-y-auto flex flex-col gap-2">
           {loading ? (
             <div className="flex-1 flex items-center justify-center">
-              <Loader2 className="w-6 h-6 text-gray-500 animate-spin" />
+              <Loader2 className="w-6 h-6 text-gray-500 dark:text-gray-300 animate-spin" />
             </div>
           ) : requests.length === 0 ? (
-            <p className="text-gray-500 self-center mt-4">No {type} requests</p>
+            <p className="text-gray-500 dark:text-gray-400 self-center mt-4">
+              No {type} requests
+            </p>
           ) : (
             requests.map((r, i) => (
-              <div key={i} className="py-2 rounded-lg flex items-center gap-3 ">
+              <div
+                key={i}
+                className="py-2 rounded-lg flex items-center gap-3 bg-gray-50 dark:bg-gray-700 px-2"
+              >
                 <img
                   src={profilePlaceholder}
                   className="size-10 rounded-full"
                 />
-                <span>
+                <span className="text-black dark:text-white">
                   <p>
                     {r.name} {r.surname}
                   </p>
-                  <p className="text-sm text-gray-500">@{r.username}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300">
+                    @{r.username}
+                  </p>
                 </span>
 
                 <div className="ml-auto flex gap-2">
