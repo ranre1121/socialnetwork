@@ -5,6 +5,7 @@ import authRoutes from "./dist/routes/authRoutes.js";
 import navbarRoutes from "./dist/routes/navbarRoutes.js";
 import friendsRoutes from "./dist/routes/friendsRoutes.js";
 import postsRoutes from "./dist/routes/postsRoutes.js";
+import profilesRoutes from "./dist/routes/profileRoutes.js";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use("/auth", authRoutes);
 app.use("/data", navbarRoutes);
 app.use("/posts", postsRoutes);
 app.use("/friends", friendsRoutes);
+app.use("/profiles", profilesRoutes);
 
 app.listen(PORT, () => {
   console.log(`Listening on ${PORT}`);

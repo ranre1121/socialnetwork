@@ -12,6 +12,14 @@ type Friend = {
   requestsReceived: string[];
 };
 
+type Profile = {
+  username: string;
+  name: string;
+  surname: string;
+  bio: string;
+  friendsCount: number;
+};
+
 type Post = {
   id: number;
   author: string;
@@ -19,4 +27,4 @@ type Post = {
   createdAt: string;
 };
 
-export type { User, Post, Friend };
+export type { User, Post, Friend, Profile };

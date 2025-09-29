@@ -37,6 +37,10 @@ const Navbar: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
   }, [loading, user, navigate, location.pathname]);
 
   const handleClick = (page: string) => {
+    if (page === "profile") {
+      navigate(`/${page}/${user?.username}`);
+      return;
+    }
     navigate(`/${page}`);
   };
 
