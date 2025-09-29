@@ -56,3 +56,38 @@ export const getFeedPosts = (req: any, res: Response) => {
     res.status(500).json({ error: "Failed to fetch posts" });
   }
 };
+
+export const deletePost = (req: any, res: Response) => {
+  try {
+    const username = req.user?.username; // from verifyToken middleware
+
+    if (!username) return res.status(401).json({ error: "Unauthorized" });
+
+    const postId = parseInt(req.params.id);
+    if (isNaN(postId))
+      return res.status(400).json({ error: "Invalid post ID" });
+
+    const posts = loadPosts();
+    const postIndex = posts.findIndex((p) => p.id === postId);
+
+    if (postIndex === -1) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    const post = posts[postIndex];
+
+    if (post?.author !== username) {
+      return res
+        .status(403)
+        .json({ error: "You can only delete your own posts" });
+    }
+
+    posts.splice(postIndex, 1); // remove the post
+    savePosts(posts);
+
+    res.json({ message: "Post deleted successfully", postId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete post" });
+  }
+};

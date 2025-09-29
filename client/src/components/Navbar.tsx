@@ -41,7 +41,7 @@ const Navbar: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
   };
 
   return (
-    <nav className="absolute top-10 left-[100px] flex flex-col gap-5 w-[250px] items-center bg-white dark:bg-gray-900 rounded-xl py-5 pb-10 shadow-lg border border-gray-200 dark:border-gray-700">
+    <nav className="fixed top-10 left-[100px] flex flex-col gap-5 w-[250px] items-center bg-white dark:bg-gray-900 rounded-xl py-5 pb-10 shadow-lg border border-gray-200 dark:border-gray-700">
       <div className="flex flex-col items-center justify-center gap-5">
         <img
           src={profilePlaceholder}

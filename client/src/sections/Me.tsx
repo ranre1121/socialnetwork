@@ -2,6 +2,7 @@ import { useUser } from "../context/UserContext";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
+import { Trash2Icon } from "lucide-react";
 
 type Post = {
   id: number;
@@ -65,10 +66,33 @@ const Me = () => {
         console.log(data.error);
       } else {
         setContent("");
-        fetchPosts(); // Refresh feed after posting
+        fetchPosts();
       }
     } catch (err) {
       console.log(err);
+    }
+  };
+
+  const handleDelete = async (postId: number) => {
+    if (!user) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:8000/posts/delete/${postId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.error);
+      } else {
+        fetchPosts();
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
   const formatPostDate = (dateString: string) => {
@@ -140,7 +164,7 @@ const Me = () => {
                     src={profilePlaceholder}
                     className="rounded-full size-7"
                   />
-                  <div>
+                  <div className="w-full">
                     <span className="flex gap-1">
                       <p className="font-semibold">
                         {post.name} {post.surname}
@@ -149,6 +173,12 @@ const Me = () => {
                       <p className="text-gray-500">
                         · {formatPostDate(post.createdAt)}
                       </p>
+                      {user?.username === post.author && (
+                        <Trash2Icon
+                          className="ml-auto size-5 hover:text-red-500 cursor-pointer"
+                          onClick={() => handleDelete(post.id)}
+                        />
+                      )}
                     </span>
                     <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">
                       {post.content
