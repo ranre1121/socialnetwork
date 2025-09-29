@@ -1,6 +1,7 @@
 import { useUser } from "../context/UserContext";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
+import profilePlaceholder from "../../public/images/profile-placeholder.png";
 
 type Post = {
   id: number;
@@ -73,32 +74,22 @@ const Me = () => {
   const formatPostDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
 
-    const isToday =
-      date.getDate() === now.getDate() &&
-      date.getMonth() === now.getMonth() &&
-      date.getFullYear() === now.getFullYear();
-
-    if (isToday) {
-      // Show only hours and minutes
-      return date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+    if (diffHours < 24) {
+      if (diffHours === 0) {
+        return `${diffMinutes}m ago`;
+      }
+      return `${diffHours}h ago`;
     } else {
-      // Show date and time without seconds
-      return date.toLocaleString([], {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      return date.toLocaleDateString([], { month: "short", day: "numeric" }); // Sep 28
     }
   };
 
   return (
-    <div className="flex h-screen w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
+    <div className="flex h-full min-h-screen  w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start gap-5">
         {/* Create Post Card */}
         <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
@@ -143,17 +134,30 @@ const Me = () => {
               .map((post) => (
                 <div
                   key={post.id}
-                  className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700"
+                  className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-start gap-3"
                 >
-                  <p className="font-semibold">
-                    {post.name} {post.surname}
-                  </p>
-                  <p className="text-gray-700 dark:text-gray-300 mt-1">
-                    {post.content}
-                  </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-400 mt-2">
-                    {formatPostDate(post.createdAt)}
-                  </p>
+                  <img
+                    src={profilePlaceholder}
+                    className="rounded-full size-7"
+                  />
+                  <div>
+                    <span className="flex gap-1">
+                      <p className="font-semibold">
+                        {post.name} {post.surname}
+                      </p>
+                      <p className="text-gray-500"> @{post.author}</p>
+                      <p className="text-gray-500">
+                        · {formatPostDate(post.createdAt)}
+                      </p>
+                    </span>
+                    <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">
+                      {post.content
+                        .split("\n")
+                        .map((line) => line.trimStart()) // remove leading spaces
+                        .join("\n")}
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-400 mt-2"></p>
+                  </div>
                 </div>
               ))
           )}
