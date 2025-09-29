@@ -19,4 +19,13 @@ type Post = {
   createdAt: string;
 };
 
-export type { User, Post, Friend };
+type Profile = {
+  username: string;
+  name: string;
+  surname: string;
+  bio: string;
+  friendsCount: number;
+  profilePic: string;
+};
+
+export type { User, Post, Friend, Profile };

@@ -6,11 +6,13 @@ import jwt, { type Secret } from "jsonwebtoken";
 import dotenv from "dotenv";
 import { loadFriends, saveFriends } from "../utils/friendsUtils.js";
 import { loadPosts } from "../utils/postsUtils.js";
+import { loadProfiles, saveProfiles } from "../utils/profilesUtils.js";
 dotenv.config();
 
 export function registerUser(req: Request, res: Response) {
   const users = loadUsers();
   const friends = loadFriends();
+  const profiles = loadProfiles();
 
   const { username, password, name, surname } = req.body;
 
@@ -33,7 +35,16 @@ export function registerUser(req: Request, res: Response) {
     requestsSent: [],
     friends: [],
   });
+  profiles.push({
+    username,
+    name,
+    surname,
+    bio: "",
+    profilePic: "",
+    friendsCount: 0,
+  });
 
+  saveProfiles(profiles);
   saveUser(users);
   saveFriends(friends);
   res.status(200).json(newUser);

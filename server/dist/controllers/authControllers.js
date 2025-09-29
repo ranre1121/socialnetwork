@@ -4,10 +4,12 @@ import jwt, {} from "jsonwebtoken";
 import dotenv from "dotenv";
 import { loadFriends, saveFriends } from "../utils/friendsUtils.js";
 import { loadPosts } from "../utils/postsUtils.js";
+import { loadProfiles, saveProfiles } from "../utils/profilesUtils.js";
 dotenv.config();
 export function registerUser(req, res) {
     const users = loadUsers();
     const friends = loadFriends();
+    const profiles = loadProfiles();
     const { username, password, name, surname } = req.body;
     if (users.find((u) => u.username === username)) {
         return res.status(400).json({ msg: "Username is taken" });
@@ -26,6 +28,15 @@ export function registerUser(req, res) {
         requestsSent: [],
         friends: [],
     });
+    profiles.push({
+        username,
+        name,
+        surname,
+        bio: "",
+        profilePic: "",
+        friendsCount: 0,
+    });
+    saveProfiles(profiles);
     saveUser(users);
     saveFriends(friends);
     res.status(200).json(newUser);

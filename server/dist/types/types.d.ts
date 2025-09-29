@@ -16,5 +16,13 @@ type Post = {
     content: string;
     createdAt: string;
 };
-export type { User, Post, Friend };
+type Profile = {
+    username: string;
+    name: string;
+    surname: string;
+    bio: string;
+    friendsCount: number;
+    profilePic: string;
+};
+export type { User, Post, Friend, Profile };
 //# sourceMappingURL=types.d.ts.map
