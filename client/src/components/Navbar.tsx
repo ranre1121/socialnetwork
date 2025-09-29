@@ -75,7 +75,7 @@ const Navbar: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
               key={button.text}
               className={`flex gap-2 w-full py-3 px-4 cursor-pointer rounded-lg ${
                 currentPage === page
-                  ? "bg-black text-white"
+                  ? "bg-blue-600 text-white"
                   : "bg-white dark:bg-gray-800 text-black dark:text-white"
               }`}
               onClick={() => handleClick(page)}

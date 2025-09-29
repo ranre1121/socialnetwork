@@ -112,7 +112,7 @@ const FriendRequestsModal = ({
           <button
             className={`px-4 py-2 rounded-lg transition-colors ${
               type === "received"
-                ? "bg-blue-500 text-white dark:bg-blue-400 dark:text-black"
+                ? "bg-blue-600 text-white"
                 : "bg-gray-200 text-black dark:bg-gray-700 dark:text-white"
             }`}
             onClick={() => setType("received")}
@@ -122,7 +122,7 @@ const FriendRequestsModal = ({
           <button
             className={`px-4 py-2 rounded-lg transition-colors ${
               type === "sent"
-                ? "bg-blue-500 text-white dark:bg-blue-400 dark:text-black"
+                ? "bg-blue-600 text-white"
                 : "bg-gray-200 text-black dark:bg-gray-700 dark:text-white"
             }`}
             onClick={() => setType("sent")}
