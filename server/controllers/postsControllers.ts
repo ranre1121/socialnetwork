@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { loadPosts, savePosts } from "../utils/postsUtils.js";
-import { loadUsers } from "../utils/authUtils.js";
+import { loadUsers } from "../utils/authUtils.js"; // users.json
+import { loadFriends } from "../utils/friendsUtils.js"; // friends.json
 import type { User } from "../types/types.js";
 
 export const addPost = (req: Request, res: Response) => {
@@ -32,15 +33,22 @@ export const getFeedPosts = (req: any, res: Response) => {
     const username = req.user?.username;
     if (!username) return res.status(401).json({ error: "Unauthorized" });
 
-    const users = loadUsers();
+    const users = loadUsers(); // profile info (name, surname)
+    const friendsData = loadFriends(); // friends, requests
     const posts = loadPosts();
 
-    const user = users.find((u: User) => u.username === username);
-    if (!user) return res.status(404).json({ error: "User not found" });
+    const currentFriendData = friendsData.find((f) => f.username === username);
+    if (!currentFriendData) {
+      return res.status(404).json({ error: "User friends not found" });
+    }
 
-    // Filter posts from user + friends
+    const friendUsernames = currentFriendData.friends || [];
+
+    // posts authored by the user OR their friends
     const relevantPosts = posts
-      .filter((p) => p.author === username || user.friends.includes(p.author))
+      .filter(
+        (p) => p.author === username || friendUsernames.includes(p.author)
+      )
       .map((p) => {
         const authorInfo = users.find((u: User) => u.username === p.author);
         return {
@@ -48,7 +56,11 @@ export const getFeedPosts = (req: any, res: Response) => {
           name: authorInfo?.name || "",
           surname: authorInfo?.surname || "",
         };
-      });
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
 
     res.json(relevantPosts);
   } catch (err) {
@@ -59,8 +71,7 @@ export const getFeedPosts = (req: any, res: Response) => {
 
 export const deletePost = (req: any, res: Response) => {
   try {
-    const username = req.user?.username; // from verifyToken middleware
-
+    const username = req.user?.username;
     if (!username) return res.status(401).json({ error: "Unauthorized" });
 
     const postId = parseInt(req.params.id);
@@ -75,14 +86,13 @@ export const deletePost = (req: any, res: Response) => {
     }
 
     const post = posts[postIndex];
-
     if (post?.author !== username) {
       return res
         .status(403)
         .json({ error: "You can only delete your own posts" });
     }
 
-    posts.splice(postIndex, 1); // remove the post
+    posts.splice(postIndex, 1);
     savePosts(posts);
 
     res.json({ message: "Post deleted successfully", postId });

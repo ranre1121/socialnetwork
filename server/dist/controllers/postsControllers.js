@@ -1,5 +1,6 @@
 import { loadPosts, savePosts } from "../utils/postsUtils.js";
-import { loadUsers } from "../utils/authUtils.js";
+import { loadUsers } from "../utils/authUtils.js"; // users.json
+import { loadFriends } from "../utils/friendsUtils.js"; // friends.json
 export const addPost = (req, res) => {
     try {
         const { author, content } = req.body;
@@ -25,14 +26,17 @@ export const getFeedPosts = (req, res) => {
         const username = req.user?.username;
         if (!username)
             return res.status(401).json({ error: "Unauthorized" });
-        const users = loadUsers();
+        const users = loadUsers(); // profile info (name, surname)
+        const friendsData = loadFriends(); // friends, requests
         const posts = loadPosts();
-        const user = users.find((u) => u.username === username);
-        if (!user)
-            return res.status(404).json({ error: "User not found" });
-        // Filter posts from user + friends
+        const currentFriendData = friendsData.find((f) => f.username === username);
+        if (!currentFriendData) {
+            return res.status(404).json({ error: "User friends not found" });
+        }
+        const friendUsernames = currentFriendData.friends || [];
+        // posts authored by the user OR their friends
         const relevantPosts = posts
-            .filter((p) => p.author === username || user.friends.includes(p.author))
+            .filter((p) => p.author === username || friendUsernames.includes(p.author))
             .map((p) => {
             const authorInfo = users.find((u) => u.username === p.author);
             return {
@@ -40,7 +44,8 @@ export const getFeedPosts = (req, res) => {
                 name: authorInfo?.name || "",
                 surname: authorInfo?.surname || "",
             };
-        });
+        })
+            .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
         res.json(relevantPosts);
     }
     catch (err) {
@@ -50,7 +55,7 @@ export const getFeedPosts = (req, res) => {
 };
 export const deletePost = (req, res) => {
     try {
-        const username = req.user?.username; // from verifyToken middleware
+        const username = req.user?.username;
         if (!username)
             return res.status(401).json({ error: "Unauthorized" });
         const postId = parseInt(req.params.id);
@@ -67,7 +72,7 @@ export const deletePost = (req, res) => {
                 .status(403)
                 .json({ error: "You can only delete your own posts" });
         }
-        posts.splice(postIndex, 1); // remove the post
+        posts.splice(postIndex, 1);
         savePosts(posts);
         res.json({ message: "Post deleted successfully", postId });
     }
