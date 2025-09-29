@@ -22,9 +22,9 @@ export const addPost = (req, res) => {
 };
 export const getFeedPosts = (req, res) => {
     try {
-        const username = req.body.username;
-        const users = loadUsers();
+        const username = req.user.username;
         const posts = loadPosts();
+        const users = loadUsers();
         const user = users.find((u) => u.username === username);
         if (!user)
             return res.status(404).json({ error: "User not found" });

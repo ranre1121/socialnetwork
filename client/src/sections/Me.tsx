@@ -24,11 +24,10 @@ const Me = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch("http://localhost:8000/posts/feed", {
-        method: "POST",
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ username: user.username }),
       });
       const data = await res.json();
       if (res.ok) {
