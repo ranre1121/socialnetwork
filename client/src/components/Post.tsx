@@ -38,7 +38,7 @@ const Post = ({ post, onDelete }: PostProps) => {
   const { user } = useUser();
 
   return (
-    <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-start gap-3">
+    <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-start gap-3">
       <img src={profilePlaceholder} className="rounded-full size-7" />
       <div className="w-full">
         <span className="flex gap-1 items-center">

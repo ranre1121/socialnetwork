@@ -1,11 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
-type User = {
-  username?: string;
-  name?: string;
-  surname?: string;
-};
+import type { User } from "../types/Types";
 
 type UserContextType = {
   user: User | null;

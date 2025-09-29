@@ -2,9 +2,12 @@ import bcrypt from "bcryptjs";
 import { loadUsers, saveUser } from "../utils/authUtils.js";
 import jwt, {} from "jsonwebtoken";
 import dotenv from "dotenv";
+import { loadFriends, saveFriends } from "../utils/friendsUtils.js";
+import { loadPosts } from "../utils/postsUtils.js";
 dotenv.config();
 export function registerUser(req, res) {
     const users = loadUsers();
+    const friends = loadFriends();
     const { username, password, name, surname } = req.body;
     if (users.find((u) => u.username === username)) {
         return res.status(400).json({ msg: "Username is taken" });
@@ -15,12 +18,16 @@ export function registerUser(req, res) {
         password: hashedPassword,
         name,
         surname,
+    };
+    users.push(newUser);
+    friends.push({
+        username: username,
         requestsReceived: [],
         requestsSent: [],
         friends: [],
-    };
-    users.push(newUser);
+    });
     saveUser(users);
+    saveFriends(friends);
     res.status(200).json(newUser);
 }
 export function loginUser(req, res) {
