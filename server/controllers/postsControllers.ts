@@ -27,18 +27,28 @@ export const addPost = (req: Request, res: Response) => {
   }
 };
 
-export const getFeedPosts = (req: Request, res: Response) => {
+export const getFeedPosts = (req: any, res: Response) => {
   try {
-    const username = req.user.username;
-    const posts = loadPosts();
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: "Unauthorized" });
+
     const users = loadUsers();
+    const posts = loadPosts();
+
     const user = users.find((u: User) => u.username === username);
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    // Include user's own posts + friends' posts
-    const relevantPosts = posts.filter(
-      (p) => p.author === username || user.friends.includes(p.author)
-    );
+    // Filter posts from user + friends
+    const relevantPosts = posts
+      .filter((p) => p.author === username || user.friends.includes(p.author))
+      .map((p) => {
+        const authorInfo = users.find((u: User) => u.username === p.author);
+        return {
+          ...p,
+          name: authorInfo?.name || "",
+          surname: authorInfo?.surname || "",
+        };
+      });
 
     res.json(relevantPosts);
   } catch (err) {

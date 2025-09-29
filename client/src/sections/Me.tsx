@@ -1,4 +1,3 @@
-import Navbar from "../components/Navbar";
 import { useUser } from "../context/UserContext";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
@@ -8,6 +7,8 @@ type Post = {
   author: string;
   content: string;
   createdAt: string;
+  name: string;
+  surname: string;
 };
 
 const Me = () => {
@@ -69,6 +70,32 @@ const Me = () => {
       console.log(err);
     }
   };
+  const formatPostDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+
+    const isToday =
+      date.getDate() === now.getDate() &&
+      date.getMonth() === now.getMonth() &&
+      date.getFullYear() === now.getFullYear();
+
+    if (isToday) {
+      // Show only hours and minutes
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } else {
+      // Show date and time without seconds
+      return date.toLocaleString([], {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+  };
 
   return (
     <div className="flex h-screen w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
@@ -118,12 +145,14 @@ const Me = () => {
                   key={post.id}
                   className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700"
                 >
-                  <p className="font-semibold">{post.author}</p>
+                  <p className="font-semibold">
+                    {post.name} {post.surname}
+                  </p>
                   <p className="text-gray-700 dark:text-gray-300 mt-1">
                     {post.content}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-400 mt-2">
-                    {new Date(post.createdAt).toLocaleString()}
+                    {formatPostDate(post.createdAt)}
                   </p>
                 </div>
               ))
