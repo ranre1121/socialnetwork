@@ -120,7 +120,7 @@ const Me = () => {
         </div>
 
         {/* Posts Feed */}
-        <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
+        <div className="w-[850px] h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-semibold">Posts</h1>
 
           {loadingPosts ? (
