@@ -7,5 +7,11 @@ type User = {
     requestsSent: string[];
     requestsReceived: string[];
 };
-export type { User };
+type Post = {
+    id: number;
+    author: string;
+    content: string;
+    createdAt: string;
+};
+export type { User, Post };
 //# sourceMappingURL=types.d.ts.map

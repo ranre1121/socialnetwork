@@ -8,4 +8,11 @@ type User = {
   requestsReceived: string[];
 };
 
-export type { User };
+type Post = {
+  id: number;
+  author: string;
+  content: string;
+  createdAt: string;
+};
+
+export type { User, Post };

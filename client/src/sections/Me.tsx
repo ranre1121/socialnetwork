@@ -6,6 +6,30 @@ import { useState } from "react";
 const Me = () => {
   const { user } = useUser();
   const [focused, setFocused] = useState(false);
+  const [content, setContent] = useState("");
+
+  const handlePost = async () => {
+    const token = localStorage.getItem("token");
+    if (!token || !user) return;
+    try {
+      const res = await fetch("http://localhost:8000/posts/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ author: user.username, content }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.error);
+      }
+      setContent("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="flex h-screen w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
@@ -17,6 +41,10 @@ const Me = () => {
 
           <motion.textarea
             onFocus={() => setFocused(true)}
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+            }}
             onBlur={() => setFocused(false)}
             placeholder={`What's on your mind, ${user?.name}?`}
             initial={{ height: "40px" }}
@@ -28,7 +56,10 @@ const Me = () => {
           <div className="border-t border-gray-200 dark:border-gray-700"></div>
 
           <div className="flex justify-end gap-3">
-            <button className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
+            <button
+              className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+              onClick={handlePost}
+            >
               Post
             </button>
           </div>

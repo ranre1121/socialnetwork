@@ -25,7 +25,7 @@ const Navbar: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, loading } = useUser();
+  const { user, loading, setUser } = useUser();
 
   const currentPage = location.pathname.split("/")[1] || "me";
 
@@ -54,8 +54,9 @@ const Navbar: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
             <LogOut
               className="size-4.5 hover:text-red-500 absolute right-0 cursor-pointer"
               onClick={() => {
-                localStorage.removeItem("token");
-                navigate("/login");
+                localStorage.removeItem("token"); // remove token
+                setUser(null); // reset user context
+                navigate("/login"); // redirect to login
               }}
             />
           </p>

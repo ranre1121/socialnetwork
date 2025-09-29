@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { useUser } from "./context/UserContext";
 
 import Navbar from "./components/Navbar";
@@ -38,13 +43,28 @@ const App = () => {
     <Router>
       {user && <Navbar dark={dark} toggleTheme={toggleTheme} />}
       <Routes>
-        <Route path="/" element={user ? <Me /> : <Login />} />
-        <Route path="/me" element={<Me />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/messages" element={<Messages />} />
-        <Route path="/friends" element={<Friends />} />
+        <Route path="/" element={user ? <Me /> : <Navigate to="/login" />} />
+        <Route path="/me" element={user ? <Me /> : <Navigate to="/login" />} />
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/me" /> : <Login />}
+        />
+        <Route
+          path="/register"
+          element={user ? <Navigate to="/me" /> : <Register />}
+        />
+        <Route
+          path="/profile"
+          element={user ? <Profile /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/messages"
+          element={user ? <Messages /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/friends"
+          element={user ? <Friends /> : <Navigate to="/login" />}
+        />
       </Routes>
     </Router>
   );
