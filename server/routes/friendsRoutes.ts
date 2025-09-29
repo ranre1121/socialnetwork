@@ -13,7 +13,7 @@ import { verifyToken } from "../middlewares/authMiddlewares.js";
 
 const router = Router();
 
-router.post("/find", verifyToken, findFriends);
+router.get("/find", verifyToken, findFriends);
 
 router.post("/add", verifyToken, addRequest);
 
@@ -23,9 +23,9 @@ router.post("/accept", verifyToken, acceptRequest);
 
 router.post("/decline", verifyToken, declineRequest);
 
-router.post("/requests", verifyToken, getRequests);
+router.get("/requests", verifyToken, getRequests);
 
-router.post("/list", verifyToken, listFriends);
+router.get("/list", verifyToken, listFriends);
 
 router.post("/delete", verifyToken, deleteFriend);
 

@@ -73,17 +73,17 @@ const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
           return;
         }
 
-        const res = await fetch("http://localhost:8000/friends/find", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            query,
-            currentUser: user?.username,
-          }),
-        });
+        const res = await fetch(
+          `http://localhost:8000/friends/find?query=${encodeURIComponent(
+            query
+          )}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (res.status === 401) {
           localStorage.removeItem("token");

@@ -19,12 +19,10 @@ const Friends = () => {
       if (!token || !user) return;
 
       const res = await fetch("http://localhost:8000/friends/list", {
-        method: "POST",
+        method: "GET",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ username: user.username }),
       });
 
       if (res.status === 401) {

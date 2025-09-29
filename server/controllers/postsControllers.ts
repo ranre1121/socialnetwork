@@ -1,31 +1,49 @@
-import fs from "fs/promises";
-import path from "path";
 import type { Request, Response } from "express";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
+import { loadPosts, savePosts } from "../utils/postsUtils.js";
+import { loadUsers } from "../utils/authUtils.js";
+import type { User } from "../types/types.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const POSTS_FILE = path.join(__dirname, "../../data/posts.json");
-
-export const addPost = async (req: Request, res: Response) => {
+export const addPost = (req: Request, res: Response) => {
   try {
     const { author, content } = req.body;
-    const postsData = await fs.readFile(POSTS_FILE, "utf-8");
-    const posts = JSON.parse(postsData) || [];
+    const posts = loadPosts();
+
+    const lastId = posts.length > 0 ? posts[posts.length - 1]?.id ?? 0 : 0;
 
     const newPost = {
-      id: posts.length ? posts[posts.length - 1].id + 1 : 1,
+      id: lastId + 1,
       author,
       content,
       createdAt: new Date().toISOString(),
     };
 
     posts.push(newPost);
-    await fs.writeFile(POSTS_FILE, JSON.stringify(posts, null, 2));
+    savePosts(posts);
+
     res.status(201).json(newPost);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to save post" });
+  }
+};
+
+export const getFeedPosts = (req: Request, res: Response) => {
+  try {
+    const username = req.body.username;
+    const users = loadUsers();
+    const posts = loadPosts();
+
+    const user = users.find((u: User) => u.username === username);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    // Include user's own posts + friends' posts
+    const relevantPosts = posts.filter(
+      (p) => p.author === username || user.friends.includes(p.author)
+    );
+
+    res.json(relevantPosts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch posts" });
   }
 };

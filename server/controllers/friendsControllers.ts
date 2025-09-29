@@ -4,8 +4,8 @@ import type { User } from "../types/types.js";
 
 export function findFriends(req: Request, res: Response) {
   const users: User[] = loadUsers();
-  const currentUsername = req.body.currentUser;
-  const query = (req.body.query as string)?.toLowerCase().trim() || "";
+  const currentUsername = req.user.username;
+  const query = (req.query.query as string)?.toLowerCase().trim() || "";
 
   if (!query) {
     return res.json([]);
@@ -107,9 +107,13 @@ export function cancelRequest(req: Request, res: Response) {
   res.json({ message: "Friend request cancelled" });
 }
 
-export function getRequests(req: Request, res: Response) {
+export function getRequests(req: any, res: Response) {
   const users: User[] = loadUsers();
-  const { username, type } = req.body;
+  const username = req.user?.username; // get from verifyToken middleware
+  const type = req.query.type as string;
+
+  if (!username) return res.status(401).json({ error: "Unauthorized" });
+  if (!type) return res.status(400).json({ error: "Missing type parameter" });
 
   const user = users.find((u) => u.username === username);
   if (!user) return res.status(404).json({ error: "User not found" });
@@ -129,7 +133,6 @@ export function getRequests(req: Request, res: Response) {
 
   res.json(result);
 }
-
 export function acceptRequest(req: Request, res: Response) {
   const users: User[] = loadUsers();
   const { receiverUsername, senderUsername } = req.body;
@@ -177,9 +180,11 @@ export function declineRequest(req: Request, res: Response) {
   res.json({ message: "Friend request declined" });
 }
 
-export function listFriends(req: Request, res: Response) {
+export function listFriends(req: any, res: Response) {
   const users: User[] = loadUsers();
-  const { username } = req.body;
+  const username = req.user?.username; // from verifyToken middleware
+
+  if (!username) return res.status(401).json({ message: "Unauthorized" });
 
   const user = users.find((u) => u.username === username);
   if (!user) {

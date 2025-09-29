@@ -1,8 +1,8 @@
 import { loadUsers, saveUser } from "../utils/authUtils.js";
 export function findFriends(req, res) {
     const users = loadUsers();
-    const currentUsername = req.body.currentUser;
-    const query = req.body.query?.toLowerCase().trim() || "";
+    const currentUsername = req.user.username;
+    const query = req.query.query?.toLowerCase().trim() || "";
     if (!query) {
         return res.json([]);
     }
@@ -87,7 +87,12 @@ export function cancelRequest(req, res) {
 }
 export function getRequests(req, res) {
     const users = loadUsers();
-    const { username, type } = req.body;
+    const username = req.user?.username; // get from verifyToken middleware
+    const type = req.query.type;
+    if (!username)
+        return res.status(401).json({ error: "Unauthorized" });
+    if (!type)
+        return res.status(400).json({ error: "Missing type parameter" });
     const user = users.find((u) => u.username === username);
     if (!user)
         return res.status(404).json({ error: "User not found" });
@@ -142,7 +147,9 @@ export function declineRequest(req, res) {
 }
 export function listFriends(req, res) {
     const users = loadUsers();
-    const { username } = req.body;
+    const username = req.user?.username; // from verifyToken middleware
+    if (!username)
+        return res.status(401).json({ message: "Unauthorized" });
     const user = users.find((u) => u.username === username);
     if (!user) {
         return res.status(404).json({ message: "User not found" });

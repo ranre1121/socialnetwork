@@ -18,17 +18,17 @@ const FriendRequestsModal = ({
   const [loading, setLoading] = useState(false);
 
   const fetchRequests = async () => {
-    if (!user) return;
     setLoading(true);
     const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:8000/friends/requests", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ username: user.username, type }),
-    });
+    const res = await fetch(
+      `http://localhost:8000/friends/requests?type=${type}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     const data = await res.json();
     setRequests(data);
     setLoading(false);
