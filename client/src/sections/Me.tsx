@@ -1,26 +1,17 @@
 import { useUser } from "../context/UserContext";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
-import profilePlaceholder from "../../public/images/profile-placeholder.png";
-import { Trash2Icon } from "lucide-react";
-
-type Post = {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-  name: string;
-  surname: string;
-};
+import Post from "../components/Post";
+import type { PostType } from "../components/Post";
 
 const Me = () => {
   const { user } = useUser();
   const [focused, setFocused] = useState(false);
   const [content, setContent] = useState("");
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<PostType[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
 
-  // Fetch feed
+  // Fetch posts from backend
   const fetchPosts = async () => {
     if (!user) return;
     setLoadingPosts(true);
@@ -49,6 +40,7 @@ const Me = () => {
     fetchPosts();
   }, [user]);
 
+  // Create a new post
   const handlePost = async () => {
     if (!user) return;
     try {
@@ -73,6 +65,7 @@ const Me = () => {
     }
   };
 
+  // Delete a post
   const handleDelete = async (postId: number) => {
     if (!user) return;
     try {
@@ -84,7 +77,6 @@ const Me = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const data = await res.json();
       if (!res.ok) {
         console.log(data.error);
@@ -95,25 +87,9 @@ const Me = () => {
       console.log(error);
     }
   };
-  const formatPostDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-    if (diffHours < 24) {
-      if (diffHours === 0) {
-        return `${diffMinutes}m ago`;
-      }
-      return `${diffHours}h ago`;
-    } else {
-      return date.toLocaleDateString([], { month: "short", day: "numeric" }); // Sep 28
-    }
-  };
 
   return (
-    <div className="flex h-full min-h-screen  w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
+    <div className="flex h-full min-h-screen w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start gap-5">
         {/* Create Post Card */}
         <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
@@ -156,39 +132,7 @@ const Me = () => {
               .slice()
               .reverse()
               .map((post) => (
-                <div
-                  key={post.id}
-                  className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-700 flex items-start gap-3"
-                >
-                  <img
-                    src={profilePlaceholder}
-                    className="rounded-full size-7"
-                  />
-                  <div className="w-full">
-                    <span className="flex gap-1">
-                      <p className="font-semibold">
-                        {post.name} {post.surname}
-                      </p>
-                      <p className="text-gray-500"> @{post.author}</p>
-                      <p className="text-gray-500">
-                        · {formatPostDate(post.createdAt)}
-                      </p>
-                      {user?.username === post.author && (
-                        <Trash2Icon
-                          className="ml-auto size-5 hover:text-red-500 cursor-pointer"
-                          onClick={() => handleDelete(post.id)}
-                        />
-                      )}
-                    </span>
-                    <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">
-                      {post.content
-                        .split("\n")
-                        .map((line) => line.trimStart()) // remove leading spaces
-                        .join("\n")}
-                    </p>
-                    <p className="text-xs text-gray-400 dark:text-gray-400 mt-2"></p>
-                  </div>
-                </div>
+                <Post key={post.id} post={post} onDelete={handleDelete} />
               ))
           )}
         </div>
