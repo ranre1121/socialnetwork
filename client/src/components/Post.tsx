@@ -3,6 +3,8 @@ import { Trash2Icon } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import type { Post as PostType } from "../types/Types";
+import { useState } from "react";
+import { Check, X } from "lucide-react";
 
 type PostProps = {
   post: PostType;
@@ -33,6 +35,7 @@ const formatPostDate = (dateString: string) => {
 const Post = ({ post, onFetch }: PostProps) => {
   const { user } = useUser();
   const navigate = useNavigate();
+  const [confirmationActive, setConfirmationActive] = useState(false);
 
   const handleDelete = async (postId: number) => {
     if (!user) return;
@@ -69,12 +72,27 @@ const Post = ({ post, onFetch }: PostProps) => {
           </p>
           <p className="text-gray-500">@{post.author}</p>
           <p className="text-gray-500">· {formatPostDate(post.createdAt)}</p>
-          {user?.username === post.author && (
-            <Trash2Icon
-              className="ml-auto size-5 hover:text-red-500 cursor-pointer"
-              onClick={() => handleDelete(post.id)}
-            />
-          )}
+          {user?.username === post.author &&
+            (!confirmationActive ? (
+              <Trash2Icon
+                className="ml-auto size-5 hover:text-red-500 cursor-pointer"
+                onClick={() => setConfirmationActive(true)}
+              />
+            ) : (
+              <div className="ml-auto flex gap-3 items-center">
+                <p className="text-md">Delete post?</p>
+                <div className="flex gap-2">
+                  <Check
+                    className="hover:text-green-500 cursor-pointer"
+                    onClick={() => handleDelete(post.id)}
+                  />
+                  <X
+                    className="hover:text-red-500 cursor-pointer"
+                    onClick={() => setConfirmationActive(false)}
+                  />
+                </div>
+              </div>
+            ))}
         </span>
 
         <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">
