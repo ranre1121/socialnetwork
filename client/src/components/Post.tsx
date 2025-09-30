@@ -26,6 +26,9 @@ const formatPostDate = (dateString: string) => {
 
   if (diffHours < 24) {
     if (diffHours === 0) {
+      if (diffMinutes === 0) {
+        return "Just now";
+      }
       return `${diffMinutes}m ago`;
     }
     return `${diffHours}h ago`;

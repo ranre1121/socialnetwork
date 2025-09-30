@@ -4,7 +4,7 @@ import { loadFriends } from "../utils/friendsUtils.js";
 export function getProfile(req, res) {
     try {
         const username = req.params.username;
-        console.log(req.params);
+        const currentUser = req.user.username;
         const users = loadUsers();
         const profiles = loadProfiles();
         const friends = loadFriends();
@@ -19,6 +19,7 @@ export function getProfile(req, res) {
             surname: user.surname,
             bio: profile.bio || "",
             friendsCount: friendEntry?.friends.length || 0,
+            profileOwner: currentUser === username,
         };
         res.json(response);
     }

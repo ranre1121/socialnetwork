@@ -7,7 +7,7 @@ import type { User } from "../types/types.js";
 export function getProfile(req: Request, res: Response) {
   try {
     const username = req.params.username;
-    console.log(req.params);
+    const currentUser = req.user.username;
     const users = loadUsers();
     const profiles = loadProfiles();
     const friends = loadFriends();
@@ -23,6 +23,7 @@ export function getProfile(req: Request, res: Response) {
       surname: user.surname,
       bio: profile.bio || "",
       friendsCount: friendEntry?.friends.length || 0,
+      profileOwner: currentUser === username,
     };
 
     res.json(response);

@@ -8,6 +8,7 @@ type Profile = {
   surname: string;
   bio: string;
   friendsCount: number;
+  profileOwner: boolean; // 👈 new field from backend
 };
 
 const Profile = () => {
@@ -33,47 +34,56 @@ const Profile = () => {
     fetchProfile();
   }, [username]);
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
-  if (!profile) return <p className="text-center mt-10">Profile not found</p>;
+  if (loading)
+    return <p className="text-center mt-10 text-gray-500">Loading...</p>;
+  if (!profile)
+    return <p className="text-center mt-10 text-gray-500">Profile not found</p>;
 
   return (
     <div className="flex justify-center w-full py-10 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden p-6 flex flex-col items-center gap-6">
+      <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl py-8 flex flex-col gap-8">
         {/* Avatar */}
-        <div className="h-28 w-28 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center shadow-lg">
+        <div className="relative px-8">
           <img
             src={profilePlaceholder}
             alt="Profile avatar"
-            className="h-full w-full rounded-full object-cover"
+            className="h-32 w-32 rounded-full object-cover border-gray-200 dark:border-gray-500 border-4 shadow-md"
           />
         </div>
 
         {/* Name + Username */}
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {profile.name} {profile.surname}
-          </h2>
-          <p className="text-gray-500">@{profile.username}</p>
+        <div className="flex items-center px-8">
+          <div className="flex flex-col justify-center">
+            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
+              {profile.name} {profile.surname}
+            </h2>
+            <p className="text-gray-500 dark:text-gray-400 text-xl">
+              @{profile.username}
+            </p>
+            {profile.bio && (
+              <p className="text-xl text-white mt-5 font-thin">{profile.bio}</p>
+            )}
+          </div>
+          {profile.profileOwner && (
+            <button className="ml-auto text-white py-1.5 px-5 rounded-full border border-white">
+              Edit profile
+            </button>
+          )}
         </div>
 
         {/* Stats */}
-        <div className="flex gap-8 text-sm">
-          <p className="text-gray-900 dark:text-white">
-            <span className="font-semibold text-gray-900 dark:text-white">
-              {profile.friendsCount}
-            </span>{" "}
-            {profile.friendsCount === 1 ? "Friend" : "Friends"}
-          </p>
+        <div className="px-8">
+          <span className="flex gap-1">
+            <p className="text-white">{profile.friendsCount} </p>
+            <p className="text-gray-400">
+              {profile.friendsCount === 1 ? "Friend" : "Friends"}
+            </p>
+          </span>
         </div>
-
-        {/* About */}
-        <div className="w-full bg-gray-50 dark:bg-gray-700 rounded-xl p-4 shadow-sm">
-          <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-            About
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300">
-            {profile.bio || "No bio yet."}
-          </p>
+        <div className="w-full border-b border-gray-400" />
+        {/* POSTS */}
+        <div className="flex items-center justify-center text-xl text-white ">
+          User has no posts yet.
         </div>
       </div>
     </div>
