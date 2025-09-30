@@ -3,6 +3,7 @@ import { loadProfiles, saveProfiles } from "../utils/profilesUtils.js";
 import { loadUsers } from "../utils/authUtils.js";
 import { loadFriends } from "../utils/friendsUtils.js";
 import type { User } from "../types/types.js";
+import { loadPosts } from "../utils/postsUtils.js";
 
 export function getProfile(req: Request, res: Response) {
   try {
@@ -11,19 +12,22 @@ export function getProfile(req: Request, res: Response) {
     const users = loadUsers();
     const profiles = loadProfiles();
     const friends = loadFriends();
+    const posts = loadPosts();
 
     const user = users.find((u: User) => u.username === username);
     if (!user) return res.status(404).json({ error: "User not found" });
     const profile = profiles.find((p: any) => p.username === username) || {};
     const friendEntry = friends.find((f: any) => f.username === username);
+    const userPosts = posts.filter((post: any) => post.author === username);
 
     const response = {
       username: user.username,
       name: user.name,
-
+      surname: user.surname || "", // add surname if available
       bio: profile.bio || "",
       friendsCount: friendEntry?.friends.length || 0,
       profileOwner: currentUser === username,
+      posts: userPosts, // 👈 include posts
     };
 
     res.json(response);

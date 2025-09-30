@@ -8,6 +8,8 @@ export const addPost = (req: Request, res: Response) => {
   try {
     const { author, content } = req.body;
     const posts = loadPosts();
+    const users = loadUsers();
+    const user = users.find((u: User) => u.username === author);
 
     const lastId = posts.length > 0 ? posts[posts.length - 1]?.id ?? 0 : 0;
 
@@ -15,6 +17,7 @@ export const addPost = (req: Request, res: Response) => {
       id: lastId + 1,
       author,
       content,
+      name: user.name,
       createdAt: new Date().toISOString(),
     };
 

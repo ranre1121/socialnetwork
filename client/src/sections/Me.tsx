@@ -2,7 +2,7 @@ import { useUser } from "../context/UserContext";
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
 import Post from "../components/Post";
-import type { PostType } from "../components/Post";
+import type { Post as PostType } from "../types/Types";
 
 const Me = () => {
   const { user } = useUser();
@@ -66,27 +66,6 @@ const Me = () => {
   };
 
   // Delete a post
-  const handleDelete = async (postId: number) => {
-    if (!user) return;
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:8000/posts/delete/${postId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.log(data.error);
-      } else {
-        fetchPosts();
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <div className="flex h-full min-h-screen w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
@@ -132,7 +111,7 @@ const Me = () => {
               .slice()
               .reverse()
               .map((post) => (
-                <Post key={post.id} post={post} onDelete={handleDelete} />
+                <Post key={post.id} post={post} onFetch={fetchPosts} />
               ))
           )}
         </div>

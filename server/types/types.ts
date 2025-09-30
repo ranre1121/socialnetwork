@@ -16,6 +16,7 @@ type Post = {
   author: string;
   content: string;
   createdAt: string;
+  name: string;
 };
 
 type Profile = {

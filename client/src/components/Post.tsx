@@ -1,18 +1,12 @@
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { Trash2Icon } from "lucide-react";
 import { useUser } from "../context/UserContext";
-
-export type PostType = {
-  id: number;
-  author: string;
-  content: string;
-  createdAt: string;
-  name: string;
-};
+import { useNavigate } from "react-router-dom";
+import type { Post as PostType } from "../types/Types";
 
 type PostProps = {
   post: PostType;
-  onDelete: (id: number) => void;
+  onFetch: () => void;
 };
 
 // Format like Twitter
@@ -36,21 +30,49 @@ const formatPostDate = (dateString: string) => {
   }
 };
 
-const Post = ({ post, onDelete }: PostProps) => {
+const Post = ({ post, onFetch }: PostProps) => {
   const { user } = useUser();
+  const navigate = useNavigate();
+
+  const handleDelete = async (postId: number) => {
+    if (!user) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:8000/posts/delete/${postId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.error);
+      } else {
+        onFetch();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-start gap-3">
       <img src={profilePlaceholder} className="rounded-full size-7" />
       <div className="w-full">
         <span className="flex gap-1 items-center">
-          <p className="font-semibold">{post.name}</p>
+          <p
+            className="font-semibold cursor-pointer hover:underline text-white"
+            onClick={() => navigate(`/profile/${post.author}`)}
+          >
+            {post.name}
+          </p>
           <p className="text-gray-500">@{post.author}</p>
           <p className="text-gray-500">· {formatPostDate(post.createdAt)}</p>
           {user?.username === post.author && (
             <Trash2Icon
               className="ml-auto size-5 hover:text-red-500 cursor-pointer"
-              onClick={() => onDelete(post.id)}
+              onClick={() => handleDelete(post.id)}
             />
           )}
         </span>

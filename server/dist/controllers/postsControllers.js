@@ -5,11 +5,14 @@ export const addPost = (req, res) => {
     try {
         const { author, content } = req.body;
         const posts = loadPosts();
+        const users = loadUsers();
+        const user = users.find((u) => u.username === author);
         const lastId = posts.length > 0 ? posts[posts.length - 1]?.id ?? 0 : 0;
         const newPost = {
             id: lastId + 1,
             author,
             content,
+            name: user.name,
             createdAt: new Date().toISOString(),
         };
         posts.push(newPost);

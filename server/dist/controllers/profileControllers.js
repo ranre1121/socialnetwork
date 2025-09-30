@@ -1,6 +1,7 @@
 import { loadProfiles, saveProfiles } from "../utils/profilesUtils.js";
 import { loadUsers } from "../utils/authUtils.js";
 import { loadFriends } from "../utils/friendsUtils.js";
+import { loadPosts } from "../utils/postsUtils.js";
 export function getProfile(req, res) {
     try {
         const username = req.params.username;
@@ -8,17 +9,21 @@ export function getProfile(req, res) {
         const users = loadUsers();
         const profiles = loadProfiles();
         const friends = loadFriends();
+        const posts = loadPosts();
         const user = users.find((u) => u.username === username);
         if (!user)
             return res.status(404).json({ error: "User not found" });
         const profile = profiles.find((p) => p.username === username) || {};
         const friendEntry = friends.find((f) => f.username === username);
+        const userPosts = posts.filter((post) => post.author === username);
         const response = {
             username: user.username,
             name: user.name,
+            surname: user.surname || "", // add surname if available
             bio: profile.bio || "",
             friendsCount: friendEntry?.friends.length || 0,
             profileOwner: currentUser === username,
+            posts: userPosts, // 👈 include posts
         };
         res.json(response);
     }

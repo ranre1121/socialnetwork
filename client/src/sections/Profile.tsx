@@ -2,36 +2,38 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { Mail } from "lucide-react";
+import type { Post as PostType } from "../types/Types";
+import Post from "../components/Post";
 
 type Profile = {
   username: string;
   name: string;
-
+  posts: PostType[];
   bio: string;
   friendsCount: number;
-  profileOwner: boolean; // 👈 new field from backend
+  profileOwner: boolean;
 };
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  async function fetchProfile() {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:8000/profiles/${username}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data: Profile = await res.json();
+      setProfile(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    async function fetchProfile() {
-      try {
-        const res = await fetch(`http://localhost:8000/profiles/${username}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data: Profile = await res.json();
-        setProfile(data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
     fetchProfile();
   }, [username]);
 
@@ -43,7 +45,6 @@ const Profile = () => {
   return (
     <div className="flex justify-center w-full py-10 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl py-8 flex flex-col gap-8">
-        {/* Avatar */}
         <div className="relative px-8">
           <img
             src={profilePlaceholder}
@@ -52,7 +53,6 @@ const Profile = () => {
           />
         </div>
 
-        {/* Name + Username */}
         <div className="flex items-center px-8">
           <div className="flex flex-col justify-center">
             <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
@@ -87,8 +87,21 @@ const Profile = () => {
         </div>
         <div className="w-full border-b border-gray-400" />
         {/* POSTS */}
-        <div className="flex items-center justify-center text-xl text-white ">
-          User has no posts yet.
+        <div className="px-5 dark:text-white">
+          {profile.posts.length === 0 ? (
+            <div className="flex items-center justify-center text-xl text-white ">
+              User has no posts yet.
+            </div>
+          ) : (
+            <div>
+              {profile.posts
+                .slice()
+                .reverse()
+                .map((post) => (
+                  <Post key={post.id} post={post} onFetch={fetchProfile} />
+                ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

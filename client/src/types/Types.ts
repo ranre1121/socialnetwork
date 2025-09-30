@@ -24,6 +24,7 @@ type Post = {
   author: string;
   content: string;
   createdAt: string;
+  name: string;
 };
 
 export type { User, Post, Friend, Profile };
