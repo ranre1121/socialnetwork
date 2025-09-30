@@ -11,6 +11,6 @@ const router = Router();
 router.get("/:username", verifyToken, getProfile);
 
 // Private: update own profile
-router.put("/", verifyToken, updateProfile);
+router.put("/update", verifyToken, updateProfile);
 
 export default router;

@@ -5,6 +5,6 @@ const router = Router();
 // Public: view profile by username
 router.get("/:username", verifyToken, getProfile);
 // Private: update own profile
-router.put("/", verifyToken, updateProfile);
+router.put("/update", verifyToken, updateProfile);
 export default router;
 //# sourceMappingURL=profileRoutes.js.map

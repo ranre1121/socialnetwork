@@ -4,6 +4,7 @@ import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { Mail } from "lucide-react";
 import type { Post as PostType } from "../types/Types";
 import Post from "../components/Post";
+import EditProfileModal from "../components/EditProfileModal";
 
 type Profile = {
   username: string;
@@ -18,6 +19,24 @@ const Profile = () => {
   const { username } = useParams<{ username: string }>();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleSave = async (name: string, bio: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      await fetch("http://localhost:8000/profiles/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ name, bio }),
+      });
+      fetchProfile(); // refresh data
+    } catch (err) {
+      console.error(err);
+    }
+  };
   async function fetchProfile() {
     try {
       const token = localStorage.getItem("token");
@@ -53,7 +72,7 @@ const Profile = () => {
           />
         </div>
 
-        <div className="flex items-center px-8">
+        <div className="flex items-start px-8">
           <div className="flex flex-col justify-center">
             <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
               {profile.name}
@@ -62,16 +81,21 @@ const Profile = () => {
               @{profile.username}
             </p>
             {profile.bio && (
-              <p className="text-xl text-white mt-5 font-thin">{profile.bio}</p>
+              <p className="text-lg text-white mt-5 font-extralight">
+                {profile.bio}
+              </p>
             )}
           </div>
           {profile.profileOwner ? (
-            <button className="ml-auto text-white py-1.5 px-5 rounded-full border border-white">
+            <button
+              className="ml-auto dark:text-white py-1.5 px-5 rounded-full border dark:border-white"
+              onClick={() => setIsModalOpen(true)}
+            >
               Edit profile
             </button>
           ) : (
-            <div className="flex items-center justify-center border border-white rounded-full p-1.5 ml-auto">
-              <Mail className="text-white size-5" />
+            <div className="flex items-center justify-center border dark:border-white rounded-full p-1.5 ml-auto">
+              <Mail className="dark:text-white size-5" />
             </div>
           )}
         </div>
@@ -79,31 +103,40 @@ const Profile = () => {
         {/* Stats */}
         <div className="px-8">
           <span className="flex gap-1">
-            <p className="text-white">{profile.friendsCount} </p>
+            <p className="dark:text-white">{profile.friendsCount} </p>
             <p className="text-gray-400">
               {profile.friendsCount === 1 ? "Friend" : "Friends"}
             </p>
           </span>
         </div>
-        <div className="w-full border-b border-gray-400" />
-        {/* POSTS */}
-        <div className="px-5 dark:text-white">
-          {profile.posts.length === 0 ? (
-            <div className="flex items-center justify-center text-xl text-white ">
-              User has no posts yet.
-            </div>
-          ) : (
-            <div>
-              {profile.posts
-                .slice()
-                .reverse()
-                .map((post) => (
-                  <Post key={post.id} post={post} onFetch={fetchProfile} />
-                ))}
-            </div>
-          )}
+        <div className="flex flex-col gap-3">
+          <div className="w-full border-b dark:border-gray-400" />
+          {/* POSTS */}
+          <div className="px-5 dark:text-white ">
+            {profile.posts.length === 0 ? (
+              <div className="flex items-center justify-center text-xl text-white ">
+                User has no posts yet.
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {profile.posts
+                  .slice()
+                  .reverse()
+                  .map((post) => (
+                    <Post key={post.id} post={post} onFetch={fetchProfile} />
+                  ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      <EditProfileModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        currentName={profile.name}
+        currentBio={profile.bio}
+        onSave={handleSave}
+      />
     </div>
   );
 };

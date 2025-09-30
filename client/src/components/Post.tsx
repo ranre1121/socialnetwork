@@ -62,7 +62,7 @@ const Post = ({ post, onFetch }: PostProps) => {
       <div className="w-full">
         <span className="flex gap-1 items-center">
           <p
-            className="font-semibold cursor-pointer hover:underline text-white"
+            className="font-semibold cursor-pointer hover:underline dark:text-white"
             onClick={() => navigate(`/profile/${post.author}`)}
           >
             {post.name}
