@@ -112,9 +112,7 @@ const Friends = () => {
                       className="size-10 rounded-full"
                     />
                     <span className="leading-5">
-                      <p>
-                        {f.name} {f.surname}
-                      </p>
+                      <p>{f.name}</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         @{f.username}
                       </p>

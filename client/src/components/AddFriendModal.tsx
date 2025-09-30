@@ -157,9 +157,7 @@ const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
                   className="size-10 rounded-full"
                 />
                 <span className="leading-5 text-black dark:text-white">
-                  <p>
-                    {m.name} {m.surname}
-                  </p>
+                  <p>{m.name}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-300">
                     @{m.username}
                   </p>

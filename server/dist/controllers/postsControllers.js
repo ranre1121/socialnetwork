@@ -26,7 +26,7 @@ export const getFeedPosts = (req, res) => {
         const username = req.user?.username;
         if (!username)
             return res.status(401).json({ error: "Unauthorized" });
-        const users = loadUsers(); // profile info (name, surname)
+        const users = loadUsers();
         const friendsData = loadFriends(); // friends, requests
         const posts = loadPosts();
         const currentFriendData = friendsData.find((f) => f.username === username);
@@ -42,7 +42,6 @@ export const getFeedPosts = (req, res) => {
             return {
                 ...p,
                 name: authorInfo?.name || "",
-                surname: authorInfo?.surname || "",
             };
         })
             .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());

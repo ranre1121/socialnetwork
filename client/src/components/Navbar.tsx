@@ -54,7 +54,7 @@ const Navbar: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
         />
         <span className="flex flex-col items-center">
           <p className="font-bold flex gap-2 items-center px-7 relative text-black dark:text-white">
-            {user?.name} {user?.surname}
+            {user?.name}
             <LogOut
               className="size-4.5 hover:text-red-500 absolute right-0 cursor-pointer"
               onClick={() => {

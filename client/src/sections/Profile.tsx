@@ -5,7 +5,7 @@ import profilePlaceholder from "../../public/images/profile-placeholder.png";
 type Profile = {
   username: string;
   name: string;
-  surname: string;
+
   bio: string;
   friendsCount: number;
   profileOwner: boolean; // 👈 new field from backend
@@ -55,7 +55,7 @@ const Profile = () => {
         <div className="flex items-center px-8">
           <div className="flex flex-col justify-center">
             <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
-              {profile.name} {profile.surname}
+              {profile.name}
             </h2>
             <p className="text-gray-500 dark:text-gray-400 text-xl">
               @{profile.username}

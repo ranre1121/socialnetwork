@@ -21,19 +21,14 @@ export function findFriends(req, res) {
     })
         .map((u) => {
         const name = u.name.toLowerCase();
-        const surname = u.surname?.toLowerCase() || "";
         const username = u.username.toLowerCase();
         let score = 0;
         for (const token of tokens) {
             if (name.startsWith(token))
                 score += 2;
-            if (surname.startsWith(token))
-                score += 2;
             if (username.startsWith(token))
                 score += 3;
             if (name.includes(token))
-                score += 1;
-            if (surname.includes(token))
                 score += 1;
             if (username.includes(token))
                 score += 2;
@@ -42,7 +37,6 @@ export function findFriends(req, res) {
         const alreadyReceived = currentFriend?.requestsReceived.includes(u.username) ?? false;
         return {
             name: u.name,
-            surname: u.surname,
             username: u.username,
             score,
             alreadySent,
@@ -110,7 +104,6 @@ export function getRequests(req, res) {
         .map((u) => ({
         username: u.username,
         name: u.name,
-        surname: u.surname,
     }));
     res.json(result);
 }
@@ -163,7 +156,6 @@ export function listFriends(req, res) {
         return {
             username: uname,
             name: user?.name || "",
-            surname: user?.surname || "",
         };
     });
     res.json(result);

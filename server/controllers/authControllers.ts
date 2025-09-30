@@ -14,7 +14,7 @@ export function registerUser(req: Request, res: Response) {
   const friends = loadFriends();
   const profiles = loadProfiles();
 
-  const { username, password, name, surname } = req.body;
+  const { username, password, name } = req.body;
 
   if (users.find((u: User) => u.username === username)) {
     return res.status(400).json({ msg: "Username is taken" });
@@ -25,7 +25,6 @@ export function registerUser(req: Request, res: Response) {
     username,
     password: hashedPassword,
     name,
-    surname,
   };
 
   users.push(newUser);
@@ -38,7 +37,7 @@ export function registerUser(req: Request, res: Response) {
   profiles.push({
     username,
     name,
-    surname,
+
     bio: "",
     profilePic: "",
     friendsCount: 0,

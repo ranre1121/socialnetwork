@@ -20,7 +20,7 @@ export function getProfile(req: Request, res: Response) {
     const response = {
       username: user.username,
       name: user.name,
-      surname: user.surname,
+
       bio: profile.bio || "",
       friendsCount: friendEntry?.friends.length || 0,
       profileOwner: currentUser === username,

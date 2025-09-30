@@ -153,9 +153,7 @@ const FriendRequestsModal = ({
                   className="size-10 rounded-full"
                 />
                 <span className="text-black dark:text-white">
-                  <p>
-                    {r.name} {r.surname}
-                  </p>
+                  <p>{r.name}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-300">
                     @{r.username}
                   </p>

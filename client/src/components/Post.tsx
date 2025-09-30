@@ -8,7 +8,6 @@ export type PostType = {
   content: string;
   createdAt: string;
   name: string;
-  surname: string;
 };
 
 type PostProps = {
@@ -45,9 +44,7 @@ const Post = ({ post, onDelete }: PostProps) => {
       <img src={profilePlaceholder} className="rounded-full size-7" />
       <div className="w-full">
         <span className="flex gap-1 items-center">
-          <p className="font-semibold">
-            {post.name} {post.surname}
-          </p>
+          <p className="font-semibold">{post.name}</p>
           <p className="text-gray-500">@{post.author}</p>
           <p className="text-gray-500">· {formatPostDate(post.createdAt)}</p>
           {user?.username === post.author && (

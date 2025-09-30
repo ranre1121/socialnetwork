@@ -6,7 +6,5 @@ export function getUsername(req: Request, res: Response) {
   const users = loadUsers();
 
   const user = users.find((u: User) => u.username === req.user.username);
-  res
-    .status(200)
-    .json({ username: user.username, name: user.name, surname: user.surname });
+  res.status(200).json({ username: user.username, name: user.name });
 }

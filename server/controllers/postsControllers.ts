@@ -33,7 +33,7 @@ export const getFeedPosts = (req: any, res: Response) => {
     const username = req.user?.username;
     if (!username) return res.status(401).json({ error: "Unauthorized" });
 
-    const users = loadUsers(); // profile info (name, surname)
+    const users = loadUsers();
     const friendsData = loadFriends(); // friends, requests
     const posts = loadPosts();
 
@@ -54,7 +54,6 @@ export const getFeedPosts = (req: any, res: Response) => {
         return {
           ...p,
           name: authorInfo?.name || "",
-          surname: authorInfo?.surname || "",
         };
       })
       .sort(

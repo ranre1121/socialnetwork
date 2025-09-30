@@ -2,7 +2,6 @@ type User = {
     username: string;
     password: string;
     name: string;
-    surname: string;
 };
 type Friend = {
     username: string;
@@ -19,7 +18,6 @@ type Post = {
 type Profile = {
     username: string;
     name: string;
-    surname: string;
     bio: string;
     friendsCount: number;
     profilePic: string;

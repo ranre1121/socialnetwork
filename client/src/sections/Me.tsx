@@ -100,7 +100,7 @@ const Me = () => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onBlur={() => setFocused(false)}
-            placeholder={`What's on your mind, ${user?.name}?`}
+            placeholder={`What's on your mind, ${user?.name.split(" ")[0]}?`}
             initial={{ height: "40px" }}
             animate={{ height: focused ? "200px" : "40px" }}
             transition={{ duration: 0.3 }}
