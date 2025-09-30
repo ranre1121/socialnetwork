@@ -83,7 +83,7 @@ const Profile = () => {
           </div>
           {profile.profileOwner ? (
             <button
-              className="ml-auto dark:text-white py-1.5 px-5 rounded-full border dark:border-white"
+              className="ml-auto dark:text-white py-1.5 px-5 rounded-full border dark:border-white cursor-pointer "
               onClick={() => setIsModalOpen(true)}
             >
               Edit profile
