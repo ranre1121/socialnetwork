@@ -80,11 +80,6 @@ const Profile = () => {
             <p className="text-gray-500 dark:text-gray-400 text-xl">
               @{profile.username}
             </p>
-            {profile.bio && (
-              <p className="text-lg text-white mt-5 font-extralight">
-                {profile.bio}
-              </p>
-            )}
           </div>
           {profile.profileOwner ? (
             <button
@@ -99,6 +94,12 @@ const Profile = () => {
             </div>
           )}
         </div>
+
+        {profile.bio && (
+          <p className="text-lg text-white -mt-3 font-extralight px-8 ">
+            {profile.bio}
+          </p>
+        )}
 
         {/* Stats */}
         <div className="px-8">
