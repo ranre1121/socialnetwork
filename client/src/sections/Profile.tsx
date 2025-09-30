@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
+import { Mail } from "lucide-react";
 
 type Profile = {
   username: string;
@@ -64,10 +65,14 @@ const Profile = () => {
               <p className="text-xl text-white mt-5 font-thin">{profile.bio}</p>
             )}
           </div>
-          {profile.profileOwner && (
+          {profile.profileOwner ? (
             <button className="ml-auto text-white py-1.5 px-5 rounded-full border border-white">
               Edit profile
             </button>
+          ) : (
+            <div className="flex items-center justify-center border border-white rounded-full p-1.5 ml-auto">
+              <Mail className="text-white size-5" />
+            </div>
           )}
         </div>
 

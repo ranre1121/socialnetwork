@@ -5,12 +5,14 @@ import FriendRequestsModal from "../components/FriendRequestsModal";
 import { UserMinusIcon, UserPlus, Users, Check, X } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
+import { useNavigate } from "react-router-dom";
 
 const Friends = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
   const [friends, setFriends] = useState<any[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const navigate = useNavigate();
   const { user } = useUser();
 
   const fetchFriends = useCallback(async () => {
@@ -112,7 +114,14 @@ const Friends = () => {
                       className="size-10 rounded-full"
                     />
                     <span className="leading-5">
-                      <p>{f.name}</p>
+                      <p
+                        onClick={() => {
+                          navigate(`/profile/${f.username}`);
+                        }}
+                        className="cursor-pointer hover:underline"
+                      >
+                        {f.name}
+                      </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
                         @{f.username}
                       </p>
