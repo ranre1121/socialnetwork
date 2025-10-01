@@ -63,7 +63,9 @@ const Messages = () => {
       {/* Chat section */}
       <div className="flex-1 flex flex-col">
         {selectedChat ? (
-          <Chat friendUsername={selectedChat.username} />
+          <div className="w-full h-full">
+            <Chat friendUsername={selectedChat.username} />
+          </div>
         ) : (
           <div className="flex items-center justify-center flex-1 text-gray-500">
             Select a conversation to start chatting

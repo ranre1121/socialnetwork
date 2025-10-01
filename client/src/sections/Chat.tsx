@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
 
 type Message = {
+  id?: number;
   sender: string;
   receiver: string;
   content: string;
@@ -17,67 +18,109 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [socket, setSocket] = useState<Socket | null>(null);
+  const socketRef = useRef<Socket | null>(null);
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages; // keep ref up to date
 
   useEffect(() => {
     if (!user) return;
 
-    // ✅ fetch old messages first
+    // fetch history
     async function fetchMessages() {
-      const token = localStorage.getItem("token");
-      const res = await fetch(
-        `http://localhost:8000/messages/${friendUsername}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await res.json();
-      setMessages(data);
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(
+          `http://localhost:8000/messages/${friendUsername}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const data: Message[] = await res.json();
+        console.log("fetched history:", data);
+        setMessages(data || []);
+      } catch (err) {
+        console.error("fetchMessages error", err);
+      }
     }
 
     fetchMessages();
 
-    // ✅ connect socket for live updates
-    const newSocket = io("http://localhost:8000");
-    setSocket(newSocket);
+    // create socket connection for this chat (connect only while Chat mounted)
+    const socket = io("http://localhost:8000", {
+      transports: ["websocket", "polling"], // allow upgrade
+      reconnectionAttempts: 5,
+    });
+    socketRef.current = socket;
 
-    newSocket.emit("join", user.username);
+    socket.on("connect", () => {
+      console.log("socket connected", socket.id);
+      socket.emit("join", user.username);
+    });
 
-    newSocket.on("private_message", (message: Message) => {
+    socket.on("connect_error", (err) => {
+      console.error("socket connect_error", err);
+    });
+
+    socket.on("disconnect", (reason) => {
+      console.log("socket disconnect", reason);
+    });
+
+    // ensure no duplicate listeners
+    socket.off("private_message");
+    socket.on("private_message", (message: Message) => {
+      console.log("socket private_message received:", message);
+
+      // message belongs to this chat?
       if (
         (message.sender === user.username &&
           message.receiver === friendUsername) ||
         (message.sender === friendUsername &&
           message.receiver === user.username)
       ) {
+        // append safely
         setMessages((prev) => [...prev, message]);
+      } else {
+        console.log("message for other chat; ignoring in this Chat instance");
       }
     });
 
     return () => {
-      newSocket.disconnect();
+      console.log("Chat unmount: disconnecting socket for", friendUsername);
+      socket.off("private_message");
+      socket.disconnect();
+      socketRef.current = null;
     };
   }, [user, friendUsername]);
 
   const sendMessage = () => {
-    if (!newMessage.trim() || !user || !socket) return;
+    if (!newMessage.trim() || !user || !socketRef.current) return;
 
-    socket.emit("private_message", {
+    const payload = {
       sender: user.username,
       receiver: friendUsername,
       content: newMessage,
+    };
+    console.log("emitting private_message", payload);
+
+    // use ack callback to confirm server saved+emitted
+    socketRef.current.emit("private_message", payload, (ack: any) => {
+      console.log("server ack:", ack);
+      // optional: if server returns message object, append it
+      // if (ack && ack.message) {
+      //   setMessages((prev) => [...prev, ack.message]);
+      // }
     });
 
     setNewMessage("");
   };
 
   return (
-    <div className="flex flex-col h-[500px] w-[400px] border rounded-lg bg-gray-50 dark:bg-gray-800">
+    <div className="flex flex-col h-full border rounded-lg bg-gray-50 dark:bg-gray-800">
       <div className="flex-1 overflow-y-auto p-3">
         {messages.map((msg, i) => (
           <div
             key={i}
-            className={`p-2 my-1 rounded max-w-[70%] ${
+            className={`p-2 my-1 rounded w-fit max-w-[50%] break-words whitespace-pre-wrap ${
               msg.sender === user?.username
                 ? "ml-auto bg-blue-500 text-white"
                 : "mr-auto bg-gray-300 dark:bg-gray-600"

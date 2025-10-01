@@ -71,23 +71,39 @@ const io = new Server(server, {
 });
 
 // ✅ socket.io logic
+// server.ts (socket part) — copy into your single entry point that creates `server` + `io`
+
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  console.log("Socket connected:", socket.id);
 
   socket.on("join", (username) => {
     socket.join(username);
-    console.log(`${username} joined their room`);
+    console.log(`JOIN: ${username} joined. socket.id=${socket.id}`);
+    console.log("socket.rooms:", Array.from(socket.rooms));
   });
 
-  socket.on("private_message", ({ sender, receiver, content }) => {
-    const newMessage = addMessage(sender, receiver, content);
+  socket.on("private_message", (payload, cb) => {
+    console.log("private_message received on server:", payload);
 
-    io.to(receiver).emit("private_message", newMessage);
-    io.to(sender).emit("private_message", newMessage);
+    // persist
+    const newMessage = addMessage(
+      payload.sender,
+      payload.receiver,
+      payload.content
+    );
+    console.log("saved message:", newMessage);
+
+    // emit to both rooms (recipient + sender)
+    io.to(payload.receiver).emit("private_message", newMessage);
+    io.to(payload.sender).emit("private_message", newMessage);
+    console.log("emitted to rooms:", payload.receiver, payload.sender);
+
+    // optional ack for the sender
+    if (typeof cb === "function") cb({ ok: true, message: newMessage });
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+  socket.on("disconnect", (reason) => {
+    console.log("Socket disconnected:", socket.id, reason);
   });
 });
 
