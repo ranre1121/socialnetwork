@@ -30,47 +30,50 @@ const Messages = () => {
   }, [user]);
 
   return (
-    <div className="flex h-screen dark:bg-gray-900 justify-center">
-      {/* Sidebar with conversations */}
-      <div className="w-[300px] border-r dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col ml-[400px]">
-        <h2 className="p-4 text-xl font-bold dark:text-white">Messages</h2>
-        <div className="flex-1 overflow-y-auto">
-          {conversations.length === 0 ? (
-            <p className="text-gray-500 text-center mt-5">
-              No conversations yet
-            </p>
+    <div className="flex min-h-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
+      {/* Centered container (accounts for Navbar on the left) */}
+      <div className="flex flex-1 justify-center gap-5 max-w-[1100px] mx-auto pl-[80px]">
+        {/* Sidebar */}
+        <div className="w-[300px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col border border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold mb-4">Messages</h2>
+          <div className="flex-1 overflow-y-auto">
+            {conversations.length === 0 ? (
+              <p className="text-gray-500 text-center mt-5">
+                No conversations yet
+              </p>
+            ) : (
+              conversations.map((c) => (
+                <div
+                  key={c.username}
+                  onClick={() => setSelectedChat(c)}
+                  className={`p-3 rounded-lg cursor-pointer mb-2 transition ${
+                    selectedChat?.username === c.username
+                      ? "bg-gray-100 dark:bg-gray-700"
+                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  <p className="font-semibold dark:text-white">{c.name}</p>
+                  <p className="text-sm text-gray-500 truncate">
+                    {c.lastMessage || "No messages yet"}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Chat Section */}
+        <div className="flex-1">
+          {selectedChat ? (
+            <div className="w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+              <Chat friendUsername={selectedChat.username} />
+            </div>
           ) : (
-            conversations.map((c) => (
-              <div
-                key={c.username}
-                onClick={() => setSelectedChat(c)}
-                className={`p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
-                  selectedChat?.username === c.username
-                    ? "bg-gray-100 dark:bg-gray-700"
-                    : ""
-                }`}
-              >
-                <p className="font-semibold dark:text-white">{c.name}</p>
-                <p className="text-sm text-gray-500 truncate">
-                  {c.lastMessage || "No messages yet"}
-                </p>
-              </div>
-            ))
+            <div className="flex items-center justify-center w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 text-gray-500">
+              Select a conversation to start chatting
+            </div>
           )}
         </div>
-      </div>
-
-      {/* Chat section */}
-      <div className="flex-1 flex flex-col">
-        {selectedChat ? (
-          <div className="w-full h-full">
-            <Chat friendUsername={selectedChat.username} />
-          </div>
-        ) : (
-          <div className="flex items-center justify-center flex-1 text-gray-500">
-            Select a conversation to start chatting
-          </div>
-        )}
       </div>
     </div>
   );
