@@ -19,6 +19,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const socketRef = useRef<Socket | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -62,6 +63,14 @@ const Chat = ({ friendUsername }: ChatProps) => {
     };
   }, [user, friendUsername]);
 
+  // scroll to bottom when messages change
+  // scroll to bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "auto" }); // 👈 instant
+    }
+  }, [messages]);
+
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
 
@@ -76,9 +85,6 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
   return (
     <div className="flex flex-col h-full pb-3">
-      {" "}
-      {/* full height, padding at bottom */}
-      {/* Header could go here */}
       {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-3">
         {messages.map((msg, i) => (
@@ -96,7 +102,10 @@ const Chat = ({ friendUsername }: ChatProps) => {
             </div>
           </div>
         ))}
+        {/* invisible div for auto-scroll */}
+        <div ref={messagesEndRef} />
       </div>
+
       {/* Input */}
       <div className="flex items-center border-t pt-3 mt-3">
         <input
