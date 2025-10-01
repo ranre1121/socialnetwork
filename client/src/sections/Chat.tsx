@@ -75,11 +75,12 @@ const Chat = ({ friendUsername }: ChatProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-
+    <div className="flex flex-col h-full pb-3">
+      {" "}
+      {/* full height, padding at bottom */}
+      {/* Header could go here */}
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto space-y-3 mb-4">
+      <div className="flex-1 overflow-y-auto space-y-3">
         {messages.map((msg, i) => (
           <div
             key={i}
@@ -96,9 +97,8 @@ const Chat = ({ friendUsername }: ChatProps) => {
           </div>
         ))}
       </div>
-
       {/* Input */}
-      <div className="flex items-center border-t pt-3">
+      <div className="flex items-center border-t pt-3 mt-3">
         <input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}

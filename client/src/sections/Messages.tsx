@@ -30,11 +30,11 @@ const Messages = () => {
   }, [user]);
 
   return (
-    <div className="flex min-h-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
+    <div className="flex h-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
       {/* Centered container (accounts for Navbar on the left) */}
       <div className="flex flex-1 justify-center gap-5 max-w-[1100px] mx-auto pl-[80px]">
         {/* Sidebar */}
-        <div className="w-[300px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col border border-gray-200 dark:border-gray-700">
+        <div className="w-[300px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col border border-gray-200 dark:border-gray-700 h-full">
           <h2 className="text-xl font-semibold mb-4">Messages</h2>
           <div className="flex-1 overflow-y-auto">
             {conversations.length === 0 ? (
@@ -63,9 +63,9 @@ const Messages = () => {
         </div>
 
         {/* Chat Section */}
-        <div className="flex-1">
+        <div className="flex-1 h-full">
           {selectedChat ? (
-            <div className="w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700">
+            <div className="w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700 flex flex-col">
               <Chat friendUsername={selectedChat.username} />
             </div>
           ) : (
