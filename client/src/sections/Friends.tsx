@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import AddFriendModal from "../components/AddFriendModal";
 import FriendRequestsModal from "../components/FriendRequestsModal";
 
@@ -67,7 +67,6 @@ const Friends = () => {
         console.error("Failed to delete friend");
         return;
       }
-
       setConfirmDelete(null);
       fetchFriends();
     } catch (err) {
@@ -81,7 +80,6 @@ const Friends = () => {
         <div className="w-[850px] h-[1000px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col">
           <div className="flex items-center">
             <h1 className="text-xl font-semibold">Friends</h1>
-
             <button
               onClick={() => setIsRequestsModalOpen(true)}
               className="ml-auto bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 rounded-lg flex gap-2 py-1 items-center hover:bg-gray-300 dark:hover:bg-gray-600 "
@@ -98,9 +96,7 @@ const Friends = () => {
               <p>Add a friend</p>
             </button>
           </div>
-
           <div className="border-t border-gray-200 dark:border-gray-700 mt-5" />
-
           <div className="flex-1 overflow-y-auto mt-2 flex flex-col gap-2">
             {friends.length === 0 && !loading ? (
               <p className="text-gray-400 dark:text-gray-500 self-center mt-4">

@@ -5,6 +5,7 @@ import { Mail } from "lucide-react";
 import type { Post as PostType } from "../types/Types";
 import Post from "../components/Post";
 import EditProfileModal from "../components/EditProfileModal";
+import { useNavigate } from "react-router-dom";
 
 type Profile = {
   username: string;
@@ -20,6 +21,7 @@ const Profile = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleSave = async (name: string, bio: string) => {
     try {
@@ -56,6 +58,10 @@ const Profile = () => {
     fetchProfile();
   }, [username]);
 
+  const handleNavigate = () => {
+    navigate("/messages", { state: { username: username } });
+  };
+
   if (loading)
     return <p className="text-center mt-10 text-gray-500">Loading...</p>;
   if (!profile)
@@ -90,7 +96,10 @@ const Profile = () => {
             </button>
           ) : (
             <div className="flex items-center justify-center border dark:border-white rounded-full p-1.5 ml-auto">
-              <Mail className="dark:text-white size-5" />
+              <Mail
+                className="dark:text-white size-5"
+                onClick={handleNavigate}
+              />
             </div>
           )}
         </div>

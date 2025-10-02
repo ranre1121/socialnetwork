@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import Chat from "./Chat";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
+import { useLocation } from "react-router-dom";
 
 type Conversation = {
   username: string;
@@ -38,8 +39,11 @@ function formatMessageTime(dateString: string | undefined): string {
 
 const Messages = () => {
   const { user } = useUser();
+  const location = useLocation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
+  const [selectedChat, setSelectedChat] = useState<
+    Conversation | null | undefined
+  >(null);
 
   async function fetchConversations() {
     const token = localStorage.getItem("token");
@@ -54,6 +58,17 @@ const Messages = () => {
     if (!user) return;
     fetchConversations();
   }, [user]);
+
+  useEffect(() => {
+    if (location.state) {
+      console.log(1);
+      console.log(selectedChat);
+      console.log(conversations);
+      setSelectedChat(
+        conversations.find((c) => c.username === location.state.username)
+      );
+    }
+  }, [conversations]);
 
   return (
     <div className="flex h-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
