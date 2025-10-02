@@ -22,33 +22,15 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
   const socketRef = useRef<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Refs to avoid stale closures inside socket handlers
-  const userRef = useRef(user);
-  useEffect(() => {
-    userRef.current = user;
-  }, [user]);
-
-  const friendRef = useRef(friendUsername);
-  useEffect(() => {
-    friendRef.current = friendUsername;
-  }, [friendUsername]);
-
-  // Create socket once per logged-in user
   useEffect(() => {
     if (!user) return;
-    if (socketRef.current) return; // already created
+    if (socketRef.current) return;
 
-    const socket = io("http://localhost:8000", {
-      transports: ["websocket", "polling"],
-      // you can add auth here if your server expects it:
-      // auth: { token: localStorage.getItem('token') }
-    });
+    const socket = io("http://localhost:8000");
 
     socketRef.current = socket;
 
     socket.on("connect", () => {
-      console.debug("[socket] connected:", socket.id);
-      // join room named after username so server can address this user
       socket.emit("join", user.username);
     });
 
@@ -56,34 +38,11 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       console.error("[socket] connect_error", err);
     });
 
-    socket.on("reconnect", (attempt) => {
-      console.debug("[socket] reconnect attempt:", attempt);
-      // re-join after reconnect to ensure server knows this socket's rooms
-      if (userRef.current) socket.emit("join", userRef.current.username);
-    });
-
-    // Incoming private message handler
     const handlePrivateMessage = (message: Message) => {
-      console.debug("[socket] private_message received:", message);
-
-      const u = userRef.current;
-      const f = friendRef.current;
-      if (!u || !f) return;
-
-      const isRelevant =
-        (message.sender === u.username && message.receiver === f) ||
-        (message.sender === f && message.receiver === u.username);
-
-      if (!isRelevant) {
-        console.debug("[socket] message not relevant to this chat, ignoring");
-        return;
-      }
-
-      // dedupe: avoid adding duplicate messages (checks id if present, or unique signature)
       setMessages((prev) => {
         const exists = prev.some((m) => {
           if (message.id && m.id && m.id === message.id) return true;
-          // fallback heuristic: same sender + same content + same createdAt
+
           return (
             m.sender === message.sender &&
             m.content === message.content &&
@@ -104,7 +63,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       console.debug("[socket] disconnected:", reason);
     });
 
-    // cleanup on unmount
     return () => {
       console.debug("[socket] cleanup: removing listeners and disconnecting");
       socket.off("private_message", handlePrivateMessage);
@@ -115,9 +73,8 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [user]); // only runs when `user` becomes available / changes
+  }, [user]);
 
-  // Fetch message history whenever friend changes
   useEffect(() => {
     if (!user) return;
     if (!friendUsername) return;
@@ -139,7 +96,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
     fetchMessages();
   }, [user, friendUsername]);
 
-  // always scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
@@ -153,11 +109,7 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       content: newMessage.trim(),
     };
 
-    // emit; if your server supports ack callbacks you can pass a callback as third arg
     socketRef.current.emit("private_message", payload);
-
-    // Option: you can optimistically add message here (uncomment if you prefer immediate UI)
-    // setMessages(prev => [...prev, { ...payload, createdAt: new Date().toISOString() }]);
 
     setNewMessage("");
   };

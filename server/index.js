@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
     socket.join(username);
   });
 
-  socket.on("private_message", (payload, cb) => {
+  socket.on("private_message", (payload) => {
     const newMessage = addMessage(
       payload.sender,
       payload.receiver,
@@ -51,8 +51,6 @@ io.on("connection", (socket) => {
 
     io.to(payload.receiver).emit("private_message", newMessage);
     io.to(payload.sender).emit("private_message", newMessage);
-
-    if (typeof cb === "function") cb({ ok: true, message: newMessage });
   });
 
   socket.on("disconnect", () => {});
