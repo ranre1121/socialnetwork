@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import Chat from "./Chat";
+import profilePlaceholder from "../../public/images/profile-placeholder.png";
 
 type Conversation = {
   username: string;
@@ -52,10 +53,19 @@ const Messages = () => {
                       : "hover:bg-gray-100 dark:hover:bg-gray-700"
                   }`}
                 >
-                  <p className="font-semibold dark:text-white">{c.name}</p>
-                  <p className="text-sm text-gray-500 truncate">
-                    {c.lastMessage || "No messages yet"}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={profilePlaceholder}
+                      className="size-8 rounded-full "
+                    />
+
+                    <span className="flex flex-col leading-4">
+                      <p className="font-semibold dark:text-white">{c.name}</p>
+                      <p className="text-sm text-gray-500 truncate">
+                        {c.lastMessage || "No messages yet"}
+                      </p>
+                    </span>
+                  </div>
                 </div>
               ))
             )}

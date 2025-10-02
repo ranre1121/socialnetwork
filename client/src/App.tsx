@@ -15,6 +15,19 @@ import Messages from "./sections/Messages";
 import Friends from "./sections/Friends";
 import Profile from "./sections/Profile";
 
+/** TODO:
+  1) messages improved ui 
+  2) message redirect from modal
+  3) friends profile modal
+  4) posts user interactions
+  5) mobile adaptation
+  6) global search
+
+  finally{
+    graphql, database integration
+  }
+ */
+
 const App = () => {
   const { user, loading } = useUser();
   const [dark, setDark] = useState(false);
