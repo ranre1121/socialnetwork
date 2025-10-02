@@ -12,14 +12,16 @@ const Friends = () => {
   const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
   const [friends, setFriends] = useState<any[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useUser();
 
-  const fetchFriends = useCallback(async () => {
+  const fetchFriends = async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token || !user) return;
 
+      setLoading(true);
       const res = await fetch("http://localhost:8000/friends/list", {
         method: "GET",
         headers: {
@@ -38,11 +40,11 @@ const Friends = () => {
     } catch (err) {
       console.error("Error fetching friends:", err);
     }
-  }, [user]);
+  };
 
   useEffect(() => {
     fetchFriends();
-  }, [fetchFriends]);
+  }, []);
 
   const handleDelete = async (friendUsername: string) => {
     try {
@@ -100,7 +102,7 @@ const Friends = () => {
           <div className="border-t border-gray-200 dark:border-gray-700 mt-5" />
 
           <div className="flex-1 overflow-y-auto mt-2 flex flex-col gap-2">
-            {friends.length === 0 ? (
+            {friends.length === 0 && !loading ? (
               <p className="text-gray-400 dark:text-gray-500 self-center mt-4">
                 You don’t have any friends yet
               </p>

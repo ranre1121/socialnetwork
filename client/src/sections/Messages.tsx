@@ -63,47 +63,41 @@ const Messages = () => {
         <div className="w-[300px] bg-white dark:bg-gray-800 rounded-2xl shadow-md py-6 flex flex-col border border-gray-200 dark:border-gray-700 h-full overflow-x-hidden">
           <h2 className="text-xl font-semibold mb-4 px-4">Messages</h2>
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
-            {conversations.length === 0 ? (
-              <p className="text-gray-500 text-center mt-5">
-                No conversations yet
-              </p>
-            ) : (
-              conversations.map((c) => (
-                <div
-                  key={c.username}
-                  onClick={() => setSelectedChat(c)}
-                  className={`py-4.5 px-4 cursor-pointer transition ${
-                    selectedChat?.username === c.username
-                      ? "bg-gray-100 dark:bg-gray-700"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={profilePlaceholder}
-                      className="size-8 rounded-full"
-                    />
+            {conversations.map((c) => (
+              <div
+                key={c.username}
+                onClick={() => setSelectedChat(c)}
+                className={`py-4.5 px-4 cursor-pointer transition ${
+                  selectedChat?.username === c.username
+                    ? "bg-gray-100 dark:bg-gray-700"
+                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <img
+                    src={profilePlaceholder}
+                    className="size-8 rounded-full"
+                  />
 
-                    <span className="flex flex-col leading-4 w-full">
-                      <p className="font-semibold dark:text-white">{c.name}</p>
+                  <span className="flex flex-col leading-4 w-full">
+                    <p className="font-semibold dark:text-white">{c.name}</p>
 
-                      {/* FIXED ROW */}
-                      <span className="text-xs flex items-center text-gray-400 overflow-hidden">
-                        {/* last message text */}
-                        <p className="flex-1 max-w-40 truncate">
-                          {c.lastMessage || "No messages yet"}
-                        </p>
+                    {/* FIXED ROW */}
+                    <span className="text-xs flex items-center text-gray-400 overflow-hidden">
+                      {/* last message text */}
+                      <p className="flex-1 max-w-40 truncate">
+                        {c.lastMessage || "No messages yet"}
+                      </p>
 
-                        {/* timestamp (fixed, never shrinks, no wrap) */}
-                        <p className="ml-auto flex-shrink-0 whitespace-nowrap">
-                          {formatMessageTime(c.lastMessageTime)}
-                        </p>
-                      </span>
+                      {/* timestamp (fixed, never shrinks, no wrap) */}
+                      <p className="ml-auto flex-shrink-0 whitespace-nowrap">
+                        {formatMessageTime(c.lastMessageTime)}
+                      </p>
                     </span>
-                  </div>
+                  </span>
                 </div>
-              ))
-            )}
+              </div>
+            ))}
           </div>
         </div>
 
