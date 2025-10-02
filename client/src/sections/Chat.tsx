@@ -175,7 +175,9 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
                 : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
             }`}
           >
-            <p>{msg.content}</p>
+            <p className="break-words break-all whitespace-pre-wrap">
+              {msg.content}
+            </p>
             <div className="text-xs opacity-70 mt-1">
               {new Date(msg.createdAt).toLocaleTimeString()}
             </div>
