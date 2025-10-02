@@ -17,8 +17,8 @@ import Profile from "./sections/Profile";
 
 /** TODO:
   1) messages improved ui 
-  2) message redirect from profile
-  3) friends profile modal
+  2) global user preferences dark mode
+  3) profile friends modal
   4) posts user interactions
   5) mobile adaptation
   6) global search
@@ -50,7 +50,12 @@ const App = () => {
     localStorage.setItem("theme", newDark ? "dark" : "light");
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading)
+    return (
+      <div className="w-screen h-screen dark:bg-gray-800">
+        <p className="">Loading...</p>;
+      </div>
+    );
 
   return (
     <Router>

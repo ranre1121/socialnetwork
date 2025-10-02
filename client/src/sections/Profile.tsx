@@ -63,9 +63,17 @@ const Profile = () => {
   };
 
   if (loading)
-    return <p className="text-center mt-10 text-gray-500">Loading...</p>;
+    return (
+      <div>
+        <p className="text-center h-screen text-gray-500 dark:bg-gray-900 "></p>
+      </div>
+    );
   if (!profile)
-    return <p className="text-center mt-10 text-gray-500">Profile not found</p>;
+    return (
+      <p className="text-center h-screen text-gray-500 dark:bg-gray-900 ">
+        Profile not found
+      </p>
+    );
 
   return (
     <div className="flex justify-center w-full py-10 bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -123,14 +131,14 @@ const Profile = () => {
           <div className="w-full border-b dark:border-gray-400" />
           {/* POSTS */}
           <div className="px-5 dark:text-white ">
-            {profile.posts.length === 0 ? (
+            {profile.posts?.length === 0 ? (
               <div className="flex items-center justify-center text-xl text-white ">
                 User has no posts yet.
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {profile.posts
-                  .slice()
+                {profile?.posts
+                  ?.slice()
                   .reverse()
                   .map((post) => (
                     <Post key={post.id} post={post} onFetch={fetchProfile} />

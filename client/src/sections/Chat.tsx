@@ -22,6 +22,25 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
   const socketRef = useRef<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  const handlePrivateMessage = (message: Message) => {
+    setMessages((prev) => {
+      const exists = prev.some((m) => {
+        if (message.id && m.id && m.id === message.id) return true;
+
+        return (
+          m.sender === message.sender &&
+          m.content === message.content &&
+          m.createdAt === message.createdAt
+        );
+      });
+      if (exists) {
+        return prev;
+      }
+      onFetch();
+      return [...prev, message];
+    });
+  };
+
   useEffect(() => {
     if (!user) return;
     if (socketRef.current) return;
@@ -37,25 +56,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
     socket.on("connect_error", (err) => {
       console.error("[socket] connect_error", err);
     });
-
-    const handlePrivateMessage = (message: Message) => {
-      setMessages((prev) => {
-        const exists = prev.some((m) => {
-          if (message.id && m.id && m.id === message.id) return true;
-
-          return (
-            m.sender === message.sender &&
-            m.content === message.content &&
-            m.createdAt === message.createdAt
-          );
-        });
-        if (exists) {
-          return prev;
-        }
-        onFetch();
-        return [...prev, message];
-      });
-    };
 
     socket.on("private_message", handlePrivateMessage);
 
