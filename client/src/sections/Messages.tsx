@@ -10,22 +10,48 @@ type Conversation = {
   lastMessageTime?: string;
 };
 
+function formatMessageTime(dateString: string | undefined): string {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const now = new Date();
+
+  const isToday =
+    date.getDate() === now.getDate() &&
+    date.getMonth() === now.getMonth() &&
+    date.getFullYear() === now.getFullYear();
+
+  const yesterday = new Date();
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday =
+    date.getDate() === yesterday.getDate() &&
+    date.getMonth() === yesterday.getMonth() &&
+    date.getFullYear() === yesterday.getFullYear();
+
+  if (isToday) {
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+  if (isYesterday) {
+    return "Yesterday";
+  }
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" }); // e.g. Sep 28
+}
+
 const Messages = () => {
   const { user } = useUser();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
 
+  async function fetchConversations() {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:8000/messages/conversations", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    setConversations(data);
+  }
+
   useEffect(() => {
     if (!user) return;
-
-    async function fetchConversations() {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/messages/conversations", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setConversations(data);
-    }
 
     fetchConversations();
   }, [user]);
@@ -59,11 +85,16 @@ const Messages = () => {
                       className="size-8 rounded-full "
                     />
 
-                    <span className="flex flex-col leading-4">
+                    <span className="flex flex-col leading-4 w-full">
                       <p className="font-semibold dark:text-white">{c.name}</p>
-                      <p className="text-sm text-gray-500 truncate">
-                        {c.lastMessage || "No messages yet"}
-                      </p>
+                      <span className="flex w-full">
+                        <p className="text-sm text-gray-500 truncate">
+                          {c.lastMessage || "No messages yet"}
+                        </p>
+                        <p className="ml-auto text-xs text-gray-500">
+                          {formatMessageTime(c.lastMessageTime)}
+                        </p>
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -76,7 +107,10 @@ const Messages = () => {
         <div className="flex-1 h-full">
           {selectedChat ? (
             <div className="w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700 flex flex-col">
-              <Chat friendUsername={selectedChat.username} />
+              <Chat
+                friendUsername={selectedChat.username}
+                onFetch={() => fetchConversations()}
+              />
             </div>
           ) : (
             <div className="flex items-center justify-center w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 text-gray-500">

@@ -17,7 +17,7 @@ import Profile from "./sections/Profile";
 
 /** TODO:
   1) messages improved ui 
-  2) message redirect from modal
+  2) message redirect from profile
   3) friends profile modal
   4) posts user interactions
   5) mobile adaptation

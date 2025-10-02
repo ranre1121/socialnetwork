@@ -12,9 +12,10 @@ type Message = {
 
 type ChatProps = {
   friendUsername: string;
+  onFetch: () => void;
 };
 
-const Chat = ({ friendUsername }: ChatProps) => {
+const Chat = ({ friendUsername, onFetch }: ChatProps) => {
   const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -92,6 +93,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
         if (exists) {
           return prev;
         }
+        onFetch();
         return [...prev, message];
       });
     };
