@@ -1,86 +1,108 @@
 import type { Request, Response } from "express";
-import { loadUsers } from "../utils/authUtils.js";
-import { loadFriends, saveFriends } from "../utils/friendsUtils.js";
-import type { User, Friend } from "../types/types.js";
+import prisma from "../prisma.js";
 
-export function findFriends(req: Request, res: Response) {
-  const users: User[] = loadUsers();
-  const friends: Friend[] = loadFriends();
-  const currentUsername = req.user.username;
-  const query = (req.query.query as string)?.toLowerCase().trim() || "";
+export async function findFriends(req: Request, res: Response) {
+  try {
+    //@ts-ignore
+    const currentUsername = req.user.username;
+    const query = (req.query.query as string)?.toLowerCase().trim() || "";
 
-  if (!query) {
-    return res.json([]);
+    if (!query) return res.json([]);
+
+    const currentUser = await prisma.user.findUnique({
+      where: { username: currentUsername },
+    });
+
+    if (!currentUser)
+      return res.status(404).json({ message: "User not found" });
+
+    const userId = currentUser.id;
+
+    const friendships = await prisma.friendship.findMany({
+      where: {
+        OR: [{ requesterId: userId }, { addresseeId: userId }],
+      },
+    });
+
+    const friendsIds = friendships
+      .filter((f) => f.status === "ACCEPTED")
+      .map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId));
+
+    const requestsSentIds = friendships
+      .filter((f) => f.status === "PENDING" && f.requesterId === userId)
+      .map((f) => f.addresseeId);
+
+    const requestsReceivedIds = friendships
+      .filter((f) => f.status === "PENDING" && f.addresseeId === userId)
+      .map((f) => f.requesterId);
+
+    const users = await prisma.user.findMany({
+      where: {
+        id: { notIn: [userId, ...friendsIds] },
+      },
+    });
+
+    const tokens = query.split(/\s+/);
+
+    const matches = users
+      .map((user) => {
+        const name = user.name.toLowerCase();
+        const username = user.username.toLowerCase();
+        let score = 0;
+
+        for (const token of tokens) {
+          if (name.startsWith(token)) score += 2;
+          if (username.startsWith(token)) score += 3;
+          if (name.includes(token)) score += 1;
+          if (username.includes(token)) score += 2;
+        }
+
+        return {
+          name: user.name,
+          username: user.username,
+          score,
+          alreadySent: requestsSentIds.includes(user.id),
+          alreadyReceived: requestsReceivedIds.includes(user.id),
+        };
+      })
+      .filter((u) => u.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+
+    return res.json(matches);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
   }
-
-  const currentFriend = friends.find((f) => f.username === currentUsername);
-  const tokens = query.split(/\s+/);
-
-  const matches = users
-    .filter((u) => {
-      if (u.username === currentUsername) return false;
-      if (currentFriend?.friends.includes(u.username)) return false;
-      return true;
-    })
-    .map((u) => {
-      const name = u.name.toLowerCase();
-
-      const username = u.username.toLowerCase();
-
-      let score = 0;
-
-      for (const token of tokens) {
-        if (name.startsWith(token)) score += 2;
-
-        if (username.startsWith(token)) score += 3;
-
-        if (name.includes(token)) score += 1;
-
-        if (username.includes(token)) score += 2;
-      }
-
-      const alreadySent =
-        currentFriend?.requestsSent.includes(u.username) ?? false;
-      const alreadyReceived =
-        currentFriend?.requestsReceived.includes(u.username) ?? false;
-
-      return {
-        name: u.name,
-
-        username: u.username,
-        score,
-        alreadySent,
-        alreadyReceived,
-      };
-    })
-    .filter((u) => u.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 10);
-
-  res.json(matches);
 }
 
-// ➕ Send friend request
-export function addRequest(req: Request, res: Response) {
-  const friends: Friend[] = loadFriends();
-  const { senderUsername, receiverUsername } = req.body;
+export async function addRequest(req: Request, res: Response) {
+  //@ts-ignore
+  const senderUsername = req.user.username;
+  const { receiverUsername } = req.body;
 
-  const sender = friends.find((f) => f.username === senderUsername);
-  const receiver = friends.find((f) => f.username === receiverUsername);
-
-  if (!sender || !receiver) {
-    return res.status(400).json({ error: "Invalid users" });
+  //sender
+  const sender = await prisma.user.findUnique({
+    where: { username: senderUsername },
+  });
+  if (!sender) {
+    return res.status(400).json({ msg: "User not found" });
   }
+  const senderId = sender.id;
 
-  if (!sender.requestsSent.includes(receiverUsername)) {
-    sender.requestsSent.push(receiverUsername);
+  //receiver
+  const receiver = await prisma.user.findUnique({
+    where: { username: receiverUsername },
+  });
+  if (!receiver) {
+    return res.status(400).json({ error: "User not found" });
   }
-  if (!receiver.requestsReceived.includes(senderUsername)) {
-    receiver.requestsReceived.push(senderUsername);
-  }
+  const receiverId = receiver.id;
 
-  saveFriends(friends);
-  res.json({ message: "Friend request sent" });
+  //creating friendship
+  const newFriendship = await prisma.friendship.create({
+    data: { requesterId: senderId, addresseeId: receiverId },
+  });
 }
 
 // ❌ Cancel request

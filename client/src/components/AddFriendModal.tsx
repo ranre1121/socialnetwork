@@ -19,7 +19,6 @@ const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        senderUsername: user?.username,
         receiverUsername,
       }),
     });
