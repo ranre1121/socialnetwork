@@ -4,8 +4,9 @@ import type { Friendship, User } from "@prisma/client";
 
 export async function findFriends(req: Request, res: Response) {
   try {
-    //@ts-ignore
-    const currentUsername = req.user.username;
+    const currentUsername = req.user?.username;
+    if (!currentUsername)
+      return res.status(400).json({ msg: "Not authenticated" });
     const query = (req.query.query as string)?.toLowerCase().trim() || "";
 
     if (!query) return res.json([]);
@@ -79,8 +80,10 @@ export async function findFriends(req: Request, res: Response) {
 
 export async function addRequest(req: Request, res: Response) {
   try {
-    //@ts-ignore
-    const senderUsername = req.user.username;
+    const senderUsername = req.user?.username;
+    if (!senderUsername) {
+      return res.status(401).json({ msg: "Not authenticated" });
+    }
     const { receiverUsername } = req.body;
 
     //sender
@@ -115,8 +118,10 @@ export async function addRequest(req: Request, res: Response) {
 
 export async function cancelRequest(req: Request, res: Response) {
   try {
-    //@ts-ignore
-    const senderUsername = req.user.username;
+    const senderUsername = req.user?.username;
+    if (!senderUsername) {
+      return res.status(401).json({ msg: "Not authenticated" });
+    }
     const { receiverUsername } = req.body;
 
     const sender = await prisma.user.findUnique({
@@ -154,12 +159,11 @@ export async function cancelRequest(req: Request, res: Response) {
   }
 }
 
-// 📥 Get requests
-
-export async function getRequests(req: any, res: Response) {
+export async function getRequests(req: Request, res: Response) {
   try {
-    const username = req.user.username;
-    const type = req.query.type as string;
+    const username = req.user?.username;
+    if (!username) return res.status(400).json({ msg: "Not authenticated" });
+    const type = req.query.type;
 
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) return res.status(400).json({ msg: "User not found" });
@@ -172,11 +176,13 @@ export async function getRequests(req: any, res: Response) {
     if (type === "received") {
       requests = await prisma.friendship.findMany({
         where: { addresseeId: userId, status: "PENDING" },
+        select: { requesterId: true },
       });
-      usersId = requests?.map((r) => r.addresseeId);
+      usersId = requests?.map((r) => r.requesterId);
     } else if (type === "sent") {
       requests = await prisma.friendship.findMany({
         where: { requesterId: userId, status: "PENDING" },
+        select: { addresseeId: true },
       });
       usersId = requests?.map((r) => r.addresseeId);
     } else {
@@ -195,37 +201,50 @@ export async function getRequests(req: any, res: Response) {
   }
 }
 
-// ✅ Accept request
-export function acceptRequest(req: Request, res: Response) {
-  const friends: Friend[] = loadFriends();
-  const { receiverUsername, senderUsername } = req.body;
+export async function acceptRequest(req: Request, res: Response) {
+  try {
+    const receiverUsername = req.user?.username;
+    const { senderUsername } = req.body;
 
-  const receiver = friends.find((f) => f.username === receiverUsername);
-  const sender = friends.find((f) => f.username === senderUsername);
+    if (!receiverUsername)
+      return res.status(400).json({ msg: "Not authenticated" });
 
-  if (!receiver || !sender) {
-    return res.status(400).json({ error: "Invalid users" });
+    const sender = await prisma.user.findUnique({
+      where: { username: senderUsername },
+    });
+    if (!sender) {
+      return res.status(400).json({ msg: "Sender not found" });
+    }
+    const senderId = sender.id;
+
+    const receiver = await prisma.user.findUnique({
+      where: { username: receiverUsername },
+    });
+    if (!receiver) {
+      return res.status(400).json({ error: "Receiver not found" });
+    }
+    const receiverId = receiver.id;
+
+    const updatedFriendship = await prisma.friendship.update({
+      where: {
+        //@ts-ignore
+        requesterId_addresseeId: {
+          requesterId: senderId,
+          addresseeId: receiverId,
+        },
+      },
+      data: {
+        status: "ACCEPTED",
+      },
+    });
+
+    res.json({ updatedFriendship });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Server error" });
   }
-
-  receiver.requestsReceived = receiver.requestsReceived.filter(
-    (u) => u !== senderUsername
-  );
-  sender.requestsSent = sender.requestsSent.filter(
-    (u) => u !== receiverUsername
-  );
-
-  if (!receiver.friends.includes(senderUsername)) {
-    receiver.friends.push(senderUsername);
-  }
-  if (!sender.friends.includes(receiverUsername)) {
-    sender.friends.push(receiverUsername);
-  }
-
-  saveFriends(friends);
-  res.json({ message: "Friend request accepted" });
 }
 
-// 🚫 Decline request
 export function declineRequest(req: Request, res: Response) {
   const friends: Friend[] = loadFriends();
   const { receiverUsername, senderUsername } = req.body;

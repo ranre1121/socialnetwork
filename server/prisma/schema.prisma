@@ -21,7 +21,10 @@ model Friendship {
   addresseeId  Int
   status       FriendshipStatus @default(PENDING)
   createdAt    DateTime @default(now())
+
+  @@unique([requesterId, addresseeId]) // ✅ makes this pair unique
 }
+
 
 enum FriendshipStatus {
   PENDING
