@@ -217,18 +217,43 @@ export async function acceptRequest(req, res) {
         return res.status(500).json({ msg: "Server error" });
     }
 }
-export function declineRequest(req, res) {
-    const friends = loadFriends();
-    const { receiverUsername, senderUsername } = req.body;
-    const receiver = friends.find((f) => f.username === receiverUsername);
-    const sender = friends.find((f) => f.username === senderUsername);
-    if (!receiver || !sender) {
-        return res.status(400).json({ error: "Invalid users" });
+export async function declineRequest(req, res) {
+    try {
+        const receiverUsername = req.user?.username;
+        if (!receiverUsername) {
+            return res.status(401).json({ msg: "Not authenticated" });
+        }
+        const senderUsername = req.body.senderUsername;
+        const sender = await prisma.user.findUnique({
+            where: { username: senderUsername },
+        });
+        if (!sender) {
+            return res.status(400).json({ msg: "Sender not found" });
+        }
+        const senderId = sender.id;
+        const receiver = await prisma.user.findUnique({
+            where: { username: receiverUsername },
+        });
+        if (!receiver) {
+            return res.status(400).json({ error: "Receiver not found" });
+        }
+        const receiverId = receiver.id;
+        const deleted = await prisma.friendship.deleteMany({
+            where: {
+                requesterId: senderId,
+                addresseeId: receiverId,
+                status: "PENDING",
+            },
+        });
+        if (deleted.count === 0) {
+            return res.status(404).json({ msg: "Friend request not found" });
+        }
+        return res.status(200).json({ msg: "Friend request declined" });
     }
-    receiver.requestsReceived = receiver.requestsReceived.filter((u) => u !== senderUsername);
-    sender.requestsSent = sender.requestsSent.filter((u) => u !== receiverUsername);
-    saveFriends(friends);
-    res.json({ message: "Friend request declined" });
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ msg: "Server error" });
+    }
 }
 // 📋 List friends
 export function listFriends(req, res) {

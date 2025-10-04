@@ -57,7 +57,6 @@ const FriendRequestsModal = ({
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        receiverUsername: user?.username,
         senderUsername,
       }),
     });
