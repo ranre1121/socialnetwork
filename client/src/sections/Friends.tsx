@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import AddFriendModal from "../components/AddFriendModal";
 import FriendRequestsModal from "../components/FriendRequestsModal";
-
 import { UserMinusIcon, UserPlus, Users, Check, X } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
