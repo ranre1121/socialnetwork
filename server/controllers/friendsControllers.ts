@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import prisma from "../prisma.js";
+import type { Friendship, User } from "@prisma/client";
 
 export async function findFriends(req: Request, res: Response) {
   try {
@@ -77,84 +78,121 @@ export async function findFriends(req: Request, res: Response) {
 }
 
 export async function addRequest(req: Request, res: Response) {
-  //@ts-ignore
-  const senderUsername = req.user.username;
-  const { receiverUsername } = req.body;
+  try {
+    //@ts-ignore
+    const senderUsername = req.user.username;
+    const { receiverUsername } = req.body;
 
-  //sender
-  const sender = await prisma.user.findUnique({
-    where: { username: senderUsername },
-  });
-  if (!sender) {
-    return res.status(400).json({ msg: "User not found" });
+    //sender
+    const sender = await prisma.user.findUnique({
+      where: { username: senderUsername },
+    });
+    if (!sender) {
+      return res.status(400).json({ msg: "User not found" });
+    }
+    const senderId = sender.id;
+
+    //receiver
+    const receiver = await prisma.user.findUnique({
+      where: { username: receiverUsername },
+    });
+    if (!receiver) {
+      return res.status(400).json({ error: "User not found" });
+    }
+    const receiverId = receiver.id;
+
+    //creating friendship
+    const newFriendship = await prisma.friendship.create({
+      data: { requesterId: senderId, addresseeId: receiverId },
+    });
+
+    return res.json({ newFriendship });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
   }
-  const senderId = sender.id;
-
-  //receiver
-  const receiver = await prisma.user.findUnique({
-    where: { username: receiverUsername },
-  });
-  if (!receiver) {
-    return res.status(400).json({ error: "User not found" });
-  }
-  const receiverId = receiver.id;
-
-  //creating friendship
-  const newFriendship = await prisma.friendship.create({
-    data: { requesterId: senderId, addresseeId: receiverId },
-  });
 }
 
-// ❌ Cancel request
-export function cancelRequest(req: Request, res: Response) {
-  const friends: Friend[] = loadFriends();
-  const { senderUsername, receiverUsername } = req.body;
+export async function cancelRequest(req: Request, res: Response) {
+  try {
+    //@ts-ignore
+    const senderUsername = req.user.username;
+    const { receiverUsername } = req.body;
 
-  const sender = friends.find((f) => f.username === senderUsername);
-  const receiver = friends.find((f) => f.username === receiverUsername);
+    const sender = await prisma.user.findUnique({
+      where: { username: senderUsername },
+    });
+    if (!sender) {
+      return res.status(400).json({ msg: "Sender not found" });
+    }
+    const senderId = sender.id;
 
-  if (!sender || !receiver) {
-    return res.status(400).json({ error: "Invalid users" });
+    const receiver = await prisma.user.findUnique({
+      where: { username: receiverUsername },
+    });
+    if (!receiver) {
+      return res.status(400).json({ error: "Receiver not found" });
+    }
+    const receiverId = receiver.id;
+
+    const deleted = await prisma.friendship.deleteMany({
+      where: {
+        requesterId: senderId,
+        addresseeId: receiverId,
+        status: "PENDING",
+      },
+    });
+
+    if (deleted.count === 0) {
+      return res.status(404).json({ msg: "Friend request not found" });
+    }
+
+    return res.status(200).json({ msg: "Friend request cancelled" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Server error" });
   }
-
-  sender.requestsSent = sender.requestsSent.filter(
-    (u) => u !== receiverUsername
-  );
-  receiver.requestsReceived = receiver.requestsReceived.filter(
-    (u) => u !== senderUsername
-  );
-
-  saveFriends(friends);
-  res.json({ message: "Friend request cancelled" });
 }
 
 // 📥 Get requests
-export function getRequests(req: any, res: Response) {
-  const users: User[] = loadUsers();
-  const friends: Friend[] = loadFriends();
-  const username = req.user?.username;
-  const type = req.query.type as string;
 
-  if (!username) return res.status(401).json({ error: "Unauthorized" });
-  if (!type) return res.status(400).json({ error: "Missing type parameter" });
+export async function getRequests(req: any, res: Response) {
+  try {
+    const username = req.user.username;
+    const type = req.query.type as string;
 
-  const currentFriend = friends.find((f) => f.username === username);
-  if (!currentFriend)
-    return res.status(404).json({ error: "Friend data not found" });
+    const user = await prisma.user.findUnique({ where: { username } });
+    if (!user) return res.status(400).json({ msg: "User not found" });
 
-  let list: string[] = [];
-  if (type === "received") list = currentFriend.requestsReceived || [];
-  if (type === "sent") list = currentFriend.requestsSent || [];
+    const userId = user.id;
 
-  const result = list
-    .map((uname) => users.find((u) => u.username === uname))
-    .filter(Boolean)
-    .map((u) => ({
-      username: u!.username,
-      name: u!.name,
-    }));
+    let requests = [];
+    let usersId: number[] = [];
 
-  res.json(result);
+    if (type === "received") {
+      requests = await prisma.friendship.findMany({
+        where: { addresseeId: userId, status: "PENDING" },
+      });
+      usersId = requests?.map((r) => r.addresseeId);
+    } else if (type === "sent") {
+      requests = await prisma.friendship.findMany({
+        where: { requesterId: userId, status: "PENDING" },
+      });
+      usersId = requests?.map((r) => r.addresseeId);
+    } else {
+      return res.status(400).json({ msg: "Invalid type" });
+    }
+
+    const users = await prisma.user.findMany({
+      where: { id: { in: usersId } },
+      select: { username: true, name: true },
+    });
+
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Server error" });
+  }
 }
 
 // ✅ Accept request
