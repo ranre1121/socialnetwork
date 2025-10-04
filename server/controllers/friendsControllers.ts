@@ -314,27 +314,46 @@ export async function listFriends(req: any, res: Response) {
   // Fetch the user objects of the friends
   const friends = await prisma.user.findMany({
     where: { id: { in: friendIds } },
-    select: { id: true, username: true, name: true },
+    select: { username: true, name: true },
   });
 
   return res.status(200).json(friends);
 }
 
-// 🗑️ Delete friend
-export function deleteFriend(req: Request, res: Response) {
-  const friends: Friend[] = loadFriends();
-  const { username, friendUsername } = req.body;
+export async function deleteFriend(req: Request, res: Response) {
+  try {
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ message: "Unauthorized" });
 
-  const user = friends.find((f) => f.username === username);
-  const friend = friends.find((f) => f.username === friendUsername);
+    const { friendUsername } = req.body;
+    if (!friendUsername)
+      return res.status(400).json({ message: "Friend username required" });
 
-  if (!user || !friend) {
-    return res.status(400).json({ error: "Invalid users" });
+    const user = await prisma.user.findUnique({ where: { username } });
+    const friend = await prisma.user.findUnique({
+      where: { username: friendUsername },
+    });
+
+    if (!user || !friend) {
+      return res.status(400).json({ error: "Invalid users" });
+    }
+
+    const deleted = await prisma.friendship.deleteMany({
+      where: {
+        OR: [
+          { requesterId: user.id, addresseeId: friend.id },
+          { requesterId: friend.id, addresseeId: user.id },
+        ],
+      },
+    });
+
+    if (deleted.count === 0) {
+      return res.status(404).json({ msg: "Friendship not found" });
+    }
+
+    return res.status(200).json({ message: "Friend deleted" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
   }
-
-  user.friends = user.friends.filter((u) => u !== friendUsername);
-  friend.friends = friend.friends.filter((u) => u !== username);
-
-  saveFriends(friends);
-  res.json({ message: "Friend deleted" });
 }
