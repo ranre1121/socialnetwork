@@ -3,13 +3,7 @@ import { useUser } from "../context/UserContext";
 import Chat from "./Chat";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { useLocation } from "react-router-dom";
-
-type Conversation = {
-  username: string;
-  name: string;
-  lastMessage?: string;
-  lastMessageTime?: string;
-};
+import type { Conversation } from "../types/Types";
 
 function formatMessageTime(dateString: string | undefined): string {
   if (!dateString) return "";

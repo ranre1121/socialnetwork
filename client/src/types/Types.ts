@@ -14,9 +14,10 @@ type Friend = {
 type Profile = {
   username: string;
   name: string;
-
+  posts: Post[];
   bio: string;
   friendsCount: number;
+  profileOwner: boolean;
 };
 
 type Post = {
@@ -27,4 +28,19 @@ type Post = {
   name: string;
 };
 
-export type { User, Post, Friend, Profile };
+type Conversation = {
+  username: string;
+  name: string;
+  lastMessage: string;
+  lastMessageTime: string;
+};
+
+type Message = {
+  id: number;
+  sender: string;
+  receiver: string;
+  content: string;
+  createdAt: string;
+};
+
+export type { User, Post, Friend, Profile, Message, Conversation };

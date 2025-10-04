@@ -2,19 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { Mail } from "lucide-react";
-import type { Post as PostType } from "../types/Types";
+import type { Profile } from "../types/Types";
 import Post from "../components/Post";
 import EditProfileModal from "../components/EditProfileModal";
 import { useNavigate } from "react-router-dom";
-
-type Profile = {
-  username: string;
-  name: string;
-  posts: PostType[];
-  bio: string;
-  friendsCount: number;
-  profileOwner: boolean;
-};
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
@@ -148,13 +139,14 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      <EditProfileModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        currentName={profile.name}
-        currentBio={profile.bio}
-        onSave={handleSave}
-      />
+      {isModalOpen && (
+        <EditProfileModal
+          onClose={() => setIsModalOpen(false)}
+          currentName={profile.name}
+          currentBio={profile.bio}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 };

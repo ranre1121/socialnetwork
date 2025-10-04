@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 type EditProfileModalProps = {
-  isOpen: boolean;
   onClose: () => void;
   currentName: string;
   currentBio: string;
@@ -9,7 +8,6 @@ type EditProfileModalProps = {
 };
 
 const EditProfileModal = ({
-  isOpen,
   onClose,
   currentName,
   currentBio,
@@ -17,8 +15,6 @@ const EditProfileModal = ({
 }: EditProfileModalProps) => {
   const [name, setName] = useState(currentName);
   const [bio, setBio] = useState(currentBio);
-
-  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

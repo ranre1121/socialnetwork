@@ -1,8 +1,9 @@
-import { JwtPayload } from "jsonwebtoken";
-import type { User } from "./types";
+import type { User } from "./types"; // adjust import path
 
-declare module "express-serve-static-core" {
-  interface Request {
-    user?: JwtPayload & User; // adjust type as needed
+declare global {
+  namespace Express {
+    export interface Request {
+      user?: User;
+    }
   }
 }

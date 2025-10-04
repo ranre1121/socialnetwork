@@ -3,15 +3,13 @@ import { X, Loader2, UserCheck, UserX } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 
-interface FriendRequestsModalProps {
-  onClose: () => void;
-  onAccepted: () => void;
-}
-
 const FriendRequestsModal = ({
   onClose,
   onAccepted,
-}: FriendRequestsModalProps) => {
+}: {
+  onClose: () => void;
+  onAccepted: () => void;
+}) => {
   const { user } = useUser();
   const [type, setType] = useState<"received" | "sent">("received");
   const [requests, setRequests] = useState<any[]>([]);

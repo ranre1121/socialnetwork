@@ -4,11 +4,7 @@ import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { useUser } from "../context/UserContext";
 import { Plus } from "lucide-react";
 
-interface AddFriendModalProps {
-  onClose: () => void;
-}
-
-const AddFriendModal = ({ onClose }: AddFriendModalProps) => {
+const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
   const [query, setQuery] = useState("");
   const [matches, setMatches] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);

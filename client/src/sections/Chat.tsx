@@ -1,14 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
-
-type Message = {
-  id?: number;
-  sender: string;
-  receiver: string;
-  content: string;
-  createdAt: string;
-};
+import type { Message } from "../types/Types";
 
 type ChatProps = {
   friendUsername: string;

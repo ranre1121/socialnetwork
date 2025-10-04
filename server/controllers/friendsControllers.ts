@@ -3,7 +3,6 @@ import { loadUsers } from "../utils/authUtils.js";
 import { loadFriends, saveFriends } from "../utils/friendsUtils.js";
 import type { User, Friend } from "../types/types.js";
 
-// 🔎 Search friends
 export function findFriends(req: Request, res: Response) {
   const users: User[] = loadUsers();
   const friends: Friend[] = loadFriends();
