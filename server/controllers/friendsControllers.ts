@@ -289,27 +289,35 @@ export async function declineRequest(req: Request, res: Response) {
   }
 }
 
-// 📋 List friends
-export function listFriends(req: any, res: Response) {
-  const users: User[] = loadUsers();
-  const friends: Friend[] = loadFriends();
+export async function listFriends(req: any, res: Response) {
   const username = req.user?.username;
-
   if (!username) return res.status(401).json({ message: "Unauthorized" });
 
-  const currentFriend = friends.find((f) => f.username === username);
-  if (!currentFriend)
-    return res.status(404).json({ message: "Friend data not found" });
+  const user = await prisma.user.findUnique({
+    where: { username },
+  });
+  if (!user) return res.status(400).json({ msg: "User not found" });
 
-  const result = currentFriend.friends.map((uname) => {
-    const user = users.find((u) => u.username === uname);
-    return {
-      username: uname,
-      name: user?.name || "",
-    };
+  const userId = user.id;
+
+  const friendships = await prisma.friendship.findMany({
+    where: {
+      OR: [{ requesterId: userId }, { addresseeId: userId }],
+      status: "ACCEPTED",
+    },
   });
 
-  res.json(result);
+  const friendIds = friendships.map((f) =>
+    f.requesterId === userId ? f.addresseeId : f.requesterId
+  );
+
+  // Fetch the user objects of the friends
+  const friends = await prisma.user.findMany({
+    where: { id: { in: friendIds } },
+    select: { id: true, username: true, name: true },
+  });
+
+  return res.status(200).json(friends);
 }
 
 // 🗑️ Delete friend
