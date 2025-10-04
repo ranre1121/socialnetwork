@@ -1,7 +1,9 @@
 type User = {
+    id: number;
     username: string;
     password: string;
     name: string;
+    createdAt: Date;
 };
 type Friend = {
     username: string;

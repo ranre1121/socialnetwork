@@ -65,8 +65,6 @@ const Me = () => {
     }
   };
 
-  // Delete a post
-
   return (
     <div className="flex h-full min-h-screen w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start gap-5">

@@ -1,48 +1,23 @@
 import bcrypt from "bcryptjs";
-import { loadUsers, saveUser } from "../utils/authUtils.js";
 import jwt, {} from "jsonwebtoken";
 import dotenv from "dotenv";
-import { loadFriends, saveFriends } from "../utils/friendsUtils.js";
-import { loadPosts } from "../utils/postsUtils.js";
-import { loadProfiles, saveProfiles } from "../utils/profilesUtils.js";
+import prisma from "../prisma.js";
 dotenv.config();
-export function registerUser(req, res) {
-    const users = loadUsers();
-    const friends = loadFriends();
-    const profiles = loadProfiles();
+export async function registerUser(req, res) {
     const { username, password, name } = req.body;
-    if (users.find((u) => u.username === username)) {
-        return res.status(400).json({ msg: "Username is taken" });
-    }
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUser = {
-        username,
-        password: hashedPassword,
-        name,
-    };
-    users.push(newUser);
-    friends.push({
-        username: username,
-        requestsReceived: [],
-        requestsSent: [],
-        friends: [],
+    const newUser = await prisma.user.create({
+        data: {
+            username,
+            name,
+            password: hashedPassword,
+        },
     });
-    profiles.push({
-        username,
-        name,
-        bio: "",
-        profilePic: "",
-        friendsCount: 0,
-    });
-    saveProfiles(profiles);
-    saveUser(users);
-    saveFriends(friends);
     res.status(200).json(newUser);
 }
-export function loginUser(req, res) {
-    const users = loadUsers();
+export async function loginUser(req, res) {
     const { username, password } = req.body;
-    const user = users.find((u) => u.username === username);
+    const user = await prisma.user.findUnique({ where: { username } });
     if (!user) {
         return res.status(400).json({ msg: "User was not found" });
     }
@@ -52,7 +27,7 @@ export function loginUser(req, res) {
     const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
         expiresIn: "1h",
     });
-    const { password: _, ...publicUser } = user;
+    const publicUser = { username: user.username, name: user.name };
     return res.status(200).json({
         token,
         user: publicUser,

@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { Mail } from "lucide-react";
-import type { Profile } from "../types/Types";
+import type { Profile as ProfileType } from "../types/Types";
 import Post from "../components/Post";
 import EditProfileModal from "../components/EditProfileModal";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<ProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ const Profile = () => {
       const res = await fetch(`http://localhost:8000/profiles/${username}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data: Profile = await res.json();
+      const data: ProfileType = await res.json();
       setProfile(data);
     } catch (err) {
       console.error(err);
