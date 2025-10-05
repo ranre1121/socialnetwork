@@ -2,7 +2,6 @@
 import type { Request, Response } from "express";
 import { loadMessages, type Message } from "../utils/messagesUtils.js";
 import { loadUsers } from "../utils/authUtils.js";
-import type { User } from "../types/types.js";
 
 export function getConversations(req: Request, res: Response) {
   try {

@@ -1,7 +1,11 @@
-import { loadUsers } from "../utils/authUtils.js";
-export function getUsername(req, res) {
-    const users = loadUsers();
-    const user = users.find((u) => u.username === req.user.username);
+import prisma from "../prisma.js";
+export async function getUsername(req, res) {
+    const username = req.user?.username;
+    if (!username)
+        return res.status(400).json({ msg: "Not Authorized" });
+    const user = await prisma.user.findUnique({ where: { username } });
+    if (!user)
+        return res.status(400).json({ msg: "User not found" });
     res.status(200).json({ username: user.username, name: user.name });
 }
 //# sourceMappingURL=navbarController.js.map
