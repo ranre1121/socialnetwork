@@ -16,15 +16,32 @@ model User {
 }
 
 model Friendship {
-  id           Int      @id @default(autoincrement())
-  requesterId  Int
-  addresseeId  Int
-  status       FriendshipStatus @default(PENDING)
-  createdAt    DateTime @default(now())
+  id          Int              @id @default(autoincrement())
+  requesterId Int
+  addresseeId Int
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
 
   @@unique([requesterId, addresseeId]) // ✅ makes this pair unique
 }
 
+model Post {
+  id        Int       @id @default(autoincrement())
+  author    String
+  content   String
+  comments  Comment[]
+  likes     Json
+  createdAt DateTime  @default(now())
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  text      String
+  author    String
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    Int
+  createdAt DateTime @default(now())
+}
 
 enum FriendshipStatus {
   PENDING

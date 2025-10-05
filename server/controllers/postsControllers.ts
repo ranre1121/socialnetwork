@@ -2,74 +2,71 @@ import type { Request, Response } from "express";
 import { loadPosts, savePosts } from "../utils/postsUtils.js";
 import { loadUsers } from "../utils/authUtils.js"; // users.json
 import { loadFriends } from "../utils/friendsUtils.js"; // friends.json
-import type { User } from "../types/types.js";
+import prisma from "../prisma.js";
 
-export const addPost = (req: Request, res: Response) => {
+export async function addPost(req: Request, res: Response) {
   try {
-    const { author, content } = req.body;
-    const posts = loadPosts();
-    const users = loadUsers();
-    const user = users.find((u: User) => u.username === author);
+    const author = req.user?.username;
+    if (!author) return res.status(400).json("Not authorized");
 
-    const lastId = posts.length > 0 ? posts[posts.length - 1]?.id ?? 0 : 0;
+    const { content } = req.body;
 
-    const newPost = {
-      id: lastId + 1,
-      author,
-      content,
-      name: user.name,
-      createdAt: new Date().toISOString(),
-    };
-
-    posts.push(newPost);
-    savePosts(posts);
+    const newPost = await prisma.post.create({
+      data: { author, content, likes: [] },
+    });
 
     res.status(201).json(newPost);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to save post" });
   }
-};
+}
 
-export const getFeedPosts = (req: any, res: Response) => {
+export async function getFeedPosts(req: any, res: Response) {
   try {
     const username = req.user?.username;
     if (!username) return res.status(401).json({ error: "Unauthorized" });
 
-    const users = loadUsers();
-    const friendsData = loadFriends(); // friends, requests
-    const posts = loadPosts();
+    const user = await prisma.user.findUnique({
+      where: { username },
+    });
+    if (!user) return res.status(404).json({ error: "User not found" });
 
-    const currentFriendData = friendsData.find((f) => f.username === username);
-    if (!currentFriendData) {
-      return res.status(404).json({ error: "User friends not found" });
-    }
+    // 1️⃣ Find accepted friendships involving this user
+    const friendships = await prisma.friendship.findMany({
+      where: {
+        OR: [{ requesterId: user.id }, { addresseeId: user.id }],
+        status: "ACCEPTED",
+      },
+    });
 
-    const friendUsernames = currentFriendData.friends || [];
+    // 2️⃣ Extract friend IDs (the other user in each friendship)
+    const friendIds = friendships.map((f) =>
+      f.requesterId === user.id ? f.addresseeId : f.requesterId
+    );
 
-    // posts authored by the user OR their friends
-    const relevantPosts = posts
-      .filter(
-        (p) => p.author === username || friendUsernames.includes(p.author)
-      )
-      .map((p) => {
-        const authorInfo = users.find((u: User) => u.username === p.author);
-        return {
-          ...p,
-          name: authorInfo?.name || "",
-        };
-      })
-      .sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
+    // 3️⃣ Get usernames of all friends
+    const friends = await prisma.user.findMany({
+      where: { id: { in: friendIds } },
+      select: { username: true },
+    });
 
-    res.json(relevantPosts);
+    const friendUsernames = friends.map((f) => f.username);
+
+    // 4️⃣ Fetch posts by this user or any of their friends
+    const relevantPosts = await prisma.post.findMany({
+      where: {
+        author: { in: [username, ...friendUsernames] },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    res.status(200).json({ relevantPosts });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch posts" });
   }
-};
+}
 
 export const deletePost = (req: any, res: Response) => {
   try {

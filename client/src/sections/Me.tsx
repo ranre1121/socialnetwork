@@ -11,23 +11,25 @@ const Me = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(false);
 
-  // Fetch posts from backend
+  // 🔹 Fetch posts from backend
   const fetchPosts = async () => {
     if (!user) return;
     setLoadingPosts(true);
     try {
       const token = localStorage.getItem("token");
       const res = await fetch("http://localhost:8000/posts/feed", {
-        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       const data = await res.json();
+
       if (res.ok) {
-        setPosts(data);
+        // ✅ Backend returns { relevantPosts }
+        setPosts(data.relevantPosts || []);
       } else {
-        console.error(data.error);
+        console.error(data.error || "Failed to load posts");
       }
     } catch (err) {
       console.error(err);
@@ -40,9 +42,10 @@ const Me = () => {
     fetchPosts();
   }, [user]);
 
-  // Create a new post
+  // 🔹 Create a new post
   const handlePost = async () => {
-    if (!user) return;
+    if (!user || !content.trim()) return;
+
     try {
       const token = localStorage.getItem("token");
       const res = await fetch("http://localhost:8000/posts/create", {
@@ -51,24 +54,26 @@ const Me = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ author: user.username, content }),
+        body: JSON.stringify({ content }),
       });
+
       const data = await res.json();
-      if (!res.ok) {
-        console.log(data.error);
-      } else {
+
+      if (res.ok) {
         setContent("");
-        fetchPosts();
+        fetchPosts(); // ✅ Refresh after posting
+      } else {
+        console.error(data.error || "Failed to create post");
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
   return (
     <div className="flex h-full min-h-screen w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start gap-5">
-        {/* Create Post Card */}
+        {/* 🔹 Create Post Card */}
         <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-semibold">Create a Post</h1>
 
@@ -88,7 +93,12 @@ const Me = () => {
 
           <div className="flex justify-end gap-3">
             <button
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+              disabled={!content.trim()}
+              className={`px-4 py-2 rounded-lg font-medium transition ${
+                content.trim()
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-gray-400 text-gray-200 cursor-not-allowed"
+              }`}
               onClick={handlePost}
             >
               Post
@@ -96,7 +106,7 @@ const Me = () => {
           </div>
         </div>
 
-        {/* Posts Feed */}
+        {/* 🔹 Posts Feed */}
         <div className="w-[850px] h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-semibold">Posts</h1>
 
@@ -105,12 +115,9 @@ const Me = () => {
           ) : posts.length === 0 ? (
             <p className="text-gray-500 self-center mt-4">No posts yet</p>
           ) : (
-            posts
-              .slice()
-              .reverse()
-              .map((post) => (
-                <Post key={post.id} post={post} onFetch={fetchPosts} />
-              ))
+            posts.map((post) => (
+              <Post key={post.id} post={post} onFetch={fetchPosts} />
+            ))
           )}
         </div>
       </div>
