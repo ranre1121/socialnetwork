@@ -78,7 +78,7 @@ export async function getFeedPosts(req: any, res: Response) {
   }
 }
 
-export const deletePost = (req: any, res: Response) => {
+export async function deletePost(req: any, res: Response) {
   try {
     const username = req.user?.username;
     if (!username) return res.status(401).json({ error: "Unauthorized" });
@@ -87,26 +87,21 @@ export const deletePost = (req: any, res: Response) => {
     if (isNaN(postId))
       return res.status(400).json({ error: "Invalid post ID" });
 
-    const posts = loadPosts();
-    const postIndex = posts.findIndex((p) => p.id === postId);
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      include: { author: true },
+    });
 
-    if (postIndex === -1) {
-      return res.status(404).json({ error: "Post not found" });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    if (post.author.username !== username) {
+      return res.status(403).json({ error: "Not allowed to delete this post" });
     }
 
-    const post = posts[postIndex];
-    if (post?.author !== username) {
-      return res
-        .status(403)
-        .json({ error: "You can only delete your own posts" });
-    }
-
-    posts.splice(postIndex, 1);
-    savePosts(posts);
-
-    res.json({ message: "Post deleted successfully", postId });
+    await prisma.post.delete({ where: { id: postId } });
+    res.status(200).json({ message: "Post deleted successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to delete post" });
   }
-};
+}
