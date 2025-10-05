@@ -22,10 +22,14 @@ type Profile = {
 
 type Post = {
   id: number;
-  author: string;
   content: string;
+  likes: any[];
   createdAt: string;
-  name: string;
+  author: {
+    id: number;
+    username: string;
+    name: string;
+  };
 };
 
 type Conversation = {

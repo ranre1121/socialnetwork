@@ -13,6 +13,7 @@ model User {
   name      String
   password  String
   createdAt DateTime @default(now())
+  Post      Post[]
 }
 
 model Friendship {
@@ -27,7 +28,8 @@ model Friendship {
 
 model Post {
   id        Int       @id @default(autoincrement())
-  author    String
+  authorId  Int
+  author    User      @relation(fields: [authorId], references: [id])
   content   String
   comments  Comment[]
   likes     Json

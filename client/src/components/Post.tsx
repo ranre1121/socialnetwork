@@ -1,15 +1,9 @@
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
-import { Trash2Icon } from "lucide-react";
+import { Trash2Icon, Check, X } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import type { Post as PostType } from "../types/Types";
 import { useState } from "react";
-import { Check, X } from "lucide-react";
-
-type PostProps = {
-  post: PostType;
-  onFetch: () => void;
-};
 
 // Format like Twitter
 const formatPostDate = (dateString: string) => {
@@ -21,15 +15,17 @@ const formatPostDate = (dateString: string) => {
 
   if (diffHours < 24) {
     if (diffHours === 0) {
-      if (diffMinutes === 0) {
-        return "Just now";
-      }
+      if (diffMinutes === 0) return "Just now";
       return `${diffMinutes}m ago`;
     }
     return `${diffHours}h ago`;
-  } else {
-    return date.toLocaleDateString([], { month: "short", day: "numeric" });
   }
+  return date.toLocaleDateString([], { month: "short", day: "numeric" });
+};
+
+type PostProps = {
+  post: PostType;
+  onFetch: () => void;
 };
 
 const Post = ({ post, onFetch }: PostProps) => {
@@ -49,13 +45,10 @@ const Post = ({ post, onFetch }: PostProps) => {
         },
       });
       const data = await res.json();
-      if (!res.ok) {
-        console.log(data.error);
-      } else {
-        onFetch();
-      }
-    } catch (error) {
-      console.log(error);
+      if (res.ok) onFetch();
+      else console.error(data.error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -66,13 +59,14 @@ const Post = ({ post, onFetch }: PostProps) => {
         <span className="flex gap-1 items-center">
           <p
             className="font-semibold cursor-pointer hover:underline dark:text-white"
-            onClick={() => navigate(`/profile/${post.author}`)}
+            onClick={() => navigate(`/profile/${post.author.username}`)}
           >
-            {post.name}
+            {post.author.name}
           </p>
-          <p className="text-gray-500">@{post.author}</p>
+          <p className="text-gray-500">@{post.author.username}</p>
           <p className="text-gray-500">· {formatPostDate(post.createdAt)}</p>
-          {user?.username === post.author &&
+
+          {user?.username === post.author.username &&
             (!confirmationActive ? (
               <Trash2Icon
                 className="ml-auto size-5 hover:text-red-500 cursor-pointer"

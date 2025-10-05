@@ -4,12 +4,26 @@ import { loadFriends } from "../utils/friendsUtils.js"; // friends.json
 import prisma from "../prisma.js";
 export async function addPost(req, res) {
     try {
-        const author = req.user?.username;
-        if (!author)
+        const username = req.user?.username;
+        if (!username)
             return res.status(400).json("Not authorized");
+        const author = await prisma.user.findUnique({
+            where: { username },
+        });
+        if (!author)
+            return res.status(404).json({ error: "Author not found" });
         const { content } = req.body;
         const newPost = await prisma.post.create({
-            data: { author, content, likes: [] },
+            data: {
+                author: { connect: { id: author.id } },
+                content,
+                likes: [],
+            },
+            include: {
+                author: {
+                    select: { id: true, name: true, username: true },
+                },
+            },
         });
         res.status(201).json(newPost);
     }
@@ -28,27 +42,24 @@ export async function getFeedPosts(req, res) {
         });
         if (!user)
             return res.status(404).json({ error: "User not found" });
-        // 1️⃣ Find accepted friendships involving this user
+        // Get accepted friendships
         const friendships = await prisma.friendship.findMany({
             where: {
                 OR: [{ requesterId: user.id }, { addresseeId: user.id }],
                 status: "ACCEPTED",
             },
         });
-        // 2️⃣ Extract friend IDs (the other user in each friendship)
+        // Extract friend IDs
         const friendIds = friendships.map((f) => f.requesterId === user.id ? f.addresseeId : f.requesterId);
-        // 3️⃣ Get usernames of all friends
-        const friends = await prisma.user.findMany({
-            where: { id: { in: friendIds } },
-            select: { username: true },
-        });
-        const friendUsernames = friends.map((f) => f.username);
-        // 4️⃣ Fetch posts by this user or any of their friends
+        // Get posts by the user and their friends
         const relevantPosts = await prisma.post.findMany({
             where: {
-                author: { in: [username, ...friendUsernames] },
+                authorId: { in: [user.id, ...friendIds] }, // ✅ use authorId, not author
             },
             orderBy: { createdAt: "desc" },
+            include: {
+                author: { select: { id: true, name: true, username: true } }, // ✅ get name too
+            },
         });
         res.status(200).json({ relevantPosts });
     }
