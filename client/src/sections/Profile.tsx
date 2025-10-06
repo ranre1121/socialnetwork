@@ -23,7 +23,11 @@ const Profile = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ name, bio }),
+        body: JSON.stringify({
+          name,
+          bio,
+          isProfileOwner: profile?.profileOwner,
+        }),
       });
       fetchProfile(); // refresh data
     } catch (err) {

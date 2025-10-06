@@ -38,12 +38,18 @@ export async function getProfile(req, res) {
         res.status(500).json({ error: "Failed to load profile" });
     }
 }
-export function updateProfile(req, res) {
+export async function updateProfile(req, res) {
     try {
-        const username = req.user?.username;
-        if (!username)
+        const currentUser = req.user?.username;
+        if (!currentUser)
             return res.status(401).json({ error: "Unauthorized" });
-        const { bio } = req.body;
+        const { name, bio, isProfileOwner } = req.body;
+        if (!isProfileOwner)
+            return res.status(400).json({ error: "No access" });
+        const updated = await prisma.user.update({
+            where: { username: currentUser },
+            data: { name: name, bio: bio },
+        });
         res.json({ message: "Profile updated successfully" });
     }
     catch (err) {

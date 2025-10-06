@@ -45,12 +45,19 @@ export async function getProfile(req: Request, res: Response) {
   }
 }
 
-export function updateProfile(req: Request, res: Response) {
+export async function updateProfile(req: Request, res: Response) {
   try {
-    const username = req.user?.username;
-    if (!username) return res.status(401).json({ error: "Unauthorized" });
+    const currentUser = req.user?.username;
 
-    const { bio } = req.body;
+    if (!currentUser) return res.status(401).json({ error: "Unauthorized" });
+
+    const { name, bio, isProfileOwner } = req.body;
+    if (!isProfileOwner) return res.status(400).json({ error: "No access" });
+
+    const updated = await prisma.user.update({
+      where: { username: currentUser },
+      data: { name: name, bio: bio },
+    });
 
     res.json({ message: "Profile updated successfully" });
   } catch (err) {
