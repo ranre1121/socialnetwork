@@ -13,7 +13,8 @@ model User {
   name      String
   password  String
   createdAt DateTime @default(now())
-  Post      Post[]
+  posts      Post[]
+  bio        String
 }
 
 model Friendship {

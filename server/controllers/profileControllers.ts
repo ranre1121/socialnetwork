@@ -1,31 +1,39 @@
 import type { Request, Response } from "express";
-import { loadProfiles, saveProfiles } from "../utils/profilesUtils.js";
-import { loadUsers } from "../utils/authUtils.js";
-import { loadFriends } from "../utils/friendsUtils.js";
-import type { User } from "../types/types.js";
-import { loadPosts } from "../utils/postsUtils.js";
+import prisma from "../prisma.js";
 
-export function getProfile(req: Request, res: Response) {
+export async function getProfile(req: Request, res: Response) {
   try {
     const username = req.params.username;
-    const currentUser = req.user.username;
-    const users = loadUsers();
-    const profiles = loadProfiles();
-    const friends = loadFriends();
-    const posts = loadPosts();
+    const currentUser = req.user?.username;
 
-    const user = users.find((u: User) => u.username === username);
+    if (!username)
+      return res.status(200).json({ msg: "Enter a valid username" });
+    if (!currentUser) return res.status(200).json({ msg: "Not authorized" });
+
+    const user = await prisma.user.findUnique({
+      where: { username: username },
+      select: { name: true, username: true, bio: true, id: true },
+    });
+
     if (!user) return res.status(404).json({ error: "User not found" });
-    const profile = profiles.find((p: any) => p.username === username) || {};
-    const friendEntry = friends.find((f: any) => f.username === username);
-    const userPosts = posts.filter((post: any) => post.author === username);
+
+    const friendships = await prisma.friendship.findMany({
+      where: {
+        OR: [{ requesterId: user.id }, { addresseeId: user.id }],
+        status: "ACCEPTED",
+      },
+    });
+
+    const userPosts = await prisma.post.findMany({
+      where: { authorId: user.id },
+      include: { author: true },
+    });
 
     const response = {
       username: user.username,
       name: user.name,
-      surname: user.surname || "", // add surname if available
-      bio: profile.bio || "",
-      friendsCount: friendEntry?.friends.length || 0,
+      bio: user.bio || "",
+      friendsCount: friendships.length,
       profileOwner: currentUser === username,
       posts: userPosts, // 👈 include posts
     };
@@ -43,20 +51,8 @@ export function updateProfile(req: Request, res: Response) {
     if (!username) return res.status(401).json({ error: "Unauthorized" });
 
     const { bio } = req.body;
-    const profiles = loadProfiles();
 
-    let profile = profiles.find((p: any) => p.username === username);
-
-    if (profile) {
-      profile.bio = bio;
-    } else {
-      profile = { username, bio };
-      profiles.push(profile);
-    }
-
-    saveProfiles(profiles);
-
-    res.json({ message: "Profile updated successfully", profile });
+    res.json({ message: "Profile updated successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to update profile" });

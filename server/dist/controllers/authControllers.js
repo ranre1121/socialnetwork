@@ -11,6 +11,7 @@ export async function registerUser(req, res) {
             username,
             name,
             password: hashedPassword,
+            bio: "",
         },
     });
     res.status(200).json(newUser);
