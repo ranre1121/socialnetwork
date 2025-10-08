@@ -12,7 +12,7 @@ export function getConversations(req: Request, res: Response) {
     const users = loadUsers() || [];
 
     const conversationsMap: Record<string, any[]> = {};
-
+    //
     // group messages with sender
     for (const msg of messages) {
       if (msg.sender === sender || msg.receiver === sender) {
