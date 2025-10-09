@@ -26,6 +26,9 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
   // Handle incoming messages
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
+
+    if (message.senderId === user?.username) return;
+
     setMessages((prev) =>
       [...prev, message].sort(
         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()

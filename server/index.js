@@ -40,8 +40,8 @@ io.on("connection", (socket) => {
     socket.join(username);
   });
 
-  socket.on("private_message", (payload) => {
-    const newMessage = addMessage(
+  socket.on("private_message", async (payload) => {
+    const newMessage = await addMessage(
       payload.sender,
       payload.receiver,
       payload.content
