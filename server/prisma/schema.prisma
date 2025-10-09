@@ -24,7 +24,7 @@ model Friendship {
   status      FriendshipStatus @default(PENDING)
   createdAt   DateTime         @default(now())
 
-  @@unique([requesterId, addresseeId]) // ✅ makes this pair unique
+  @@unique([requesterId, addresseeId]) 
 }
 
 model Post {
@@ -46,21 +46,22 @@ model Comment {
   createdAt DateTime @default(now())
 }
 
-model Post {
-  id        Int       @id @default(autoincrement())
-  authorId  Int
-  author    User      @relation(fields: [authorId], references: [id])
-  content   String
-  comments  Comment[]
-  likes     Json
-  createdAt DateTime  @default(now())
+model Chat {
+  id           Int       @id @default(autoincrement())
+  participant1Id Int
+  participant2Id Int
+  messages     Message[]
+
+  @@unique([participant1Id, participant2Id])
 }
 
 model Message {
   id        Int      @id @default(autoincrement())
+  chat       Chat     @relation(fields: [chatId], references: [id])
+  chatId     Int
   content   String
-  sender    String
-  receiver  String     
+  senderId    String
+  receiverId  String     
   sentAt    DateTime @default(now())
 }
 

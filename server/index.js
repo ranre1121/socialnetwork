@@ -3,14 +3,13 @@ import cors from "cors";
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
-
 import authRoutes from "./dist/routes/authRoutes.js";
 import navbarRoutes from "./dist/routes/navbarRoutes.js";
 import friendsRoutes from "./dist/routes/friendsRoutes.js";
 import postsRoutes from "./dist/routes/postsRoutes.js";
 import profilesRoutes from "./dist/routes/profileRoutes.js";
 import messagesRoutes from "./dist/routes/messagesRoutes.js";
-import { addMessage } from "./dist/utils/messagesUtils.js";
+import { addMessage } from "./dist/controllers/messagesControllers.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 8000;

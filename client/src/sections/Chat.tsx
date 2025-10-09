@@ -17,18 +17,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
 
   const handlePrivateMessage = (message: Message) => {
     setMessages((prev) => {
-      const exists = prev.some((m) => {
-        if (message.id && m.id && m.id === message.id) return true;
-
-        return (
-          m.sender === message.sender &&
-          m.content === message.content &&
-          m.createdAt === message.createdAt
-        );
-      });
-      if (exists) {
-        return prev;
-      }
       onFetch();
       return [...prev, message];
     });
@@ -109,7 +97,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
 
   return (
     <div className="flex flex-col h-full pb-3">
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto space-y-3">
         {messages.map((msg) => (
           <div
@@ -131,7 +118,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <div className="flex items-center border-t pt-3 mt-3">
         <input
           value={newMessage}
