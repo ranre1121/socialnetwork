@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
-import type { Message } from "../types/Types";
+
+export type Message = {
+  id: number;
+  chatId: number;
+  content: string;
+  senderId: string;
+  receiverId: string;
+  sentAt: string;
+};
 
 type ChatProps = {
   friendUsername: string;
@@ -15,72 +23,79 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
   const socketRef = useRef<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  // Handle incoming messages
   const handlePrivateMessage = (message: Message) => {
-    setMessages((prev) => {
-      onFetch();
-      return [...prev, message];
-    });
+    if (!message) return;
+    setMessages((prev) =>
+      [...prev, message].sort(
+        (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+      )
+    );
+    onFetch();
   };
 
+  // Initialize socket once
   useEffect(() => {
-    if (!user) return;
-    if (socketRef.current) return;
+    if (!user || socketRef.current) return;
 
     const socket = io("http://localhost:8000");
-
     socketRef.current = socket;
 
     socket.on("connect", () => {
       socket.emit("join", user.username);
     });
 
-    socket.on("connect_error", (err) => {
-      console.error("[socket] connect_error", err);
-    });
-
     socket.on("private_message", handlePrivateMessage);
 
-    socket.on("disconnect", (reason) => {
-      console.debug("[socket] disconnected:", reason);
-    });
+    socket.on("connect_error", (err) =>
+      console.error("[socket] connect_error", err)
+    );
+    socket.on("disconnect", (reason) =>
+      console.debug("[socket] disconnected:", reason)
+    );
 
     return () => {
-      console.debug("[socket] cleanup: removing listeners and disconnecting");
       socket.off("private_message", handlePrivateMessage);
-      socket.off("connect");
-      socket.off("connect_error");
-      socket.off("reconnect");
-      socket.off("disconnect");
       socket.disconnect();
       socketRef.current = null;
     };
   }, [user]);
 
+  // Fetch all messages from the backend
   useEffect(() => {
-    if (!user) return;
-    if (!friendUsername) return;
+    if (!user || !friendUsername) return;
 
     async function fetchMessages() {
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
           `http://localhost:8000/messages/${friendUsername}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
+        if (!res.ok) throw new Error("Failed to fetch messages");
         const data: Message[] = await res.json();
-        setMessages(data || []);
+        setMessages(
+          data.sort(
+            (a, b) =>
+              new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+          )
+        );
       } catch (err) {
-        console.error("fetchMessages error", err);
+        console.error("fetchMessages error:", err);
       }
     }
 
     fetchMessages();
   }, [user, friendUsername]);
 
+  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
 
+  // Send message via socket
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
 
@@ -90,8 +105,18 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       content: newMessage.trim(),
     };
 
-    socketRef.current.emit("private_message", payload);
+    // Optimistic message rendering
+    const optimisticMessage: Message = {
+      id: Date.now(),
+      chatId: 0,
+      senderId: user.username,
+      receiverId: friendUsername,
+      content: newMessage.trim(),
+      sentAt: new Date().toISOString(),
+    };
 
+    setMessages((prev) => [...prev, optimisticMessage]);
+    socketRef.current.emit("private_message", payload);
     setNewMessage("");
   };
 
@@ -100,18 +125,21 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       <div className="flex-1 overflow-y-auto space-y-3">
         {messages.map((msg) => (
           <div
-            key={msg.id ?? `${msg.sender}-${msg.createdAt}`}
-            className={`p-3 rounded-2xl max-w-[70%] ${
-              msg.sender === user?.username
-                ? "ml-auto bg-blue-600 text-white"
-                : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+            key={msg.id ?? `${msg.senderId}-${msg.sentAt}`}
+            className={`p-3 rounded-2xl w-fit max-w-[50%] flex items-center gap-2  ${
+              msg.senderId === user?.username
+                ? "ml-auto bg-blue-600 text-white text-right"
+                : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
             }`}
           >
             <p className="break-words break-all whitespace-pre-wrap">
               {msg.content}
             </p>
-            <div className="text-xs opacity-70 mt-1">
-              {new Date(msg.createdAt).toLocaleTimeString()}
+            <div className="text-xs opacity-70 mt-1 text-right">
+              {new Date(msg.sentAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
             </div>
           </div>
         ))}
@@ -124,6 +152,7 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
           onChange={(e) => setNewMessage(e.target.value)}
           className="flex-1 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none"
           placeholder="Type a message..."
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
         />
         <button
           onClick={sendMessage}
