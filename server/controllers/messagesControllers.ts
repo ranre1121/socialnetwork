@@ -1,4 +1,3 @@
-// controllers/messagesController.ts
 import type { Request, Response } from "express";
 
 export function getConversations(req: Request, res: Response) {

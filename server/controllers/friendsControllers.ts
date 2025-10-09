@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import prisma from "../prisma.js";
-import type { Friendship, User } from "@prisma/client";
 
 export async function findFriends(req: Request, res: Response) {
   try {

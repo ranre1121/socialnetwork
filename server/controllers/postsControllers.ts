@@ -1,7 +1,4 @@
 import type { Request, Response } from "express";
-import { loadPosts, savePosts } from "../utils/postsUtils.js";
-import { loadUsers } from "../utils/authUtils.js"; // users.json
-import { loadFriends } from "../utils/friendsUtils.js"; // friends.json
 import prisma from "../prisma.js";
 
 export async function addPost(req: Request, res: Response) {

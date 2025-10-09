@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
+import type { JwtPayload } from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -9,15 +10,21 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
     return res.status(401).json({ message: "No token provided" });
   }
 
-  const userToken = authHeader?.split(" ")[1];
+  const userToken = authHeader.split(" ")[1];
+  if (!userToken) {
+    return res.status(400).json({ message: "No token provided" });
+  }
 
-  if (!userToken) return res.status(400).json({ msg: "No token provided" });
   try {
     const decoded = jwt.verify(userToken, process.env.JWT_SECRET as string);
 
-    req.user = decoded;
+    if (typeof decoded === "string") {
+      return res.status(403).json({ message: "Invalid token payload" });
+    }
+
+    req.user = decoded as JwtPayload & { username: string };
     next();
-  } catch (error) {
+  } catch {
     return res.status(403).json({ message: "Token is not valid" });
   }
 }

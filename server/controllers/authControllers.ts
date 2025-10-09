@@ -2,7 +2,6 @@ import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt, { type Secret } from "jsonwebtoken";
 import dotenv from "dotenv";
-
 import prisma from "../prisma.js";
 
 dotenv.config();

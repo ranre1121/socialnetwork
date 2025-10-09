@@ -10,7 +10,6 @@ import friendsRoutes from "./dist/routes/friendsRoutes.js";
 import postsRoutes from "./dist/routes/postsRoutes.js";
 import profilesRoutes from "./dist/routes/profileRoutes.js";
 import messagesRoutes from "./dist/routes/messagesRoutes.js";
-
 import { addMessage } from "./dist/utils/messagesUtils.js";
 
 dotenv.config();
