@@ -34,7 +34,7 @@ const Messages = () => {
       console.log(selectedChat);
       console.log(conversations);
       setSelectedChat(
-        conversations.find((c) => c.username === location.state.username)
+        conversations.find((c) => c.friendUsername === location.state.username)
       );
     }
   }, [conversations]);
@@ -49,10 +49,10 @@ const Messages = () => {
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
             {conversations.map((c) => (
               <div
-                key={c.username}
+                key={c.friendUsername}
                 onClick={() => setSelectedChat(c)}
                 className={`py-4.5 px-4 cursor-pointer transition ${
-                  selectedChat?.username === c.username
+                  selectedChat?.friendUsername === c.friendUsername
                     ? "bg-gray-100 dark:bg-gray-700"
                     : "hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
@@ -64,18 +64,20 @@ const Messages = () => {
                   />
 
                   <span className="flex flex-col leading-4 w-full">
-                    <p className="font-semibold dark:text-white">{c.name}</p>
+                    <p className="font-semibold dark:text-white">
+                      {c.friendName}
+                    </p>
 
                     {/* FIXED ROW */}
                     <span className="text-xs flex items-center text-gray-400 overflow-hidden">
                       {/* last message text */}
                       <p className="flex-1 max-w-40 truncate">
-                        {c.lastMessage || "No messages yet"}
+                        {c.lastMessage.content || "No messages yet"}
                       </p>
 
                       {/* timestamp (fixed, never shrinks, no wrap) */}
                       <p className="ml-auto flex-shrink-0 whitespace-nowrap">
-                        {formatMessageTime(c.lastMessageTime)}
+                        {formatMessageTime(c.lastMessage.sentAt)}
                       </p>
                     </span>
                   </span>
@@ -90,7 +92,7 @@ const Messages = () => {
           {selectedChat ? (
             <div className="w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700 flex flex-col">
               <Chat
-                friendUsername={selectedChat.username}
+                friendUsername={selectedChat.friendUsername}
                 onFetch={() => fetchConversations()}
               />
             </div>

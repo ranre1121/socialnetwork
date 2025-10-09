@@ -1,9 +1,55 @@
 import prisma from "../prisma.js";
-export function getConversations(req, res) {
+/**
+ * Get all conversations (latest message + usernames)
+ */
+export async function getConversations(req, res) {
     try {
-        const currentUser = req.user?.username;
-        if (!currentUser)
+        const currentUsername = req.user?.username;
+        if (!currentUsername)
             return res.status(401).json({ message: "Unauthorized" });
+        const currentUser = await prisma.user.findUnique({
+            where: { username: currentUsername },
+        });
+        if (!currentUser)
+            return res.status(404).json({ message: "User not found" });
+        // 1️⃣ Find all accepted friendships
+        const friendships = await prisma.friendship.findMany({
+            where: {
+                OR: [{ requesterId: currentUser.id }, { addresseeId: currentUser.id }],
+                status: "ACCEPTED",
+            },
+        });
+        // 2️⃣ Get list of friend IDs
+        const friendIds = friendships.map((f) => f.requesterId === currentUser.id ? f.addresseeId : f.requesterId);
+        // 3️⃣ Fetch friends’ data
+        const friends = await prisma.user.findMany({
+            where: { id: { in: friendIds } },
+            select: { id: true, username: true, name: true },
+        });
+        // 4️⃣ For each friend, find their chat (if exists) and latest message
+        const conversations = await Promise.all(friends.map(async (friend) => {
+            const chat = await prisma.chat.findFirst({
+                where: {
+                    OR: [
+                        { participant1Id: currentUser.id, participant2Id: friend.id },
+                        { participant1Id: friend.id, participant2Id: currentUser.id },
+                    ],
+                },
+                include: {
+                    messages: {
+                        orderBy: { sentAt: "desc" },
+                        take: 1,
+                    },
+                },
+            });
+            return {
+                chatId: chat?.id ?? null,
+                friendUsername: friend.username,
+                friendName: friend.name,
+                lastMessage: chat?.messages[0] ?? null,
+            };
+        }));
+        res.status(200).json(conversations);
     }
     catch (err) {
         console.error("getConversations error:", err);
@@ -51,14 +97,37 @@ export async function addMessage(sender, receiver, content) {
         return null;
     }
 }
-export function getMessages(req, res) {
+export async function getMessages(req, res) {
     try {
-        const sender = req.user?.username;
-        if (!sender)
+        const senderUsername = req.user?.username;
+        if (!senderUsername)
             return res.status(401).json({ message: "Unauthorized" });
         const friendUsername = req.params.username;
         if (!friendUsername)
             return res.status(400).json({ message: "Missing friend username" });
+        const senderUser = await prisma.user.findUnique({
+            where: { username: senderUsername },
+        });
+        const friendUser = await prisma.user.findUnique({
+            where: { username: friendUsername },
+        });
+        if (!senderUser || !friendUser)
+            return res.status(404).json({ message: "User not found" });
+        const chat = await prisma.chat.findFirst({
+            where: {
+                OR: [
+                    { participant1Id: senderUser.id, participant2Id: friendUser.id },
+                    { participant1Id: friendUser.id, participant2Id: senderUser.id },
+                ],
+            },
+        });
+        if (!chat)
+            return res.status(200).json([]);
+        const messages = await prisma.message.findMany({
+            where: { chatId: chat.id },
+            orderBy: { sentAt: "asc" },
+        });
+        res.status(200).json(messages);
     }
     catch (err) {
         console.error("getMessages error:", err);

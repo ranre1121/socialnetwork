@@ -16,55 +16,59 @@ export async function getConversations(req: Request, res: Response) {
     if (!currentUser)
       return res.status(404).json({ message: "User not found" });
 
-    // Find all chats where this user participates
-    const chats = await prisma.chat.findMany({
+    // 1️⃣ Find all accepted friendships
+    const friendships = await prisma.friendship.findMany({
       where: {
-        OR: [
-          { participant1Id: currentUser.id },
-          { participant2Id: currentUser.id },
-        ],
+        OR: [{ requesterId: currentUser.id }, { addresseeId: currentUser.id }],
+        status: "ACCEPTED",
       },
-      include: {
-        messages: {
-          orderBy: { sentAt: "desc" },
-          take: 1, // latest message
-        },
-      },
-      orderBy: { id: "desc" },
     });
 
-    // Format response with friend username + last message
-    const formatted = await Promise.all(
-      chats.map(async (chat) => {
-        const friendId =
-          chat.participant1Id === currentUser.id
-            ? chat.participant2Id
-            : chat.participant1Id;
+    // 2️⃣ Get list of friend IDs
+    const friendIds = friendships.map((f) =>
+      f.requesterId === currentUser.id ? f.addresseeId : f.requesterId
+    );
 
-        const friend = await prisma.user.findUnique({
-          where: { id: friendId },
-          select: { username: true, name: true },
+    // 3️⃣ Fetch friends’ data
+    const friends = await prisma.user.findMany({
+      where: { id: { in: friendIds } },
+      select: { id: true, username: true, name: true },
+    });
+
+    // 4️⃣ For each friend, find their chat (if exists) and latest message
+    const conversations = await Promise.all(
+      friends.map(async (friend) => {
+        const chat = await prisma.chat.findFirst({
+          where: {
+            OR: [
+              { participant1Id: currentUser.id, participant2Id: friend.id },
+              { participant1Id: friend.id, participant2Id: currentUser.id },
+            ],
+          },
+          include: {
+            messages: {
+              orderBy: { sentAt: "desc" },
+              take: 1,
+            },
+          },
         });
 
         return {
-          chatId: chat.id,
-          friendUsername: friend?.username,
-          friendName: friend?.name,
-          lastMessage: chat.messages[0] || null,
+          chatId: chat?.id ?? null,
+          friendUsername: friend.username,
+          friendName: friend.name,
+          lastMessage: chat?.messages[0] ?? null,
         };
       })
     );
 
-    res.status(200).json(formatted);
+    res.status(200).json(conversations);
   } catch (err) {
     console.error("getConversations error:", err);
     res.status(500).json({ message: "Server error" });
   }
 }
 
-/**
- * Add a new private message and ensure chat exists
- */
 export async function addMessage(
   sender: string,
   receiver: string,
@@ -79,7 +83,6 @@ export async function addMessage(
     });
     if (!senderUser || !receiverUser) throw new Error("User not found");
 
-    // Find existing chat (in any direction)
     let chat = await prisma.chat.findFirst({
       where: {
         OR: [
@@ -89,7 +92,6 @@ export async function addMessage(
       },
     });
 
-    // Create chat if doesn't exist
     if (!chat) {
       chat = await prisma.chat.create({
         data: {
@@ -99,7 +101,6 @@ export async function addMessage(
       });
     }
 
-    // Add new message
     const newMessage = await prisma.message.create({
       data: {
         chatId: chat.id,
@@ -116,9 +117,6 @@ export async function addMessage(
   }
 }
 
-/**
- * Get all messages between current user and a friend
- */
 export async function getMessages(req: Request, res: Response) {
   try {
     const senderUsername = (req as any).user?.username;
@@ -139,7 +137,6 @@ export async function getMessages(req: Request, res: Response) {
     if (!senderUser || !friendUser)
       return res.status(404).json({ message: "User not found" });
 
-    // Find the chat between them
     const chat = await prisma.chat.findFirst({
       where: {
         OR: [
@@ -149,9 +146,8 @@ export async function getMessages(req: Request, res: Response) {
       },
     });
 
-    if (!chat) return res.status(200).json([]); // no chat yet
+    if (!chat) return res.status(200).json([]);
 
-    // Get all messages in that chat
     const messages = await prisma.message.findMany({
       where: { chatId: chat.id },
       orderBy: { sentAt: "asc" },

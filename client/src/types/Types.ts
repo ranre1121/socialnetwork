@@ -33,10 +33,16 @@ type Post = {
 };
 
 type Conversation = {
-  username: string;
-  name: string;
-  lastMessage: string;
-  lastMessageTime: string;
+  friendUsername: string;
+  friendName: string;
+  lastMessage: {
+    id: number;
+    chatId: number;
+    content: string;
+    senderId: string;
+    receiverId: string;
+    sentAt: string;
+  };
 };
 
 type Message = {
