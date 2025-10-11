@@ -98,11 +98,11 @@ const Profile = () => {
               Edit profile
             </button>
           ) : (
-            <div className="flex items-center justify-center border dark:border-white rounded-full p-1.5 ml-auto">
-              <Mail
-                className="dark:text-white size-5"
-                onClick={handleNavigate}
-              />
+            <div
+              className="flex items-center justify-center border dark:border-white rounded-full p-1.5 ml-auto cursor-pointer"
+              onClick={handleNavigate}
+            >
+              <Mail className="dark:text-white size-5" />
             </div>
           )}
         </div>
