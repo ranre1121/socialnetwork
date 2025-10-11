@@ -1,9 +1,6 @@
 import type { Request, Response } from "express";
 import prisma from "../prisma.js";
 
-/**
- * Get all conversations (latest message + usernames)
- */
 export async function getConversations(req: Request, res: Response) {
   try {
     const currentUsername = (req as any).user?.username;
@@ -16,7 +13,6 @@ export async function getConversations(req: Request, res: Response) {
     if (!currentUser)
       return res.status(404).json({ message: "User not found" });
 
-    // 1️⃣ Find all accepted friendships
     const friendships = await prisma.friendship.findMany({
       where: {
         OR: [{ requesterId: currentUser.id }, { addresseeId: currentUser.id }],
@@ -24,18 +20,15 @@ export async function getConversations(req: Request, res: Response) {
       },
     });
 
-    // 2️⃣ Get list of friend IDs
     const friendIds = friendships.map((f) =>
       f.requesterId === currentUser.id ? f.addresseeId : f.requesterId
     );
 
-    // 3️⃣ Fetch friends’ data
     const friends = await prisma.user.findMany({
       where: { id: { in: friendIds } },
       select: { id: true, username: true, name: true },
     });
 
-    // 4️⃣ For each friend, find their chat (if exists) and latest message
     const conversations = await Promise.all(
       friends.map(async (friend) => {
         const chat = await prisma.chat.findFirst({

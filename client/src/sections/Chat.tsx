@@ -23,7 +23,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
   const socketRef = useRef<Socket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Handle incoming messages
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
 
@@ -37,7 +36,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
     onFetch();
   };
 
-  // Initialize socket once
   useEffect(() => {
     if (!user || socketRef.current) return;
 
@@ -64,7 +62,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
     };
   }, [user]);
 
-  // Fetch all messages from the backend
   useEffect(() => {
     if (!user || !friendUsername) return;
 
@@ -93,12 +90,10 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
     fetchMessages();
   }, [user, friendUsername]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
 
-  // Send message via socket
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
 
@@ -108,7 +103,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       content: newMessage.trim(),
     };
 
-    // Optimistic message rendering
     const optimisticMessage: Message = {
       id: Date.now(),
       chatId: 0,

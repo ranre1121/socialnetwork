@@ -41,9 +41,7 @@ const Messages = () => {
 
   return (
     <div className="flex h-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
-      {/* Centered container (accounts for Navbar on the left) */}
       <div className="flex flex-1 justify-center gap-5 max-w-[1100px] mx-auto pl-[80px]">
-        {/* Sidebar */}
         <div className="w-[300px] bg-white dark:bg-gray-800 rounded-2xl shadow-md py-6 flex flex-col border border-gray-200 dark:border-gray-700 h-full overflow-x-hidden">
           <h2 className="text-xl font-semibold mb-4 px-4">Messages</h2>
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
@@ -68,14 +66,11 @@ const Messages = () => {
                       {c.friendName}
                     </p>
 
-                    {/* FIXED ROW */}
                     <span className="text-xs flex items-center text-gray-400 overflow-hidden">
-                      {/* last message text */}
                       <p className="flex-1 max-w-40 truncate">
                         {c.lastMessage.content || "No messages yet"}
                       </p>
 
-                      {/* timestamp (fixed, never shrinks, no wrap) */}
                       <p className="ml-auto flex-shrink-0 whitespace-nowrap">
                         {formatMessageTime(c.lastMessage.sentAt)}
                       </p>
@@ -87,7 +82,6 @@ const Messages = () => {
           </div>
         </div>
 
-        {/* Chat Section */}
         <div className="flex-1 h-full">
           {selectedChat ? (
             <div className="w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700 flex flex-col">
