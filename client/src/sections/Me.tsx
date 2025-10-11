@@ -9,9 +9,8 @@ const Me = () => {
   const [focused, setFocused] = useState(false);
   const [content, setContent] = useState("");
   const [posts, setPosts] = useState<PostType[]>([]);
-  const [loadingPosts, setLoadingPosts] = useState(false);
+  const [loadingPosts, setLoadingPosts] = useState(true);
 
-  // 🔹 Fetch posts from backend
   const fetchPosts = async () => {
     if (!user) return;
     setLoadingPosts(true);
@@ -26,7 +25,6 @@ const Me = () => {
       const data = await res.json();
 
       if (res.ok) {
-        // ✅ Backend returns { relevantPosts }
         setPosts(data.relevantPosts || []);
       } else {
         console.error(data.error || "Failed to load posts");
@@ -42,7 +40,6 @@ const Me = () => {
     fetchPosts();
   }, [user]);
 
-  // 🔹 Create a new post
   const handlePost = async () => {
     if (!user || !content.trim()) return;
 
@@ -61,7 +58,7 @@ const Me = () => {
 
       if (res.ok) {
         setContent("");
-        fetchPosts(); // ✅ Refresh after posting
+        fetchPosts();
       } else {
         console.error(data.error || "Failed to create post");
       }
@@ -73,7 +70,6 @@ const Me = () => {
   return (
     <div className="flex h-full min-h-screen w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start gap-5">
-        {/* 🔹 Create Post Card */}
         <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-semibold">Create a Post</h1>
 
@@ -94,10 +90,8 @@ const Me = () => {
           <div className="flex justify-end gap-3">
             <button
               disabled={!content.trim()}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
-                content.trim()
-                  ? "bg-blue-600 text-white hover:bg-blue-700"
-                  : "bg-gray-400 text-gray-200 cursor-not-allowed"
+              className={`px-4 py-2 rounded-lg font-medium transition bg-blue-600 text-white hover:bg-blue-700 ${
+                content.trim() ? "" : "cursor-not-allowed"
               }`}
               onClick={handlePost}
             >
@@ -106,12 +100,11 @@ const Me = () => {
           </div>
         </div>
 
-        {/* 🔹 Posts Feed */}
         <div className="w-[850px] h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-semibold">Posts</h1>
 
           {loadingPosts ? (
-            <p className="text-gray-500 self-center mt-4">Loading...</p>
+            <div className="size-5 border border-t-0 border-indigo-500 animate-spin" />
           ) : posts.length === 0 ? (
             <p className="text-gray-500 self-center mt-4">No posts yet</p>
           ) : (

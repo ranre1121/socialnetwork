@@ -11,7 +11,7 @@ const Friends = () => {
   const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
   const [friends, setFriends] = useState<any[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user } = useUser();
 
