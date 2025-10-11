@@ -4,6 +4,8 @@ import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import type { Post as PostType } from "../types/Types";
 import { useState } from "react";
+import { Heart } from "lucide-react";
+import { MessageCircleMore } from "lucide-react";
 
 // Format like Twitter
 const formatPostDate = (dateString: string) => {
@@ -89,12 +91,25 @@ const Post = ({ post, onFetch }: PostProps) => {
             ))}
         </span>
 
-        <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap">
+        <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap break-all">
           {post.content
             .split("\n")
             .map((line) => line.trimStart())
             .join("\n")}
         </p>
+        <div className="flex mt-3 gap-5 items-center">
+          <span className="flex items-center cursor-pointer group">
+            <Heart className="size-4.5 group group-hover:text-red-500" />
+            &nbsp;
+            <p>0</p>
+          </span>
+
+          <span className="flex items-center group cursor-pointer">
+            <MessageCircleMore className="size-4.5 group-hover:text-sky-500" />
+            &nbsp;
+            <p>0</p>
+          </span>
+        </div>
       </div>
     </div>
   );
