@@ -16,12 +16,13 @@ import Friends from "./sections/Friends";
 import Profile from "./sections/Profile";
 
 /** TODO:
-  1) messages improved ui 
+  
   2) global user preferences dark mode
   3) profile friends modal
   4) posts user interactions
   5) mobile adaptation
   6) global search
+  7) profile pics
 
   finally{
     graphql, database integration
