@@ -130,7 +130,7 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
             }`}
           >
             <p className="break-words break-all whitespace-pre-wrap">
-              {msg.content}
+              {msg?.content}
             </p>
             <div className="text-xs opacity-70 mt-1 text-right">
               {new Date(msg.sentAt).toLocaleTimeString([], {

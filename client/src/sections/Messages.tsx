@@ -68,11 +68,11 @@ const Messages = () => {
 
                     <span className="text-xs flex items-center text-gray-400 overflow-hidden">
                       <p className="flex-1 max-w-40 truncate">
-                        {c.lastMessage.content || "No messages yet"}
+                        {c?.lastMessage?.content || "No messages yet"}
                       </p>
 
                       <p className="ml-auto flex-shrink-0 whitespace-nowrap">
-                        {formatMessageTime(c.lastMessage.sentAt)}
+                        {formatMessageTime(c?.lastMessage?.sentAt) || ""}
                       </p>
                     </span>
                   </span>
