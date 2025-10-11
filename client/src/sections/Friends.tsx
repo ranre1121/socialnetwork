@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import AddFriendModal from "../components/AddFriendModal";
 import FriendRequestsModal from "../components/FriendRequestsModal";
-import { UserMinusIcon, UserPlus, Users, Check, X } from "lucide-react";
+import { UserMinusIcon, UserPlus, Users, Check, X, Mail } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { useNavigate } from "react-router-dom";
@@ -139,12 +139,22 @@ const Friends = () => {
                         </div>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => setConfirmDelete(f.username)}
-                        className="ml-auto text-gray-600 dark:text-gray-300 hover:text-red-500 dark:hover:text-red-500"
-                      >
-                        <UserMinusIcon />
-                      </button>
+                      <span className="ml-auto flex gap-4">
+                        <Mail
+                          className="text-gray-600 dark:text-gray-300 hover:text-sky-500 cursor-pointer"
+                          onClick={() =>
+                            navigate("/messages", {
+                              state: { username: f.username },
+                            })
+                          }
+                        />
+                        <button
+                          onClick={() => setConfirmDelete(f.username)}
+                          className="text-gray-600 dark:text-gray-300 hover:text-red-500 cursor-pointer dark:hover:text-red-500"
+                        >
+                          <UserMinusIcon />
+                        </button>
+                      </span>
                     )}
                   </div>
                   <div className="border-t border-gray-200 dark:border-gray-700" />

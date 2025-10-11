@@ -22,7 +22,8 @@ import Profile from "./sections/Profile";
   5) mobile adaptation
   6) global search
   7) profile pics
-
+  8) messages features 
+  
   finally{
     graphql, database integration
   }
