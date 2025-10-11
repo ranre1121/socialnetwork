@@ -66,7 +66,13 @@ const App = () => {
         <Route path="/me" element={user ? <Me /> : <Navigate to="/login" />} />
         <Route
           path="/login"
-          element={user ? <Navigate to="/me" /> : <Login />}
+          element={
+            user ? (
+              <Navigate to="/me" />
+            ) : (
+              <Login dark={dark} toggleTheme={toggleTheme} />
+            )
+          }
         />
         <Route
           path="/register"

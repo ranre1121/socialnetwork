@@ -3,17 +3,15 @@ import { useState } from "react";
 import { useUser } from "../context/UserContext";
 import { Moon, Sun } from "lucide-react";
 
-const Login = () => {
+const Login: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
+  toggleTheme,
+  dark,
+}) => {
   const navigate = useNavigate();
   const { setUser } = useUser();
-  const [dark, setDark] = useState(false);
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
-  const toggleTheme = () => {
-    setDark(!dark);
-    document.documentElement.classList.toggle("dark");
-  };
 
   const handleLogin = async () => {
     const res = await fetch("http://localhost:8000/auth/login", {
@@ -39,7 +37,7 @@ const Login = () => {
           className="absolute top-5 right-5 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center gap-2 bg-white dark:bg-gray-800 text-black dark:text-white"
         >
           {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-          <span>{dark ? "Dark Mode" : "Light Mode"}</span>
+          <span>{dark ? "Light Mode" : "Dark Mode"}</span>
         </button>
 
         <div className="border-gray-400 dark:border-gray-700 rounded-lg px-5 py-5 border flex flex-col w-[350px] bg-white dark:bg-gray-800">
