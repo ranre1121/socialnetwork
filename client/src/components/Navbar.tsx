@@ -53,17 +53,22 @@ const Navbar: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
           alt="profile"
         />
         <span className="flex flex-col items-center">
-          <p className="font-bold flex gap-2 items-center px-7 relative text-black dark:text-white">
-            {user?.name}
+          <span className="font-bold flex gap-2 items-center px-7 relative text-black dark:text-white">
+            <p
+              className="hover:underline cursor-pointer"
+              onClick={() => handleClick("profile")}
+            >
+              {user?.name}
+            </p>
             <LogOut
               className="size-4.5 hover:text-red-500 absolute right-0 cursor-pointer"
               onClick={() => {
-                localStorage.removeItem("token"); // remove token
-                setUser(null); // reset user context
-                navigate("/login"); // redirect to login
+                localStorage.removeItem("token");
+                setUser(null);
+                navigate("/login");
               }}
             />
-          </p>
+          </span>
           <span className="text-gray-500 dark:text-gray-400 flex gap-2">
             <p>@{user?.username} </p>
           </span>
@@ -92,7 +97,6 @@ const Navbar: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
         })}
       </div>
 
-      {/* Dark mode toggle */}
       <button
         onClick={toggleTheme}
         className="mt-5 px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 flex items-center gap-2 bg-white dark:bg-gray-800 text-black dark:text-white"

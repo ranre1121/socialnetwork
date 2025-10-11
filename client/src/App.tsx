@@ -17,7 +17,6 @@ import Profile from "./sections/Profile";
 
 /** TODO:
   
-  2) global user preferences dark mode
   3) profile friends modal
   4) posts user interactions
   5) mobile adaptation
@@ -33,7 +32,6 @@ const App = () => {
   const { user, loading } = useUser();
   const [dark, setDark] = useState(false);
 
-  // Initialize theme on mount
   useEffect(() => {
     const isDark =
       localStorage.theme === "dark" ||

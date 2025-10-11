@@ -21,5 +21,5 @@ export function formatMessageTime(dateString: string | undefined): string {
   if (isYesterday) {
     return "Yesterday";
   }
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" }); // e.g. Sep 28
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }

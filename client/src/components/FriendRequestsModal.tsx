@@ -103,7 +103,6 @@ const FriendRequestsModal = ({
           Friend Requests
         </h1>
 
-        {/* Toggle */}
         <div className="flex gap-4">
           <button
             className={`px-4 py-2 rounded-lg transition-colors ${

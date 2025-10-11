@@ -29,7 +29,7 @@ const Profile = () => {
           isProfileOwner: profile?.profileOwner,
         }),
       });
-      fetchProfile(); // refresh data
+      fetchProfile();
     } catch (err) {
       console.error(err);
     }
@@ -113,18 +113,17 @@ const Profile = () => {
           </p>
         )}
 
-        {/* Stats */}
         <div className="px-8">
-          <span className="flex gap-1">
-            <p className="dark:text-white">{profile.friendsCount} </p>
-            <p className="text-gray-400">
+          <span className="flex cursor-pointer hover:underline text-white ">
+            <p className="dark:text-white">{profile.friendsCount}&nbsp;</p>
+            <p className="text-gray-400 ">
               {profile.friendsCount === 1 ? "Friend" : "Friends"}
             </p>
           </span>
         </div>
         <div className="flex flex-col gap-3">
           <div className="w-full border-b dark:border-gray-400" />
-          {/* POSTS */}
+
           <div className="px-5 dark:text-white ">
             {profile.posts?.length === 0 ? (
               <div className="flex items-center justify-center text-xl text-white ">
