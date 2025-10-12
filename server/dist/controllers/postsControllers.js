@@ -39,23 +39,20 @@ export async function getFeedPosts(req, res) {
         });
         if (!user)
             return res.status(404).json({ error: "User not found" });
-        // Get accepted friendships
         const friendships = await prisma.friendship.findMany({
             where: {
                 OR: [{ requesterId: user.id }, { addresseeId: user.id }],
                 status: "ACCEPTED",
             },
         });
-        // Extract friend IDs
         const friendIds = friendships.map((f) => f.requesterId === user.id ? f.addresseeId : f.requesterId);
-        // Get posts by the user and their friends
         const relevantPosts = await prisma.post.findMany({
             where: {
-                authorId: { in: [user.id, ...friendIds] }, // ✅ use authorId, not author
+                authorId: { in: [user.id, ...friendIds] },
             },
             orderBy: { createdAt: "desc" },
             include: {
-                author: { select: { id: true, name: true, username: true } }, // ✅ get name too
+                author: { select: { id: true, name: true, username: true } },
             },
         });
         res.status(200).json({ relevantPosts });
@@ -88,6 +85,37 @@ export async function deletePost(req, res) {
     catch (err) {
         console.error(err);
         res.status(500).json({ error: "Failed to delete post" });
+    }
+}
+export async function likePost(req, res) {
+    try {
+        const username = req.user?.username;
+        if (!username)
+            return res.status(401).json({ error: "Unauthorized" });
+        const postId = parseInt(req.params.id);
+        if (isNaN(postId))
+            return res.status(400).json({ error: "Invalid post ID" });
+        const post = await prisma.post.findUnique({
+            where: { id: postId },
+            select: { likes: true },
+        });
+        if (!post)
+            return res.status(404).json({ error: "Post not found" });
+        const likes = Array.isArray(post.likes) ? post.likes : [];
+        const alreadyLiked = likes.includes(username);
+        const updatedLikes = alreadyLiked
+            ? likes.filter((u) => u !== username) // unlike
+            : [...likes, username]; // like
+        const updated = await prisma.post.update({
+            where: { id: postId },
+            data: { likes: updatedLikes },
+            select: { id: true, likes: true },
+        });
+        res.json({ success: true, liked: !alreadyLiked, likes: updated.likes });
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Server error" });
     }
 }
 //# sourceMappingURL=postsControllers.js.map

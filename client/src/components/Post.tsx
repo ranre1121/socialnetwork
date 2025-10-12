@@ -6,6 +6,7 @@ import type { Post as PostType } from "../types/Types";
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import { MessageCircleMore } from "lucide-react";
+import heart from "../../public/images/heart.svg";
 
 // Format like Twitter
 const formatPostDate = (dateString: string) => {
@@ -28,11 +29,16 @@ const formatPostDate = (dateString: string) => {
 type PostProps = {
   post: PostType;
   onFetch: () => void;
+  likes: string[];
 };
 
-const Post = ({ post, onFetch }: PostProps) => {
+const Post = ({ post, onFetch, likes }: PostProps) => {
   const { user } = useUser();
   const navigate = useNavigate();
+  const [likesCount, setLikesCount] = useState(likes.length);
+  const [liked, setLiked] = useState(
+    user ? likes.includes(user.username) : false
+  );
   const [confirmationActive, setConfirmationActive] = useState(false);
 
   const handleDelete = async (postId: number) => {
@@ -49,6 +55,24 @@ const Post = ({ post, onFetch }: PostProps) => {
       const data = await res.json();
       if (res.ok) onFetch();
       else console.error(data.error);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleLike = async (postId: number) => {
+    if (!user) return;
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:8000/posts/like/${postId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) console.error(data.error);
     } catch (err) {
       console.error(err);
     }
@@ -98,10 +122,21 @@ const Post = ({ post, onFetch }: PostProps) => {
             .join("\n")}
         </p>
         <div className="flex mt-3 gap-5 items-center">
-          <span className="flex items-center cursor-pointer group">
-            <Heart className="size-4.5 group group-hover:text-red-500" />
+          <span
+            className="flex items-center cursor-pointer group"
+            onClick={() => {
+              handleLike(post.id);
+              setLiked(liked ? false : true);
+              setLikesCount(liked ? likesCount - 1 : likesCount + 1);
+            }}
+          >
+            {liked ? (
+              <img className="size-4.5" src={heart} />
+            ) : (
+              <Heart className={`size-4.5 text-gray-700`} />
+            )}
             &nbsp;
-            <p>0</p>
+            <p>{likesCount}</p>
           </span>
 
           <span className="flex items-center group cursor-pointer">

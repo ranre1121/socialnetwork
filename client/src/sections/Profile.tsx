@@ -6,9 +6,11 @@ import type { Profile as ProfileType } from "../types/Types";
 import Post from "../components/Post";
 import EditProfileModal from "../components/EditProfileModal";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../context/UserContext";
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
+  const { user } = useUser();
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -135,7 +137,12 @@ const Profile = () => {
                   ?.slice()
                   .reverse()
                   .map((post) => (
-                    <Post key={post.id} post={post} onFetch={fetchProfile} />
+                    <Post
+                      key={post.id}
+                      post={post}
+                      onFetch={fetchProfile}
+                      likes={post.likes}
+                    />
                   ))}
               </div>
             )}

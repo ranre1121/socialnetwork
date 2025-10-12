@@ -44,6 +44,10 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id])
   postId    Int
   createdAt DateTime @default(now())
+  parentId  Int?     
+
+  responses   Comment[]   @relation("CommentReplies")
+  parent      Comment?    @relation("CommentReplies", fields: [parentId], references: [id])
 }
 
 model Chat {
@@ -64,6 +68,7 @@ model Message {
   receiverId  String     
   sentAt    DateTime @default(now())
 }
+
 
 enum FriendshipStatus {
   PENDING
