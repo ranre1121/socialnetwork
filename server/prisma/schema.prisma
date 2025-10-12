@@ -1,78 +1,90 @@
+// prisma/schema.prisma
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  name      String
-  password  String
-  createdAt DateTime @default(now())
-  posts      Post[]
-  bio        String
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  email    String @unique
+  password String
+
+  // Friendships
+  sentRequests     Friendship[] @relation("FriendshipRequester")
+  receivedRequests Friendship[] @relation("FriendshipAddressee")
+
+  // Posts and Comments
+  posts    Post[]    @relation("PostAuthor")
+  comments Comment[] @relation("CommentAuthor")
+
+  // Chats and Messages
+  chats1           Chat[]    @relation("ChatParticipant1")
+  chats2           Chat[]    @relation("ChatParticipant2")
+  sentMessages     Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageReceiver")
 }
 
 model Friendship {
-  id          Int              @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   requesterId Int
   addresseeId Int
-  status      FriendshipStatus @default(PENDING)
-  createdAt   DateTime         @default(now())
+  status      String @default("pending")
 
-  @@unique([requesterId, addresseeId]) 
+  requester User @relation("FriendshipRequester", fields: [requesterId], references: [id])
+  addressee User @relation("FriendshipAddressee", fields: [addresseeId], references: [id])
 }
 
 model Post {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   authorId  Int
-  author    User      @relation(fields: [authorId], references: [id])
   content   String
-  comments  Comment[]
-  likes     Json
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
+
+  author   User      @relation("PostAuthor", fields: [authorId], references: [id])
+  comments Comment[] @relation("CommentPost")
 }
 
 model Comment {
   id        Int      @id @default(autoincrement())
-  text      String
-  author    String
-  post      Post     @relation(fields: [postId], references: [id])
+  authorId  Int
   postId    Int
+  parentId  Int?
+  text      String
   createdAt DateTime @default(now())
-  parentId  Int?     
 
-  responses   Comment[]   @relation("CommentReplies")
-  parent      Comment?    @relation("CommentReplies", fields: [parentId], references: [id])
+  author  User      @relation("CommentAuthor", fields: [authorId], references: [id])
+  post    Post      @relation("CommentPost", fields: [postId], references: [id])
+  parent  Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentReplies")
 }
 
 model Chat {
-  id           Int       @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   participant1Id Int
   participant2Id Int
-  messages     Message[]
+  createdAt      DateTime @default(now())
+
+  participant1 User      @relation("ChatParticipant1", fields: [participant1Id], references: [id])
+  participant2 User      @relation("ChatParticipant2", fields: [participant2Id], references: [id])
+  messages     Message[] @relation("MessageChat")
 
   @@unique([participant1Id, participant2Id])
 }
 
 model Message {
-  id        Int      @id @default(autoincrement())
-  chat       Chat     @relation(fields: [chatId], references: [id])
+  id         Int      @id @default(autoincrement())
   chatId     Int
-  content   String
-  senderId    String
-  receiverId  String     
-  sentAt    DateTime @default(now())
-}
+  senderId   Int
+  receiverId Int
+  content    String
+  sentAt     DateTime @default(now())
 
-
-enum FriendshipStatus {
-  PENDING
-  ACCEPTED
-  DECLINED
-  BLOCKED
+  chat     Chat @relation("MessageChat", fields: [chatId], references: [id])
+  sender   User @relation("MessageSender", fields: [senderId], references: [id])
+  receiver User @relation("MessageReceiver", fields: [receiverId], references: [id])
 }

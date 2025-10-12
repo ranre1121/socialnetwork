@@ -1,8 +1,0 @@
--- CreateTable
-CREATE TABLE "Friendship" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "requesterId" INTEGER NOT NULL,
-    "addresseeId" INTEGER NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'PENDING',
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);

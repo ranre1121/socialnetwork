@@ -1,37 +1,73 @@
 import bcrypt from "bcryptjs";
-import jwt, {} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import prisma from "../prisma.js";
 dotenv.config();
 export async function registerUser(req, res) {
-    const { username, password, name } = req.body;
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUser = await prisma.user.create({
-        data: {
-            username,
-            name,
-            password: hashedPassword,
-            bio: "",
-        },
-    });
-    res.status(200).json(newUser);
+    try {
+        const { username, password, name } = req.body;
+        if (!username || !password || !name) {
+            return res.status(400).json({ msg: "All fields are required" });
+        }
+        const existingUser = await prisma.user.findUnique({
+            where: { username },
+        });
+        if (existingUser) {
+            return res.status(400).json({ msg: "Username already taken" });
+        }
+        const hashedPassword = bcrypt.hashSync(password, 10);
+        const newUser = await prisma.user.create({
+            data: {
+                username,
+                name,
+                password: hashedPassword,
+                bio: "",
+            },
+            select: {
+                id: true,
+                username: true,
+                name: true,
+                bio: true,
+                createdAt: true,
+            },
+        });
+        res.status(201).json(newUser);
+    }
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: "Server error" });
+    }
 }
 export async function loginUser(req, res) {
-    const { username, password } = req.body;
-    const user = await prisma.user.findUnique({ where: { username } });
-    if (!user) {
-        return res.status(400).json({ msg: "User was not found" });
+    try {
+        const { username, password } = req.body;
+        if (!username || !password) {
+            return res
+                .status(400)
+                .json({ msg: "Username and password are required" });
+        }
+        const user = await prisma.user.findUnique({ where: { username } });
+        if (!user) {
+            return res.status(400).json({ msg: "User not found" });
+        }
+        const validPassword = bcrypt.compareSync(password, user.password);
+        if (!validPassword) {
+            return res.status(400).json({ msg: "Invalid password" });
+        }
+        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        return res.status(200).json({
+            token,
+            user: {
+                id: user.id,
+                username: user.username,
+                name: user.name,
+                bio: user.bio,
+            },
+        });
     }
-    if (!bcrypt.compareSync(password, user.password)) {
-        return res.status(400).json({ msg: "Invalid password" });
+    catch (err) {
+        console.error(err);
+        res.status(500).json({ msg: "Server error" });
     }
-    const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, {
-        expiresIn: "1h",
-    });
-    const publicUser = { username: user.username, name: user.name };
-    return res.status(200).json({
-        token,
-        user: publicUser,
-    });
 }
 //# sourceMappingURL=authControllers.js.map
