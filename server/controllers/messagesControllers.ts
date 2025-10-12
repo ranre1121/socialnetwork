@@ -39,10 +39,7 @@ export async function getConversations(req: Request, res: Response) {
             ],
           },
           include: {
-            messages: {
-              orderBy: { sentAt: "desc" },
-              take: 1,
-            },
+            messages: { orderBy: { sentAt: "desc" }, take: 1 },
           },
         });
 
@@ -126,7 +123,6 @@ export async function getMessages(req: Request, res: Response) {
     const friendUser = await prisma.user.findUnique({
       where: { username: friendUsername },
     });
-
     if (!senderUser || !friendUser)
       return res.status(404).json({ message: "User not found" });
 

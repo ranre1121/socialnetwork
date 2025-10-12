@@ -1,4 +1,3 @@
-// prisma/schema.prisma
 datasource db {
   provider = "sqlite"
   url      = "file:./dev.db"
@@ -9,40 +8,50 @@ generator client {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  email    String @unique
-  password String
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  name      String   @default("")
+  password  String
+  bio       String   @default("")
+  createdAt DateTime @default(now())
 
-  // Friendships
   sentRequests     Friendship[] @relation("FriendshipRequester")
   receivedRequests Friendship[] @relation("FriendshipAddressee")
 
-  // Posts and Comments
   posts    Post[]    @relation("PostAuthor")
   comments Comment[] @relation("CommentAuthor")
 
-  // Chats and Messages
   chats1           Chat[]    @relation("ChatParticipant1")
   chats2           Chat[]    @relation("ChatParticipant2")
   sentMessages     Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
 }
 
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  BLOCKED
+}
+
 model Friendship {
-  id          Int    @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   requesterId Int
   addresseeId Int
-  status      String @default("pending")
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
 
   requester User @relation("FriendshipRequester", fields: [requesterId], references: [id])
   addressee User @relation("FriendshipAddressee", fields: [addresseeId], references: [id])
+
+  @@unique([requesterId, addresseeId])
 }
 
 model Post {
   id        Int      @id @default(autoincrement())
   authorId  Int
   content   String
+  likes     Json     @default("[]")
   createdAt DateTime @default(now())
 
   author   User      @relation("PostAuthor", fields: [authorId], references: [id])

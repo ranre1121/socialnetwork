@@ -8,7 +8,7 @@ export async function getProfile(req, res) {
         if (!currentUser)
             return res.status(200).json({ msg: "Not authorized" });
         const user = await prisma.user.findUnique({
-            where: { username: username },
+            where: { username },
             select: { name: true, username: true, bio: true, id: true },
         });
         if (!user)
@@ -29,7 +29,7 @@ export async function getProfile(req, res) {
             bio: user.bio || "",
             friendsCount: friendships.length,
             profileOwner: currentUser === username,
-            posts: userPosts, // 👈 include posts
+            posts: userPosts,
         };
         res.json(response);
     }
@@ -46,9 +46,9 @@ export async function updateProfile(req, res) {
         const { name, bio, isProfileOwner } = req.body;
         if (!isProfileOwner)
             return res.status(400).json({ error: "No access" });
-        const updated = await prisma.user.update({
+        await prisma.user.update({
             where: { username: currentUser },
-            data: { name: name, bio: bio },
+            data: { name, bio },
         });
         res.json({ message: "Profile updated successfully" });
     }

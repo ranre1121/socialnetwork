@@ -3,29 +3,27 @@ export async function addPost(req, res) {
     try {
         const username = req.user?.username;
         if (!username)
-            return res.status(400).json("Not authorized");
-        const author = await prisma.user.findUnique({
-            where: { username },
-        });
+            return res.status(401).json({ error: "Not authorized" });
+        const author = await prisma.user.findUnique({ where: { username } });
         if (!author)
             return res.status(404).json({ error: "Author not found" });
         const { content } = req.body;
+        if (!content || typeof content !== "string")
+            return res.status(400).json({ error: "Invalid content" });
         const newPost = await prisma.post.create({
             data: {
-                author: { connect: { id: author.id } },
+                authorId: author.id,
                 content,
                 likes: [],
             },
             include: {
-                author: {
-                    select: { id: true, name: true, username: true },
-                },
+                author: { select: { id: true, name: true, username: true } },
             },
         });
         res.status(201).json(newPost);
     }
     catch (err) {
-        console.error(err);
+        console.error("addPost error:", err);
         res.status(500).json({ error: "Failed to save post" });
     }
 }
@@ -34,9 +32,7 @@ export async function getFeedPosts(req, res) {
         const username = req.user?.username;
         if (!username)
             return res.status(401).json({ error: "Unauthorized" });
-        const user = await prisma.user.findUnique({
-            where: { username },
-        });
+        const user = await prisma.user.findUnique({ where: { username } });
         if (!user)
             return res.status(404).json({ error: "User not found" });
         const friendships = await prisma.friendship.findMany({
@@ -46,19 +42,17 @@ export async function getFeedPosts(req, res) {
             },
         });
         const friendIds = friendships.map((f) => f.requesterId === user.id ? f.addresseeId : f.requesterId);
-        const relevantPosts = await prisma.post.findMany({
-            where: {
-                authorId: { in: [user.id, ...friendIds] },
-            },
+        const posts = await prisma.post.findMany({
+            where: { authorId: { in: [user.id, ...friendIds] } },
             orderBy: { createdAt: "desc" },
             include: {
                 author: { select: { id: true, name: true, username: true } },
             },
         });
-        res.status(200).json({ relevantPosts });
+        res.status(200).json(posts);
     }
     catch (err) {
-        console.error(err);
+        console.error("getFeedPosts error:", err);
         res.status(500).json({ error: "Failed to fetch posts" });
     }
 }
@@ -67,6 +61,8 @@ export async function deletePost(req, res) {
         const username = req.user?.username;
         if (!username)
             return res.status(401).json({ error: "Unauthorized" });
+        if (!req.params.id)
+            return res.status(401).json({ error: "Invalid post ID" });
         const postId = parseInt(req.params.id);
         if (isNaN(postId))
             return res.status(400).json({ error: "Invalid post ID" });
@@ -76,14 +72,13 @@ export async function deletePost(req, res) {
         });
         if (!post)
             return res.status(404).json({ error: "Post not found" });
-        if (post.author.username !== username) {
+        if (post.author.username !== username)
             return res.status(403).json({ error: "Not allowed to delete this post" });
-        }
         await prisma.post.delete({ where: { id: postId } });
         res.status(200).json({ message: "Post deleted successfully" });
     }
     catch (err) {
-        console.error(err);
+        console.error("deletePost error:", err);
         res.status(500).json({ error: "Failed to delete post" });
     }
 }
@@ -92,20 +87,21 @@ export async function likePost(req, res) {
         const username = req.user?.username;
         if (!username)
             return res.status(401).json({ error: "Unauthorized" });
+        if (!req.params.id)
+            return res.status(401).json({ error: "Invalid post ID" });
         const postId = parseInt(req.params.id);
         if (isNaN(postId))
             return res.status(400).json({ error: "Invalid post ID" });
         const post = await prisma.post.findUnique({
             where: { id: postId },
-            select: { likes: true },
         });
         if (!post)
             return res.status(404).json({ error: "Post not found" });
-        const likes = Array.isArray(post.likes) ? post.likes : [];
+        const likes = post.likes ?? [];
         const alreadyLiked = likes.includes(username);
         const updatedLikes = alreadyLiked
-            ? likes.filter((u) => u !== username) // unlike
-            : [...likes, username]; // like
+            ? likes.filter((u) => u !== username)
+            : [...likes, username];
         const updated = await prisma.post.update({
             where: { id: postId },
             data: { likes: updatedLikes },
@@ -114,7 +110,7 @@ export async function likePost(req, res) {
         res.json({ success: true, liked: !alreadyLiked, likes: updated.likes });
     }
     catch (err) {
-        console.error(err);
+        console.error("likePost error:", err);
         res.status(500).json({ error: "Server error" });
     }
 }

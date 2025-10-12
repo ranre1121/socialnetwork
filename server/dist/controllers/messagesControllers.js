@@ -29,10 +29,7 @@ export async function getConversations(req, res) {
                     ],
                 },
                 include: {
-                    messages: {
-                        orderBy: { sentAt: "desc" },
-                        take: 1,
-                    },
+                    messages: { orderBy: { sentAt: "desc" }, take: 1 },
                 },
             });
             return {
