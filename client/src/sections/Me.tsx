@@ -25,7 +25,7 @@ const Me = () => {
       const data = await res.json();
 
       if (res.ok) {
-        setPosts(data.relevantPosts || []);
+        setPosts(data || []);
       } else {
         console.error(data.error || "Failed to load posts");
       }

@@ -6,9 +6,11 @@ export type Message = {
   id: number;
   chatId: number;
   content: string;
-  senderId: string;
-  receiverId: string;
+  senderId: number;
+  receiverId: number;
   sentAt: string;
+  senderUsername: string;
+  receiverUsername: string;
 };
 
 type ChatProps = {
@@ -25,9 +27,7 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
 
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
-
-    if (message.senderId === user?.username) return;
-
+    if (message.senderUsername === user?.username) return;
     setMessages((prev) =>
       [...prev, message].sort(
         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
@@ -38,23 +38,14 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
 
   useEffect(() => {
     if (!user || socketRef.current) return;
-
     const socket = io("http://localhost:8000");
     socketRef.current = socket;
-
     socket.on("connect", () => {
       socket.emit("join", user.username);
     });
-
     socket.on("private_message", handlePrivateMessage);
-
-    socket.on("connect_error", (err) =>
-      console.error("[socket] connect_error", err)
-    );
-    socket.on("disconnect", (reason) =>
-      console.debug("[socket] disconnected:", reason)
-    );
-
+    socket.on("connect_error", (err) => console.error(err));
+    socket.on("disconnect", () => {});
     return () => {
       socket.off("private_message", handlePrivateMessage);
       socket.disconnect();
@@ -64,15 +55,12 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
 
   useEffect(() => {
     if (!user || !friendUsername) return;
-
     async function fetchMessages() {
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(
           `http://localhost:8000/messages/${friendUsername}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) throw new Error("Failed to fetch messages");
         const data: Message[] = await res.json();
@@ -83,10 +71,9 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
           )
         );
       } catch (err) {
-        console.error("fetchMessages error:", err);
+        console.error(err);
       }
     }
-
     fetchMessages();
   }, [user, friendUsername]);
 
@@ -96,22 +83,21 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
 
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
-
     const payload = {
       sender: user.username,
       receiver: friendUsername,
       content: newMessage.trim(),
     };
-
     const optimisticMessage: Message = {
       id: Date.now(),
       chatId: 0,
-      senderId: user.username,
-      receiverId: friendUsername,
+      senderId: user.id,
+      receiverId: 0,
       content: newMessage.trim(),
       sentAt: new Date().toISOString(),
+      senderUsername: user.username,
+      receiverUsername: friendUsername,
     };
-
     setMessages((prev) => [...prev, optimisticMessage]);
     socketRef.current.emit("private_message", payload);
     setNewMessage("");
@@ -122,15 +108,15 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       <div className="flex-1 overflow-y-auto space-y-3">
         {messages.map((msg) => (
           <div
-            key={msg.id ?? `${msg.senderId}-${msg.sentAt}`}
-            className={`p-3 rounded-2xl w-fit max-w-[50%] flex items-center gap-2  ${
-              msg.senderId === user?.username
+            key={msg.id}
+            className={`p-3 rounded-2xl w-fit max-w-[50%] flex items-center gap-2 ${
+              msg.senderUsername === user?.username
                 ? "ml-auto bg-blue-600 text-white text-right"
                 : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
             }`}
           >
             <p className="break-words break-all whitespace-pre-wrap">
-              {msg?.content}
+              {msg.content}
             </p>
             <div className="text-xs opacity-70 mt-1 text-right">
               {new Date(msg.sentAt).toLocaleTimeString([], {
@@ -142,7 +128,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
         ))}
         <div ref={messagesEndRef} />
       </div>
-
       <div className="flex items-center border-t pt-3 mt-3">
         <input
           value={newMessage}

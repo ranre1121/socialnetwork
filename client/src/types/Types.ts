@@ -2,6 +2,7 @@ type User = {
   username: string;
   password: string;
   name: string;
+  id: number;
 };
 
 type Friend = {

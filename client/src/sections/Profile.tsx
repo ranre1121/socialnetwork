@@ -10,7 +10,6 @@ import { useUser } from "../context/UserContext";
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
-  const { user } = useUser();
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);

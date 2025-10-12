@@ -133,7 +133,7 @@ const Post = ({ post, onFetch, likes }: PostProps) => {
             {liked ? (
               <img className="size-4.5" src={heart} />
             ) : (
-              <Heart className={`size-4.5 text-gray-700`} />
+              <Heart className={`size-4.5 `} />
             )}
             &nbsp;
             <p>{likesCount}</p>

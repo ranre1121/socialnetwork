@@ -95,12 +95,25 @@ export async function addMessage(
       data: {
         chatId: chat.id,
         content,
-        senderId: sender,
-        receiverId: receiver,
+        senderId: senderUser.id,
+        receiverId: receiverUser.id,
+      },
+      include: {
+        sender: { select: { username: true } },
+        receiver: { select: { username: true } },
       },
     });
 
-    return newMessage;
+    return {
+      id: newMessage.id,
+      chatId: newMessage.chatId,
+      content: newMessage.content,
+      senderId: newMessage.senderId,
+      receiverId: newMessage.receiverId,
+      sentAt: newMessage.sentAt,
+      senderUsername: newMessage.sender.username,
+      receiverUsername: newMessage.receiver.username,
+    };
   } catch (err) {
     console.error("addMessage error:", err);
     return null;
