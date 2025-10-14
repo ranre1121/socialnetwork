@@ -8,16 +8,17 @@ export async function addPost(req, res) {
         if (!author)
             return res.status(404).json({ error: "Author not found" });
         const { content } = req.body;
-        if (!content || typeof content !== "string")
+        if (!content || typeof content !== "string") {
             return res.status(400).json({ error: "Invalid content" });
+        }
         const newPost = await prisma.post.create({
             data: {
                 authorId: author.id,
                 content,
-                likes: [],
             },
             include: {
                 author: { select: { id: true, name: true, username: true } },
+                likes: { select: { username: true } },
             },
         });
         res.status(201).json(newPost);
@@ -47,6 +48,7 @@ export async function getFeedPosts(req, res) {
             orderBy: { createdAt: "desc" },
             include: {
                 author: { select: { id: true, name: true, username: true } },
+                likes: { select: { username: true, name: true } },
             },
         });
         res.status(200).json(posts);
@@ -61,8 +63,9 @@ export async function deletePost(req, res) {
         const username = req.user?.username;
         if (!username)
             return res.status(401).json({ error: "Unauthorized" });
-        if (!req.params.id)
-            return res.status(401).json({ error: "Invalid post ID" });
+        if (!req.params.id) {
+            return res.status(400).json({ error: "Invalid post ID" });
+        }
         const postId = parseInt(req.params.id);
         if (isNaN(postId))
             return res.status(400).json({ error: "Invalid post ID" });
@@ -87,27 +90,42 @@ export async function likePost(req, res) {
         const username = req.user?.username;
         if (!username)
             return res.status(401).json({ error: "Unauthorized" });
-        if (!req.params.id)
-            return res.status(401).json({ error: "Invalid post ID" });
+        if (!req.params.id) {
+            return res.status(400).json({ error: "Invalid post ID" });
+        }
         const postId = parseInt(req.params.id);
         if (isNaN(postId))
             return res.status(400).json({ error: "Invalid post ID" });
+        const user = await prisma.user.findUnique({ where: { username } });
+        if (!user)
+            return res.status(404).json({ error: "User not found" });
         const post = await prisma.post.findUnique({
             where: { id: postId },
+            include: { likes: { select: { id: true, username: true } } },
         });
         if (!post)
             return res.status(404).json({ error: "Post not found" });
-        const likes = post.likes ?? [];
-        const alreadyLiked = likes.includes(username);
-        const updatedLikes = alreadyLiked
-            ? likes.filter((u) => u !== username)
-            : [...likes, username];
-        const updated = await prisma.post.update({
-            where: { id: postId },
-            data: { likes: updatedLikes },
-            select: { id: true, likes: true },
+        const alreadyLiked = post.likes.some((u) => u.username === username);
+        let updatedPost;
+        if (alreadyLiked) {
+            updatedPost = await prisma.post.update({
+                where: { id: postId },
+                data: { likes: { disconnect: { id: user.id } } },
+                include: { likes: { select: { username: true } } },
+            });
+        }
+        else {
+            updatedPost = await prisma.post.update({
+                where: { id: postId },
+                data: { likes: { connect: { id: user.id } } },
+                include: { likes: { select: { username: true } } },
+            });
+        }
+        res.json({
+            success: true,
+            liked: !alreadyLiked,
+            likes: updatedPost.likes.map((u) => u.username),
         });
-        res.json({ success: true, liked: !alreadyLiked, likes: updated.likes });
     }
     catch (err) {
         console.error("likePost error:", err);

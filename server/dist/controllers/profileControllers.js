@@ -21,7 +21,10 @@ export async function getProfile(req, res) {
         });
         const userPosts = await prisma.post.findMany({
             where: { authorId: user.id },
-            include: { author: { select: { id: true, name: true, username: true } } },
+            include: {
+                author: { select: { id: true, name: true, username: true } },
+                likes: { select: { name: true, username: true } },
+            },
         });
         const response = {
             username: user.username,
