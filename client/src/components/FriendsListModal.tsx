@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Mail } from "lucide-react";
+import { X } from "lucide-react";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { useNavigate } from "react-router-dom";
 
@@ -40,8 +40,16 @@ const ProfileFriendsModal = ({
   }, [username]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-      <div className="bg-white dark:bg-gray-800 dark:text-white w-[420px] max-h-[500px] rounded-2xl shadow-xl p-5 flex flex-col">
+    <div
+      className="fixed inset-0 flex items-center justify-center bg-black/40 z-50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-gray-800 dark:text-white w-[420px] max-h-[500px] rounded-2xl shadow-xl p-5 flex flex-col"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold">Friends</h2>
           <X className="cursor-pointer hover:text-red-500" onClick={onClose} />

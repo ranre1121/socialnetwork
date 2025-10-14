@@ -17,7 +17,6 @@ import Profile from "./sections/Profile";
 
 /** TODO:
   
-  3) profile friends modal
   4) posts user interactions
   5) mobile adaptation
   6) global search
