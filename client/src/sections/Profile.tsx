@@ -13,6 +13,8 @@ const Profile = () => {
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [friends, setFriends] = useState([]);
+  const { user } = useUser();
   const navigate = useNavigate();
 
   const handleSave = async (name: string, bio: string) => {
@@ -49,6 +51,35 @@ const Profile = () => {
       setLoading(false);
     }
   }
+
+  const fetchFriends = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token || !user) return;
+
+      setLoading(true);
+      const res = await fetch(
+        `http://localhost:8000/friends/list/${user.username}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+        return;
+      }
+
+      const data = await res.json();
+      setFriends(data);
+    } catch (err) {
+      console.error("Error fetching friends:", err);
+    }
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -115,7 +146,10 @@ const Profile = () => {
         )}
 
         <div className="px-8">
-          <span className="flex cursor-pointer hover:underline text-white ">
+          <span
+            className="flex cursor-pointer hover:underline text-white "
+            onClick={fetchFriends}
+          >
             <p className="dark:text-white">{profile.friendsCount}&nbsp;</p>
             <p className="text-gray-400 ">
               {profile.friendsCount === 1 ? "Friend" : "Friends"}

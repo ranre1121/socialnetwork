@@ -270,8 +270,11 @@ export async function declineRequest(req: Request, res: Response) {
 
 export async function listFriends(req: Request, res: Response) {
   try {
-    const username = req.user?.username;
-    if (!username) return res.status(401).json({ message: "Unauthorized" });
+    const currentUser = req.user?.username;
+    if (!currentUser) return res.status(401).json({ message: "Unauthorized" });
+
+    const username = req.params.username;
+    if (!username) return res.status(400).json({ msg: "No username provided" });
 
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) return res.status(400).json({ msg: "User not found" });

@@ -21,12 +21,15 @@ const Friends = () => {
       if (!token || !user) return;
 
       setLoading(true);
-      const res = await fetch("http://localhost:8000/friends/list", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `http://localhost:8000/friends/list/${user.username}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (res.status === 401) {
         localStorage.removeItem("token");
