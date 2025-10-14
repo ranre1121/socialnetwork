@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { Mail } from "lucide-react";
 import type { Profile as ProfileType } from "../types/Types";
 import Post from "../components/Post";
 import EditProfileModal from "../components/EditProfileModal";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "../context/UserContext";
+
+import FriendsListModal from "../components/FriendsListModal";
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
   const [profile, setProfile] = useState<ProfileType | null>(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [friends, setFriends] = useState([]);
-  const { user } = useUser();
+  const [showFriendsModal, setShowFriendsModal] = useState(false);
+
   const navigate = useNavigate();
 
   const handleSave = async (name: string, bio: string) => {
@@ -37,7 +37,8 @@ const Profile = () => {
       console.error(err);
     }
   };
-  async function fetchProfile() {
+
+  const fetchProfile = async () => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:8000/profiles/${username}`, {
@@ -49,35 +50,6 @@ const Profile = () => {
       console.error(err);
     } finally {
       setLoading(false);
-    }
-  }
-
-  const fetchFriends = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token || !user) return;
-
-      setLoading(true);
-      const res = await fetch(
-        `http://localhost:8000/friends/list/${user.username}`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        window.location.href = "/login";
-        return;
-      }
-
-      const data = await res.json();
-      setFriends(data);
-    } catch (err) {
-      console.error("Error fetching friends:", err);
     }
   };
 
@@ -95,6 +67,7 @@ const Profile = () => {
         <p className="text-center h-screen text-gray-500 dark:bg-gray-900 "></p>
       </div>
     );
+
   if (!profile)
     return (
       <p className="text-center h-screen text-gray-500 dark:bg-gray-900 ">
@@ -122,9 +95,10 @@ const Profile = () => {
               @{profile.username}
             </p>
           </div>
+
           {profile.profileOwner ? (
             <button
-              className="ml-auto dark:text-white py-1.5 px-5 rounded-full border dark:border-white cursor-pointer "
+              className="ml-auto dark:text-white py-1.5 px-5 rounded-full border dark:border-white cursor-pointer"
               onClick={() => setIsModalOpen(true)}
             >
               Edit profile
@@ -147,26 +121,26 @@ const Profile = () => {
 
         <div className="px-8">
           <span
-            className="flex cursor-pointer hover:underline text-white "
-            onClick={fetchFriends}
+            className="flex cursor-pointer hover:underline text-white"
+            onClick={() => setShowFriendsModal(true)}
           >
             <p className="dark:text-white">{profile.friendsCount}&nbsp;</p>
-            <p className="text-gray-400 ">
+            <p className="text-gray-400">
               {profile.friendsCount === 1 ? "Friend" : "Friends"}
             </p>
           </span>
         </div>
+
         <div className="flex flex-col gap-3">
           <div className="w-full border-b dark:border-gray-400" />
-
-          <div className="px-5 dark:text-white ">
+          <div className="px-5 dark:text-white">
             {profile.posts?.length === 0 ? (
-              <div className="flex items-center justify-center text-xl text-white ">
+              <div className="flex items-center justify-center text-xl text-white">
                 User has no posts yet.
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {profile?.posts
+                {profile.posts
                   ?.slice()
                   .reverse()
                   .map((post) => (
@@ -182,12 +156,20 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
       {isModalOpen && (
         <EditProfileModal
           onClose={() => setIsModalOpen(false)}
           currentName={profile.name}
           currentBio={profile.bio}
           onSave={handleSave}
+        />
+      )}
+
+      {showFriendsModal && (
+        <FriendsListModal
+          username={username!}
+          onClose={() => setShowFriendsModal(false)}
         />
       )}
     </div>
