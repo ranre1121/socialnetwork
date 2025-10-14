@@ -2,7 +2,7 @@ import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { Trash2Icon, Check, X } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
-import type { Post as PostType } from "../types/Types";
+import type { Post as PostType, User } from "../types/Types";
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import { MessageCircleMore } from "lucide-react";
@@ -29,7 +29,7 @@ const formatPostDate = (dateString: string) => {
 type PostProps = {
   post: PostType;
   onFetch: () => void;
-  likes: string[];
+  likes: User[];
 };
 
 const Post = ({ post, onFetch, likes }: PostProps) => {
@@ -37,7 +37,7 @@ const Post = ({ post, onFetch, likes }: PostProps) => {
   const navigate = useNavigate();
   const [likesCount, setLikesCount] = useState(likes.length);
   const [liked, setLiked] = useState(
-    user ? likes.includes(user.username) : false
+    user ? likes.find((l) => l.username === user.username) : false
   );
   const [confirmationActive, setConfirmationActive] = useState(false);
 
