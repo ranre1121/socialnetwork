@@ -131,9 +131,9 @@ const Profile = () => {
 
         <div className="flex flex-col gap-3">
           <div className="w-full border-b dark:border-gray-400" />
-          <div className="px-5 dark:text-white">
+          <div className="px-5 ">
             {profile.posts?.length === 0 ? (
-              <div className="flex items-center justify-center text-xl text-white">
+              <div className="flex items-center justify-center text-xl ">
                 User has no posts yet.
               </div>
             ) : (

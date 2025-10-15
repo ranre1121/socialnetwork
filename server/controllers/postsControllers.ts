@@ -150,3 +150,58 @@ export async function likePost(req: AuthenticatedRequest, res: Response) {
     res.status(500).json({ error: "Server error" });
   }
 }
+
+export async function addComment(req: AuthenticatedRequest, res: Response) {
+  try {
+    const username = req.user?.username;
+    if (!username) return res.status(401).json({ error: "Unauthorized" });
+
+    if (!req.params.id) {
+      return res.status(400).json({ error: "Invalid post ID" });
+    }
+
+    console.log(req.params.id);
+
+    const postId = parseInt(req.params.id);
+    if (isNaN(postId))
+      return res.status(400).json({ error: "Invalid post ID" });
+
+    const user = await prisma.user.findUnique({ where: { username } });
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const { commentContent, parentId } = req.body;
+
+    console.log(commentContent, parentId);
+
+    const newComment = await prisma.comment.create({
+      data: {
+        text: commentContent,
+        author: { connect: { id: user.id } },
+        post: { connect: { id: postId } },
+        ...(parentId ? { parent: { connect: { id: parentId } } } : {}),
+      },
+      include: {
+        author: { select: { id: true, username: true, name: true } },
+        _count: { select: { replies: true } },
+      },
+    });
+
+    const updatedComments = await prisma.comment.findMany({
+      where: { postId },
+      include: {
+        author: { select: { id: true, username: true, name: true } },
+        _count: { select: { replies: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return res.status(201).json({
+      message: "Comment added successfully",
+      newComment,
+      comments: updatedComments,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Something went wrong" });
+  }
+}

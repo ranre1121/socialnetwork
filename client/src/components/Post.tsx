@@ -45,7 +45,7 @@ const Post = ({ post, onFetch, likes }: PostProps) => {
     if (!user) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:8000/posts/delete/${postId}`, {
+      const res = await fetch(`http://localhost:8000/posts/${postId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
