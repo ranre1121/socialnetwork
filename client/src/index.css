@@ -3,5 +3,5 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 body {
-  background-color: rgb(244, 244, 244);
+  @apply bg-gray-50 text-black dark:bg-gray-900 dark:text-white;
 }

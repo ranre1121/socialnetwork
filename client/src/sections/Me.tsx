@@ -68,7 +68,7 @@ const Me = () => {
   };
 
   return (
-    <div className="flex h-full min-h-screen w-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
+    <div className="flex h-full min-h-screen w-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start gap-5">
         <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-semibold">Create a Post</h1>

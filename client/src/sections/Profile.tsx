@@ -114,17 +114,15 @@ const Profile = () => {
         </div>
 
         {profile.bio && (
-          <p className="text-lg text-white -mt-3 font-extralight px-8 ">
-            {profile.bio}
-          </p>
+          <p className="text-lg  -mt-3 font-extralight px-8 ">{profile.bio}</p>
         )}
 
         <div className="px-8">
           <span
-            className="flex cursor-pointer hover:underline text-white"
+            className="flex cursor-pointer hover:underline "
             onClick={() => setShowFriendsModal(true)}
           >
-            <p className="dark:text-white">{profile.friendsCount}&nbsp;</p>
+            <p>{profile.friendsCount}&nbsp;</p>
             <p className="text-gray-400">
               {profile.friendsCount === 1 ? "Friend" : "Friends"}
             </p>

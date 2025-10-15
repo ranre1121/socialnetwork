@@ -40,7 +40,7 @@ const Messages = () => {
   }, [conversations]);
 
   return (
-    <div className="flex h-screen py-10 bg-white dark:bg-gray-900 text-black dark:text-white">
+    <div className="flex h-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 justify-center gap-5 max-w-[1100px] mx-auto pl-[80px]">
         <div className="w-[300px] bg-white dark:bg-gray-800 rounded-2xl shadow-md py-6 flex flex-col border border-gray-200 dark:border-gray-700 h-full overflow-x-hidden">
           <h2 className="text-xl font-semibold mb-4 px-4">Messages</h2>
