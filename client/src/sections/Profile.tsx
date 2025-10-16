@@ -77,10 +77,10 @@ const Profile = () => {
     );
   }
 
-  if (!profile || !loading) {
+  if (!profile) {
     return (
       <div className="flex justify-center items-center h-screen dark:bg-gray-900 text-gray-400">
-        Profile not
+        Profile not found
       </div>
     );
   }
