@@ -30,6 +30,7 @@ type Post = {
     username: string;
     name: string;
   };
+  comments: string[];
 };
 
 type Conversation = {

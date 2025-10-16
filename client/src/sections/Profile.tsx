@@ -147,6 +147,7 @@ const Profile = () => {
                       post={post}
                       onFetch={fetchProfile}
                       likes={post.likes}
+                      comments={post.comments}
                     />
                   ))}
               </div>

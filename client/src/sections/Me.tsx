@@ -108,14 +108,7 @@ const Me = () => {
           ) : posts.length === 0 ? (
             <p className="text-gray-500 self-center mt-4">No posts yet</p>
           ) : (
-            posts.map((post) => (
-              <Post
-                key={post.id}
-                post={post}
-                onFetch={fetchPosts}
-                likes={post.likes}
-              />
-            ))
+            posts.map((post) => <Post post={post} />)
           )}
         </div>
       </div>

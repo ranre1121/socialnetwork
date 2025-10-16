@@ -26,18 +26,12 @@ const formatPostDate = (dateString: string) => {
   return date.toLocaleDateString([], { month: "short", day: "numeric" });
 };
 
-type PostProps = {
-  post: PostType;
-  onFetch: () => void;
-  likes: User[];
-};
-
-const Post = ({ post, onFetch, likes }: PostProps) => {
+const Post = ({ post }: PostType) => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const [likesCount, setLikesCount] = useState(likes.length);
+  const [likesCount, setLikesCount] = useState(post.likes?.length);
   const [liked, setLiked] = useState(
-    user ? likes.find((l) => l.username === user.username) : false
+    user ? post.likes?.find((l) => l.username === user.username) : false
   );
   const [confirmationActive, setConfirmationActive] = useState(false);
 
@@ -64,13 +58,16 @@ const Post = ({ post, onFetch, likes }: PostProps) => {
     if (!user) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:8000/posts/like/${postId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const res = await fetch(
+        `http://localhost:8000/posts/like/${post.postId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const data = await res.json();
       if (!res.ok) console.error(data.error);
     } catch (err) {
@@ -87,12 +84,12 @@ const Post = ({ post, onFetch, likes }: PostProps) => {
             className="font-semibold cursor-pointer hover:underline dark:text-white"
             onClick={() => navigate(`/profile/${post.author.username}`)}
           >
-            {post.author.name}
+            {post.author?.name}
           </p>
-          <p className="text-gray-500">@{post.author.username}</p>
+          <p className="text-gray-500">@{post.author?.username}</p>
           <p className="text-gray-500">· {formatPostDate(post.createdAt)}</p>
 
-          {user?.username === post.author.username &&
+          {user?.username === post.author?.username &&
             (!confirmationActive ? (
               <Trash2Icon
                 className="ml-auto size-5 hover:text-red-500 cursor-pointer"
@@ -116,7 +113,7 @@ const Post = ({ post, onFetch, likes }: PostProps) => {
         </span>
 
         <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap break-all">
-          {post.content
+          {post?.content
             .split("\n")
             .map((line) => line.trimStart())
             .join("\n")}
@@ -142,7 +139,7 @@ const Post = ({ post, onFetch, likes }: PostProps) => {
           <span className="flex items-center group cursor-pointer">
             <MessageCircleMore className="size-4.5 group-hover:text-sky-500" />
             &nbsp;
-            <p>0</p>
+            <p>{post.comments?.length}</p>
           </span>
         </div>
       </div>
