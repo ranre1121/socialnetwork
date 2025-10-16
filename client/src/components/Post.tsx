@@ -26,12 +26,17 @@ const formatPostDate = (dateString: string) => {
   return date.toLocaleDateString([], { month: "short", day: "numeric" });
 };
 
-const Post = ({ post }: PostType) => {
+type PostTypes = {
+  post: PostType;
+  onFetch: () => void;
+};
+
+const Post = ({ post, onFetch }: PostTypes) => {
   const { user } = useUser();
   const navigate = useNavigate();
   const [likesCount, setLikesCount] = useState(post.likes?.length);
   const [liked, setLiked] = useState(
-    user ? post.likes?.find((l) => l.username === user.username) : false
+    user ? post.likes?.find((l: any) => l.username === user.username) : false
   );
   const [confirmationActive, setConfirmationActive] = useState(false);
 
@@ -58,16 +63,13 @@ const Post = ({ post }: PostType) => {
     if (!user) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(
-        `http://localhost:8000/posts/like/${post.postId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`http://localhost:8000/posts/like/${postId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await res.json();
       if (!res.ok) console.error(data.error);
     } catch (err) {
@@ -115,7 +117,7 @@ const Post = ({ post }: PostType) => {
         <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap break-all">
           {post?.content
             .split("\n")
-            .map((line) => line.trimStart())
+            .map((line: string) => line.trimStart())
             .join("\n")}
         </p>
         <div className="flex mt-3 gap-5 items-center">

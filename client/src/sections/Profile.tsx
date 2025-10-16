@@ -142,13 +142,7 @@ const Profile = () => {
                   ?.slice()
                   .reverse()
                   .map((post) => (
-                    <Post
-                      key={post.id}
-                      post={post}
-                      onFetch={fetchProfile}
-                      likes={post.likes}
-                      comments={post.comments}
-                    />
+                    <Post post={post} onFetch={() => {}} />
                   ))}
               </div>
             )}
