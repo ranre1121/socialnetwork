@@ -24,6 +24,7 @@ export async function getProfile(req, res) {
             include: {
                 author: { select: { id: true, name: true, username: true } },
                 likes: { select: { name: true, username: true } },
+                comments: true,
             },
         });
         const response = {

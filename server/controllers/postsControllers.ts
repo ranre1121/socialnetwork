@@ -61,6 +61,7 @@ export async function getFeedPosts(req: AuthenticatedRequest, res: Response) {
       include: {
         author: { select: { id: true, name: true, username: true } },
         likes: { select: { username: true, name: true } },
+        comments: true,
       },
     });
 
