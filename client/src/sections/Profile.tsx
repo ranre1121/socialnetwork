@@ -5,13 +5,12 @@ import { Mail } from "lucide-react";
 import type { Profile as ProfileType } from "../types/Types";
 import Post from "../components/Post";
 import EditProfileModal from "../components/EditProfileModal";
-
 import FriendsListModal from "../components/FriendsListModal";
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
   const [profile, setProfile] = useState<ProfileType | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // ✅ start as true
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFriendsModal, setShowFriendsModal] = useState(false);
 
@@ -32,22 +31,27 @@ const Profile = () => {
           isProfileOwner: profile?.profileOwner,
         }),
       });
-      fetchProfile();
+      await fetchProfile(); // ✅ ensure refresh
     } catch (err) {
       console.error(err);
     }
   };
 
   const fetchProfile = async () => {
+    setLoading(true); // ✅ set loading before fetch
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:8000/profiles/${username}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (!res.ok) throw new Error("Failed to fetch profile");
+
       const data: ProfileType = await res.json();
       setProfile(data);
     } catch (err) {
       console.error(err);
+      setProfile(null);
     } finally {
       setLoading(false);
     }
@@ -58,26 +62,32 @@ const Profile = () => {
   }, [username]);
 
   const handleNavigate = () => {
-    navigate("/messages", { state: { username: username } });
+    navigate("/messages", { state: { username } });
   };
 
-  if (loading)
+  if (loading && !profile) {
     return (
-      <div>
-        <p className="text-center h-screen text-gray-500 dark:bg-gray-900 "></p>
+      <div className="flex justify-center w-full py-10 bg-gray-50 dark:bg-gray-900 min-h-screen">
+        <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 animate-pulse">
+          <div className="h-32 w-32 rounded-full bg-gray-200 dark:bg-gray-700 mb-4" />
+          <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 mb-2" />
+          <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700" />
+        </div>
       </div>
     );
+  }
 
-  if (!profile)
+  if (!profile || !loading) {
     return (
-      <p className="text-center h-screen text-gray-500 dark:bg-gray-900 ">
-        Profile not found
-      </p>
+      <div className="flex justify-center items-center h-screen dark:bg-gray-900 text-gray-400">
+        Profile not
+      </div>
     );
+  }
 
   return (
-    <div className="flex justify-center w-full py-10 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl py-8 flex flex-col gap-8">
+    <div className="flex justify-center w-full py-10 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
+      <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl py-8 flex flex-col gap-8 transition-colors">
         <div className="relative px-8">
           <img
             src={profilePlaceholder}
@@ -89,14 +99,14 @@ const Profile = () => {
         <div className="flex items-start px-8">
           <div className="flex flex-col justify-center">
             <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
-              {profile.name}
+              {profile?.name}
             </h2>
             <p className="text-gray-500 dark:text-gray-400 text-xl">
-              @{profile.username}
+              @{profile?.username}
             </p>
           </div>
 
-          {profile.profileOwner ? (
+          {profile?.profileOwner ? (
             <button
               className="ml-auto dark:text-white py-1.5 px-5 rounded-full border dark:border-white cursor-pointer"
               onClick={() => setIsModalOpen(true)}
@@ -113,36 +123,36 @@ const Profile = () => {
           )}
         </div>
 
-        {profile.bio && (
-          <p className="text-lg  -mt-3 font-extralight px-8 ">{profile.bio}</p>
+        {profile?.bio && (
+          <p className="text-lg -mt-3 font-extralight px-8">{profile.bio}</p>
         )}
 
         <div className="px-8">
           <span
-            className="flex cursor-pointer hover:underline "
+            className="flex cursor-pointer hover:underline"
             onClick={() => setShowFriendsModal(true)}
           >
-            <p>{profile.friendsCount}&nbsp;</p>
+            <p>{profile?.friendsCount}&nbsp;</p>
             <p className="text-gray-400">
-              {profile.friendsCount === 1 ? "Friend" : "Friends"}
+              {profile?.friendsCount === 1 ? "Friend" : "Friends"}
             </p>
           </span>
         </div>
 
         <div className="flex flex-col gap-3">
           <div className="w-full border-b dark:border-gray-400" />
-          <div className="px-5 ">
-            {profile.posts?.length === 0 ? (
-              <div className="flex items-center justify-center text-xl ">
+          <div className="px-5">
+            {profile?.posts?.length === 0 ? (
+              <div className="flex items-center justify-center text-xl">
                 User has no posts yet.
               </div>
             ) : (
               <div className="flex flex-col gap-3">
-                {profile.posts
+                {profile?.posts
                   ?.slice()
                   .reverse()
                   .map((post) => (
-                    <Post post={post} onFetch={() => {}} />
+                    <Post key={post.id} post={post} onFetch={fetchProfile} />
                   ))}
               </div>
             )}
