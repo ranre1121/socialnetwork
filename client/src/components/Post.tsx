@@ -2,29 +2,13 @@ import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { Trash2Icon, Check, X } from "lucide-react";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
-import type { Post as PostType, User } from "../types/Types";
+import type { Post as PostType } from "../types/Types";
 import { useState } from "react";
 import { Heart } from "lucide-react";
 import { MessageCircleMore } from "lucide-react";
 import heart from "../../public/images/heart.svg";
-
-// Format like Twitter
-const formatPostDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffMinutes = Math.floor(diffMs / (1000 * 60));
-
-  if (diffHours < 24) {
-    if (diffHours === 0) {
-      if (diffMinutes === 0) return "Just now";
-      return `${diffMinutes}m ago`;
-    }
-    return `${diffHours}h ago`;
-  }
-  return date.toLocaleDateString([], { month: "short", day: "numeric" });
-};
+import CommentsModal from "./CommentsModal";
+import { formatPostDate } from "../utils/utils";
 
 type PostTypes = {
   post: PostType;
@@ -39,6 +23,7 @@ const Post = ({ post, onFetch }: PostTypes) => {
     user ? post.likes?.find((l: any) => l.username === user.username) : false
   );
   const [confirmationActive, setConfirmationActive] = useState(false);
+  const [showComments, setShowComments] = useState(false);
 
   const handleDelete = async (postId: number) => {
     if (!user) return;
@@ -138,13 +123,23 @@ const Post = ({ post, onFetch }: PostTypes) => {
             <p>{likesCount}</p>
           </span>
 
-          <span className="flex items-center group cursor-pointer">
+          <span
+            className="flex items-center group cursor-pointer"
+            onClick={() => setShowComments(true)}
+          >
             <MessageCircleMore className="size-4.5 group-hover:text-sky-500" />
             &nbsp;
             <p>{post.comments?.length}</p>
           </span>
         </div>
       </div>
+      {showComments && (
+        <CommentsModal
+          post={post}
+          onClose={() => setShowComments(false)}
+          onRefetch={onFetch}
+        />
+      )}
     </div>
   );
 };
