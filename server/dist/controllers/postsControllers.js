@@ -181,4 +181,24 @@ export async function addComment(req, res) {
         return res.status(500).json({ error: "Something went wrong" });
     }
 }
+export async function getComments(req, res) {
+    try {
+        const username = req.user?.username;
+        if (!username)
+            return res.status(401).json({ error: "Unauthorized" });
+        if (!req.params.id) {
+            return res.status(400).json({ error: "Invalid post ID" });
+        }
+        console.log(req.params.id);
+        const postId = parseInt(req.params.id);
+        if (isNaN(postId))
+            return res.status(400).json({ error: "Invalid post ID" });
+        const comments = await prisma.comment.findMany({
+            where: { postId: postId },
+            select: { author: true, createdAt: true, id: true, text: true },
+        });
+        res.status(200).json({ comments });
+    }
+    catch (error) { }
+}
 //# sourceMappingURL=postsControllers.js.map
