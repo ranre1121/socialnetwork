@@ -172,8 +172,6 @@ export async function addComment(req: AuthenticatedRequest, res: Response) {
 
     const { commentContent, parentId } = req.body;
 
-    console.log(commentContent, parentId);
-
     const newComment = await prisma.comment.create({
       data: {
         text: commentContent,
@@ -215,8 +213,6 @@ export async function getComments(req: AuthenticatedRequest, res: Response) {
     if (!req.params.id) {
       return res.status(400).json({ error: "Invalid post ID" });
     }
-
-    console.log(req.params.id);
 
     const postId = parseInt(req.params.id);
     if (isNaN(postId))
