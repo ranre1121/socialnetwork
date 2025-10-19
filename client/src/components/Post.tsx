@@ -133,13 +133,7 @@ const Post = ({ post, onFetch }: PostTypes) => {
           </span>
         </div>
       </div>
-      {showComments && (
-        <CommentsModal
-          post={post}
-          onClose={() => setShowComments(false)}
-          onRefetch={onFetch}
-        />
-      )}
+      {showComments && <CommentsModal post={post} onRefetch={onFetch} />}
     </div>
   );
 };

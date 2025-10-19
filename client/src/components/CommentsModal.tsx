@@ -14,11 +14,11 @@ type Comment = {
 
 type CommentsModalProps = {
   post: PostType;
-  onClose: () => void;
+
   onRefetch: () => void;
 };
 
-const CommentsModal = ({ post, onClose, onRefetch }: CommentsModalProps) => {
+const CommentsModal = ({ post, onRefetch }: CommentsModalProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
