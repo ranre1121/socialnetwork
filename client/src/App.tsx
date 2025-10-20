@@ -16,7 +16,6 @@ import Friends from "./sections/Friends";
 import Profile from "./sections/Profile";
 /** TODO:
   
-  4) posts user interactions
   5) mobile adaptation
   6) global search
   7) profile pics

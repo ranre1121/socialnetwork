@@ -10,7 +10,7 @@ import FriendsListModal from "../components/FriendsListModal";
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
   const [profile, setProfile] = useState<ProfileType | null>(null);
-  const [loading, setLoading] = useState(true); // ✅ start as true
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFriendsModal, setShowFriendsModal] = useState(false);
 
@@ -31,14 +31,14 @@ const Profile = () => {
           isProfileOwner: profile?.profileOwner,
         }),
       });
-      await fetchProfile(); // ✅ ensure refresh
+      await fetchProfile();
     } catch (err) {
       console.error(err);
     }
   };
 
   const fetchProfile = async () => {
-    setLoading(true); // ✅ set loading before fetch
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(`http://localhost:8000/profiles/${username}`, {

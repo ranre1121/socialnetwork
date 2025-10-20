@@ -18,10 +18,8 @@ type PostTypes = {
 const Post = ({ post, onFetch }: PostTypes) => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const [likesCount, setLikesCount] = useState(post.likes?.length);
-  const [liked, setLiked] = useState(
-    user ? post.likes?.find((l: any) => l.username === user.username) : false
-  );
+  const [likesCount, setLikesCount] = useState(post.likesCount);
+  const [liked, setLiked] = useState(post.liked);
   const [confirmationActive, setConfirmationActive] = useState(false);
   const [showComments, setShowComments] = useState(false);
 
@@ -129,7 +127,7 @@ const Post = ({ post, onFetch }: PostTypes) => {
           >
             <MessageCircleMore className="size-4.5 group-hover:text-sky-500" />
             &nbsp;
-            <p>{post._count.comments}</p>
+            <p>{post.commentsCount}</p>
           </span>
         </div>
       </div>

@@ -16,12 +16,8 @@ export async function addPost(req, res) {
                 authorId: author.id,
                 content,
             },
-            include: {
-                author: { select: { id: true, name: true, username: true } },
-                likes: { select: { username: true } },
-            },
         });
-        res.status(201).json(newPost);
+        res.status(201).json({ msg: "Post succesfully added" });
     }
     catch (err) {
         console.error("addPost error:", err);
@@ -33,7 +29,10 @@ export async function getFeedPosts(req, res) {
         const username = req.user?.username;
         if (!username)
             return res.status(401).json({ error: "Unauthorized" });
-        const user = await prisma.user.findUnique({ where: { username } });
+        const user = await prisma.user.findUnique({
+            where: { username },
+            select: { id: true },
+        });
         if (!user)
             return res.status(404).json({ error: "User not found" });
         const friendships = await prisma.friendship.findMany({
@@ -41,18 +40,32 @@ export async function getFeedPosts(req, res) {
                 OR: [{ requesterId: user.id }, { addresseeId: user.id }],
                 status: "ACCEPTED",
             },
+            select: { requesterId: true, addresseeId: true },
         });
         const friendIds = friendships.map((f) => f.requesterId === user.id ? f.addresseeId : f.requesterId);
+        const allVisibleIds = [user.id, ...friendIds];
         const posts = await prisma.post.findMany({
-            where: { authorId: { in: [user.id, ...friendIds] } },
+            where: { authorId: { in: allVisibleIds } },
             orderBy: { createdAt: "desc" },
             include: {
                 author: { select: { id: true, name: true, username: true } },
-                likes: { select: { username: true, name: true } },
-                _count: { select: { comments: true } },
+                likes: {
+                    where: { id: user.id },
+                    select: { id: true },
+                },
+                _count: { select: { likes: true, comments: true } },
             },
         });
-        res.status(200).json(posts);
+        const feed = posts.map((post) => ({
+            id: post.id,
+            content: post.content,
+            createdAt: post.createdAt,
+            author: post.author,
+            liked: post.likes.length > 0,
+            likesCount: post._count.likes,
+            commentsCount: post._count.comments,
+        }));
+        res.status(200).json(feed);
     }
     catch (err) {
         console.error("getFeedPosts error:", err);
