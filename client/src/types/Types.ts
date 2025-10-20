@@ -54,4 +54,12 @@ type Message = {
   createdAt: string;
 };
 
-export type { User, Post, Friend, Profile, Message, Conversation };
+type Comment = {
+  id: number;
+  text: string;
+  createdAt: string;
+  author: { id: number; username: string; name: string };
+  isOwner: boolean;
+};
+
+export type { User, Post, Friend, Profile, Message, Conversation, Comment };

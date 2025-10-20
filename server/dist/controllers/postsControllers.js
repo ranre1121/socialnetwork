@@ -194,7 +194,33 @@ export async function getComments(req, res) {
             where: { postId: postId },
             select: { author: true, createdAt: true, id: true, text: true },
         });
-        res.status(200).json({ comments });
+        const user = await prisma.user.findUnique({
+            where: { username: username },
+        });
+        const userId = user?.id;
+        const updatedComments = comments.map((comment) => ({
+            ...comment,
+            isOwner: comment.author.id === userId,
+        }));
+        res.status(200).json({ updatedComments });
+    }
+    catch (error) { }
+}
+export async function deleteComment(req, res) {
+    try {
+        const username = req.user?.username;
+        if (!username)
+            return res.status(401).json({ error: "Unauthorized" });
+        if (!req.params.id) {
+            return res.status(400).json({ error: "Invalid post ID" });
+        }
+        const commentId = parseInt(req.params.id);
+        if (isNaN(commentId))
+            return res.status(400).json({ error: "Invalid post ID" });
+        const comment = await prisma.comment.findUnique({
+            where: { id: commentId },
+        });
+        res.status(400).json({ msg: "Succesfully deleted" });
     }
     catch (error) { }
 }

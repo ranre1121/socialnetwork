@@ -1,16 +1,10 @@
 import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import type { Post as PostType } from "../types/Types";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { formatPostDate } from "../utils/utils";
 import { useNavigate } from "react-router-dom";
-
-type Comment = {
-  id: number;
-  text: string;
-  createdAt: string;
-  author: { id: number; username: string; name: string };
-};
+import type { Comment } from "../types/Types";
 
 type CommentsModalProps = {
   post: PostType;
@@ -35,7 +29,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
         }
       );
       const data = await res.json();
-      setComments(data.comments || []);
+      setComments(data.updatedComments || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -133,12 +127,17 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
                   alt="avatar"
                   className="w-8 h-8 rounded-full"
                 />
-                <div>
-                  <p className="text-sm font-semibold dark:text-white">
-                    {c.author.name}{" "}
-                    <span className="text-gray-500">@{c.author.username}</span>
-                  </p>
-                  <p className="text-gray-700 dark:text-gray-300">{c.text}</p>
+                <div className="flex w-full items-center">
+                  <div>
+                    <p className="text-sm font-semibold dark:text-white">
+                      {c.author.name}{" "}
+                      <span className="text-gray-500">
+                        @{c.author.username}
+                      </span>
+                    </p>
+                    <p className="text-gray-700 dark:text-gray-300">{c.text}</p>
+                  </div>
+                  {c.isOwner && <Trash2 className="size-5 ml-auto" />}
                 </div>
               </div>
             ))}
