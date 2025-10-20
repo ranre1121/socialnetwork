@@ -60,12 +60,29 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
       const data = await res.json();
 
       if (res.ok) {
-        setComments((prev) => [data.newComment, ...prev]);
         setNewComment("");
-        onRefetch();
+        fetchComments();
       } else {
         console.error(data.error);
       }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDelete = async (commentId: number) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `http://localhost:8000/posts/comment/${commentId}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!res.ok) console.log("smth wrong");
+      fetchComments();
     } catch (err) {
       console.error(err);
     }
@@ -152,7 +169,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
                         <div className="flex gap-2">
                           <Check
                             className="hover:text-green-500 cursor-pointer"
-                            onClick={() => handleDelete(f.username)}
+                            onClick={() => handleDelete(c.id)}
                           />
                           <X
                             className="hover:text-red-500 cursor-pointer"

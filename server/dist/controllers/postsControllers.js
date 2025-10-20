@@ -213,12 +213,14 @@ export async function deleteComment(req, res) {
             return res.status(400).json({ error: "Invalid post ID" });
         }
         const commentId = parseInt(req.params.id);
+        console.log(commentId);
         if (isNaN(commentId))
             return res.status(400).json({ error: "Invalid post ID" });
         const comment = await prisma.comment.findUnique({
             where: { id: commentId },
         });
-        res.status(400).json({ msg: "Succesfully deleted" });
+        const deleted = await prisma.comment.delete({ where: { id: commentId } });
+        res.status(400).json({ deleted });
     }
     catch (error) { }
 }

@@ -231,11 +231,13 @@ export async function getComments(req: AuthenticatedRequest, res: Response) {
 export async function deleteComment(req: AuthenticatedRequest, res: Response) {
   try {
     const username = req.user?.username;
+
     if (!username) return res.status(401).json({ error: "Unauthorized" });
     if (!req.params.id) {
       return res.status(400).json({ error: "Invalid post ID" });
     }
     const commentId = parseInt(req.params.id);
+    console.log(commentId);
     if (isNaN(commentId))
       return res.status(400).json({ error: "Invalid post ID" });
 
@@ -243,6 +245,8 @@ export async function deleteComment(req: AuthenticatedRequest, res: Response) {
       where: { id: commentId },
     });
 
-    res.status(400).json({ msg: "Succesfully deleted" });
+    const deleted = await prisma.comment.delete({ where: { id: commentId } });
+
+    res.status(400).json({ deleted });
   } catch (error) {}
 }
