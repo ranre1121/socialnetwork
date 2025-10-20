@@ -129,7 +129,7 @@ const Post = ({ post, onFetch }: PostTypes) => {
           >
             <MessageCircleMore className="size-4.5 group-hover:text-sky-500" />
             &nbsp;
-            <p>{post.comments?.length}</p>
+            <p>{post._count.comments}</p>
           </span>
         </div>
       </div>

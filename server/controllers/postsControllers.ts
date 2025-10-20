@@ -61,7 +61,7 @@ export async function getFeedPosts(req: AuthenticatedRequest, res: Response) {
       include: {
         author: { select: { id: true, name: true, username: true } },
         likes: { select: { username: true, name: true } },
-        comments: true,
+        _count: { select: { comments: true } },
       },
     });
 
@@ -194,8 +194,6 @@ export async function addComment(req: AuthenticatedRequest, res: Response) {
 
     return res.status(201).json({
       message: "Comment added successfully",
-      newComment,
-      comments: updatedComments,
     });
   } catch (error) {
     console.error(error);

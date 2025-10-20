@@ -29,7 +29,7 @@ export async function getProfile(req: Request, res: Response) {
       include: {
         author: { select: { id: true, name: true, username: true } },
         likes: { select: { name: true, username: true } },
-        comments: true,
+        _count: { select: { comments: true } },
       },
     });
 
