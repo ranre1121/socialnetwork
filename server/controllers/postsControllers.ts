@@ -161,8 +161,6 @@ export async function addComment(req: AuthenticatedRequest, res: Response) {
       return res.status(400).json({ error: "Invalid post ID" });
     }
 
-    console.log(req.params.id);
-
     const postId = parseInt(req.params.id);
     if (isNaN(postId))
       return res.status(400).json({ error: "Invalid post ID" });

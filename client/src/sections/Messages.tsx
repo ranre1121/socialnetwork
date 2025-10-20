@@ -30,9 +30,6 @@ const Messages = () => {
 
   useEffect(() => {
     if (location.state) {
-      console.log(1);
-      console.log(selectedChat);
-      console.log(conversations);
       setSelectedChat(
         conversations.find((c) => c.friendUsername === location.state.username)
       );

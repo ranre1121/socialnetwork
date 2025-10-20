@@ -14,11 +14,11 @@ type Comment = {
 
 type CommentsModalProps = {
   post: PostType;
-
+  onClose: () => void;
   onRefetch: () => void;
 };
 
-const CommentsModal = ({ post, onRefetch }: CommentsModalProps) => {
+const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
@@ -67,6 +67,7 @@ const CommentsModal = ({ post, onRefetch }: CommentsModalProps) => {
       if (res.ok) {
         setComments((prev) => [data.newComment, ...prev]);
         setNewComment("");
+        onRefetch();
       } else {
         console.error(data.error);
       }
@@ -78,14 +79,20 @@ const CommentsModal = ({ post, onRefetch }: CommentsModalProps) => {
   return (
     <div
       className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
-      onClick={onRefetch}
+      onClick={() => {
+        onRefetch();
+        onClose();
+      }}
     >
       <div
         className="bg-white dark:bg-gray-800 w-[600px] rounded-xl shadow-xl p-6 max-h-[80vh] overflow-y-auto relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          onClick={onRefetch}
+          onClick={() => {
+            onRefetch();
+            onClose();
+          }}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:hover:text-white"
         >
           <X className="size-5" />
