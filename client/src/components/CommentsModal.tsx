@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trash2, X } from "lucide-react";
+import { Check, Trash2, X } from "lucide-react";
 import type { Post as PostType } from "../types/Types";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { formatPostDate } from "../utils/utils";
@@ -16,6 +16,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
 
   const navigate = useNavigate();
 
@@ -137,7 +138,30 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
                     </p>
                     <p className="text-gray-700 dark:text-gray-300">{c.text}</p>
                   </div>
-                  {c.isOwner && <Trash2 className="size-5 ml-auto" />}
+                  {c.isOwner && (
+                    <div className="ml-auto">
+                      {confirmDelete !== c.id && (
+                        <Trash2
+                          className="size-5 hover:text-red-500 cursor-pointer"
+                          onClick={() => {
+                            setConfirmDelete(c.id);
+                          }}
+                        />
+                      )}
+                      {confirmDelete === c.id && (
+                        <div className="flex gap-2">
+                          <Check
+                            className="hover:text-green-500 cursor-pointer"
+                            onClick={() => handleDelete(f.username)}
+                          />
+                          <X
+                            className="hover:text-red-500 cursor-pointer"
+                            onClick={() => setConfirmDelete(null)}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

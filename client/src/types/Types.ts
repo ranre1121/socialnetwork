@@ -31,6 +31,7 @@ type Post = {
     name: string;
   };
   comments: string[];
+  _count: { comments: number };
 };
 
 type Conversation = {
