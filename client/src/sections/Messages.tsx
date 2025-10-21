@@ -60,7 +60,7 @@ const Messages = () => {
 
                   <span className="flex flex-col leading-4 w-full">
                     <p className="font-semibold dark:text-white">
-                      {c.friendName}
+                      {c.friendUsername}
                     </p>
 
                     <span className="text-xs flex items-center text-gray-400 overflow-hidden">

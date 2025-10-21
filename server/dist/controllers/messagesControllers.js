@@ -22,7 +22,13 @@ export async function getConversations(req, res) {
                 messages: true,
             },
         });
-        res.status(200).json(conversations);
+        const messages = conversations.map((conv) => ({
+            ...conv,
+            friendUsername: conv.participant1.username === currentUsername
+                ? conv.participant2.username
+                : conv.participant1.username,
+        }));
+        res.status(200).json(messages);
     }
     catch (err) {
         console.error("getConversations error:", err);

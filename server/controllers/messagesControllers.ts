@@ -27,7 +27,15 @@ export async function getConversations(req: Request, res: Response) {
       },
     });
 
-    res.status(200).json(conversations);
+    const messages = conversations.map((conv) => ({
+      ...conv,
+      friendUsername:
+        conv.participant1.username === currentUsername
+          ? conv.participant2.username
+          : conv.participant1.username,
+    }));
+
+    res.status(200).json(messages);
   } catch (err) {
     console.error("getConversations error:", err);
     res.status(500).json({ message: "Server error" });
