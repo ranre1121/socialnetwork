@@ -9,36 +9,19 @@ export async function getConversations(req, res) {
         });
         if (!currentUser)
             return res.status(404).json({ message: "User not found" });
-        const friendships = await prisma.friendship.findMany({
+        const conversations = await prisma.chat.findMany({
             where: {
-                OR: [{ requesterId: currentUser.id }, { addresseeId: currentUser.id }],
-                status: "ACCEPTED",
+                OR: [
+                    { participant1Id: currentUser.id },
+                    { participant2Id: currentUser.id },
+                ],
+            },
+            include: {
+                participant1: { select: { username: true, name: true } },
+                participant2: { select: { username: true, name: true } },
+                messages: true,
             },
         });
-        const friendIds = friendships.map((f) => f.requesterId === currentUser.id ? f.addresseeId : f.requesterId);
-        const friends = await prisma.user.findMany({
-            where: { id: { in: friendIds } },
-            select: { id: true, username: true, name: true },
-        });
-        const conversations = await Promise.all(friends.map(async (friend) => {
-            const chat = await prisma.chat.findFirst({
-                where: {
-                    OR: [
-                        { participant1Id: currentUser.id, participant2Id: friend.id },
-                        { participant1Id: friend.id, participant2Id: currentUser.id },
-                    ],
-                },
-                include: {
-                    messages: { orderBy: { sentAt: "desc" }, take: 1 },
-                },
-            });
-            return {
-                chatId: chat?.id ?? null,
-                friendUsername: friend.username,
-                friendName: friend.name,
-                lastMessage: chat?.messages[0] ?? null,
-            };
-        }));
         res.status(200).json(conversations);
     }
     catch (err) {
