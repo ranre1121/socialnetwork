@@ -109,23 +109,29 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
         >
           <X className="size-5" />
         </button>
-
-        <span className="flex gap-1 items-center">
-          <p
-            className="font-semibold cursor-pointer hover:underline dark:text-white"
-            onClick={() => navigate(`/profile/${post.author.username}`)}
-          >
-            {post.author?.name}
-          </p>
-          <p className="text-gray-500">@{post.author?.username}</p>
-          <p className="text-gray-500">· {formatPostDate(post.createdAt)}</p>
-        </span>
-        <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap break-all">
-          {post?.content
-            .split("\n")
-            .map((line: string) => line.trimStart())
-            .join("\n")}
-        </p>
+        <div className="flex gap-3">
+          <img src={profilePlaceholder} className="size-8  rounded-full" />
+          <div>
+            <span className="flex gap-1 items-center">
+              <p
+                className="font-semibold cursor-pointer hover:underline dark:text-white"
+                onClick={() => navigate(`/profile/${post.author.username}`)}
+              >
+                {post.author?.name}
+              </p>
+              <p className="text-gray-500">@{post.author?.username}</p>
+              <p className="text-gray-500">
+                · {formatPostDate(post.createdAt)}
+              </p>
+            </span>
+            <p className="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap break-all">
+              {post?.content
+                .split("\n")
+                .map((line: string) => line.trimStart())
+                .join("\n")}
+            </p>
+          </div>
+        </div>
 
         <div className="border-b border-gray-300 dark:border-gray-700 my-4" />
 
@@ -134,7 +140,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
         ) : comments.length === 0 ? (
           <p className="text-gray-500">No comments yet.</p>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 ml-2">
             {comments.map((c) => (
               <div
                 key={c.id}

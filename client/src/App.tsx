@@ -47,12 +47,7 @@ const App = () => {
     localStorage.setItem("theme", newDark ? "dark" : "light");
   };
 
-  if (loading)
-    return (
-      <div className="w-screen h-screen dark:bg-gray-800">
-        <p className="">Loading...</p>;
-      </div>
-    );
+  if (loading) return <div className="w-screen h-screen dark:bg-gray-800" />;
 
   return (
     <Router>
