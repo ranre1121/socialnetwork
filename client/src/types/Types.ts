@@ -36,6 +36,18 @@ type Post = {
   liked: boolean;
 };
 
+type Message = {
+  id: number;
+  chatId: number;
+  content: string;
+  senderId: number;
+  receiverId: number;
+  sentAt: string;
+  senderUsername: string;
+  receiverUsername: string;
+  status: "sent" | "received";
+};
+
 type Conversation = {
   friendUsername: string;
   friendName: string;
@@ -47,14 +59,6 @@ type Conversation = {
     receiverId: string;
     sentAt: string;
   };
-};
-
-type Message = {
-  id: number;
-  sender: string;
-  receiver: string;
-  content: string;
-  createdAt: string;
 };
 
 type Comment = {

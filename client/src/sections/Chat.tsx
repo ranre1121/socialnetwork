@@ -1,18 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
-
-export type Message = {
-  id: number;
-  chatId: number;
-  content: string;
-  senderId: number;
-  receiverId: number;
-  sentAt: string;
-  senderUsername: string;
-  receiverUsername: string;
-  status: "sent" | "received";
-};
+import type { Message } from "../types/Types";
 
 type ChatProps = {
   friendUsername: string;
@@ -98,6 +87,7 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       sentAt: new Date().toISOString(),
       senderUsername: user.username,
       receiverUsername: friendUsername,
+      status: "sent",
     };
     setMessages((prev) => [...prev, optimisticMessage]);
     socketRef.current.emit("private_message", payload);
