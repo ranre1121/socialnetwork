@@ -250,7 +250,7 @@ export async function deleteComment(req: AuthenticatedRequest, res: Response) {
       return res.status(400).json({ error: "Invalid post ID" });
     }
     const commentId = parseInt(req.params.id);
-    console.log(commentId);
+
     if (isNaN(commentId))
       return res.status(400).json({ error: "Invalid post ID" });
 

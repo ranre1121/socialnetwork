@@ -144,7 +144,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
             {comments.map((c) => (
               <div
                 key={c.id}
-                className="flex gap-3 border-b border-gray-200 dark:border-gray-700 pb-3"
+                className="flex gap-3 border-gray-200 dark:border-gray-700 pb-3"
               >
                 <img
                   src={profilePlaceholder}
