@@ -140,7 +140,8 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
         ) : comments.length === 0 ? (
           <p className="text-gray-500">No comments yet.</p>
         ) : (
-          <div className="flex flex-col gap-3 ml-2">
+          <div className="flex flex-col gap-3 ">
+            <p className="text-lg font-bold">Comments</p>
             {comments.map((c) => (
               <div
                 key={c.id}
