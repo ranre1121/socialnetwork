@@ -155,7 +155,12 @@ export async function getMessages(req: Request, res: Response) {
       orderBy: { sentAt: "asc" },
     });
 
-    res.status(200).json(messages);
+    const updatedMessages = messages.map((message) => ({
+      ...message,
+      status: senderUser.id === message.senderId ? "sent" : "received",
+    }));
+
+    res.status(200).json(updatedMessages);
   } catch (err) {
     console.error("getMessages error:", err);
     res.status(500).json({ message: "Server error" });
