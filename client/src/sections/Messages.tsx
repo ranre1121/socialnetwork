@@ -31,7 +31,9 @@ const Messages = () => {
   useEffect(() => {
     if (location.state) {
       setSelectedChat(
-        conversations.find((c) => c.friendUsername === location.state.username)
+        conversations.find(
+          (c) => c.companion.username === location.state.username
+        )
       );
     }
   }, [conversations]);
@@ -47,7 +49,7 @@ const Messages = () => {
                 key={c.companion.username}
                 onClick={() => setSelectedChat(c)}
                 className={`py-4.5 px-4 cursor-pointer transition ${
-                  selectedChat?.friendUsername === c.friendUsername
+                  selectedChat?.companion.username === c.companion.username
                     ? "bg-gray-100 dark:bg-gray-700"
                     : "hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
@@ -83,7 +85,7 @@ const Messages = () => {
           {selectedChat ? (
             <div className="w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700 flex flex-col">
               <Chat
-                friendUsername={selectedChat.friendUsername}
+                friendUsername={selectedChat.companion.username}
                 onFetch={() => fetchConversations()}
               />
             </div>

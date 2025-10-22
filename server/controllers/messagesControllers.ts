@@ -21,7 +21,10 @@ export async function getConversations(req: Request, res: Response) {
           { participant2Id: currentUser.id },
         ],
       },
-      include: { participant1: true, participant2: true },
+      include: {
+        participant1: { select: { username: true, name: true } },
+        participant2: { select: { username: true, name: true } },
+      },
     });
 
     const conversations = c.map((c) => ({

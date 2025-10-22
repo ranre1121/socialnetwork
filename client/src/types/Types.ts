@@ -49,8 +49,7 @@ type Message = {
 };
 
 type Conversation = {
-  friendUsername: string;
-  friendName: string;
+  companion: { username: string; name: string };
   lastMessage: {
     id: number;
     chatId: number;
