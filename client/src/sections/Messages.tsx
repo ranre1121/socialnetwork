@@ -44,7 +44,7 @@ const Messages = () => {
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
             {conversations.map((c) => (
               <div
-                key={c.friendUsername}
+                key={c.companion.username}
                 onClick={() => setSelectedChat(c)}
                 className={`py-4.5 px-4 cursor-pointer transition ${
                   selectedChat?.friendUsername === c.friendUsername
@@ -60,7 +60,7 @@ const Messages = () => {
 
                   <span className="flex flex-col leading-4 w-full">
                     <p className="font-semibold dark:text-white">
-                      {c.friendUsername}
+                      {c.companion.username}
                     </p>
 
                     <span className="text-xs flex items-center text-gray-400 overflow-hidden">
