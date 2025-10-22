@@ -95,34 +95,54 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto space-y-3 flex flex-col justify-end">
-      {messages.length === 0 ? (
-        <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-          No messages yet
-        </div>
-      ) : (
-        messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`p-3 rounded-2xl w-fit max-w-[50%] flex items-center gap-2 ${
-              msg.status === "sent"
-                ? "ml-auto bg-blue-600 text-white text-right"
-                : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
-            }`}
-          >
-            <p className="break-words break-all whitespace-pre-wrap">
-              {msg.content}
-            </p>
-            <div className="text-xs opacity-70 mt-1 text-right">
-              {new Date(msg.sentAt).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </div>
+    <div className="flex flex-col h-full pb-3">
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto space-y-3 flex flex-col justify-end">
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+            No messages yet
           </div>
-        ))
-      )}
-      <div ref={messagesEndRef} />
+        ) : (
+          messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`p-3 rounded-2xl w-fit max-w-[50%] flex items-center gap-2 ${
+                msg.status === "sent"
+                  ? "ml-auto bg-blue-600 text-white text-right"
+                  : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
+              }`}
+            >
+              <p className="break-words break-all whitespace-pre-wrap">
+                {msg.content}
+              </p>
+              <div className="text-xs opacity-70 mt-1 text-right">
+                {new Date(msg.sentAt).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </div>
+            </div>
+          ))
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input + Send Button */}
+      <div className="flex items-center border-t pt-3 mt-3">
+        <input
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          className="flex-1 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none"
+          placeholder="Type a message..."
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        />
+        <button
+          onClick={sendMessage}
+          className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+        >
+          Send
+        </button>
+      </div>
     </div>
   );
 };
