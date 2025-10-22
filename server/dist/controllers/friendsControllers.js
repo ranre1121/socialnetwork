@@ -196,7 +196,11 @@ export async function acceptRequest(req, res) {
         if (updated.count === 0)
             return res.status(404).json({ msg: "Request not found" });
         await prisma.chat.create({
-            data: { participant1Id: sender.id, participant2Id: receiver.id },
+            data: {
+                participant1Id: sender.id,
+                participant2Id: receiver.id,
+                lastMessage: "",
+            },
         });
         return res.status(200).json({ msg: "Friend request accepted" });
     }

@@ -1,6 +1,7 @@
 import prisma from "../prisma.js";
 export async function getConversations(req, res) {
     try {
+        const currentUsername = req.user?.username;
         return res.status(200).json(conversations);
     }
     catch (err) {
