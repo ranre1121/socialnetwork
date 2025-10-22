@@ -78,6 +78,7 @@ model Chat {
   participant1Id Int
   participant2Id Int
   createdAt      DateTime @default(now())
+  lastMessage    String
 
   participant1 User      @relation("ChatParticipant1", fields: [participant1Id], references: [id])
   participant2 User      @relation("ChatParticipant2", fields: [participant2Id], references: [id])

@@ -96,7 +96,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
 
   return (
     <div className="flex flex-col h-full pb-3">
-      {/* Messages Area */}
       <div className="flex-1 overflow-y-auto space-y-3 flex flex-col justify-end">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
@@ -127,7 +126,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input + Send Button */}
       <div className="flex items-center border-t pt-3 mt-3">
         <input
           value={newMessage}
