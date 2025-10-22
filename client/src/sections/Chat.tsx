@@ -95,9 +95,13 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full pb-3">
-      <div className="flex-1 overflow-y-auto space-y-3">
-        {messages.map((msg) => (
+    <div className="flex-1 overflow-y-auto space-y-3 flex flex-col justify-end">
+      {messages.length === 0 ? (
+        <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+          No messages yet
+        </div>
+      ) : (
+        messages.map((msg) => (
           <div
             key={msg.id}
             className={`p-3 rounded-2xl w-fit max-w-[50%] flex items-center gap-2 ${
@@ -116,24 +120,9 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
               })}
             </div>
           </div>
-        ))}
-        <div ref={messagesEndRef} />
-      </div>
-      <div className="flex items-center border-t pt-3 mt-3">
-        <input
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          className="flex-1 p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-black dark:text-white focus:outline-none"
-          placeholder="Type a message..."
-          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        />
-        <button
-          onClick={sendMessage}
-          className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
-        >
-          Send
-        </button>
-      </div>
+        ))
+      )}
+      <div ref={messagesEndRef} />
     </div>
   );
 };
