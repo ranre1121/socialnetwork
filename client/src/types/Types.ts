@@ -37,14 +37,10 @@ type Post = {
 };
 
 type Message = {
-  id: number;
-  chatId: number;
+  sender: string;
+  receiver: string;
   content: string;
-  senderId: number;
-  receiverId: number;
   sentAt: string;
-  senderUsername: string;
-  receiverUsername: string;
   status: "sent" | "received";
 };
 

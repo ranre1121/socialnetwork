@@ -78,11 +78,8 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       receiver: friendUsername,
       content: newMessage.trim(),
     };
-    const optimisticMessage: Message = {
-      id: Date.now(),
-      chatId: 0,
+    const optimisticMessage: any = {
       senderId: user.id,
-      receiverId: 0,
       content: newMessage.trim(),
       sentAt: new Date().toISOString(),
       senderUsername: user.username,
