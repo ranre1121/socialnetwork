@@ -75,6 +75,15 @@ export async function addMessage(
         chatId: chat.id,
       },
     });
+
+    const message = {
+      sender: senderUser.username,
+      receiver: receiverUser.username,
+      content,
+      sentAt: newMessage.sentAt,
+    };
+
+    return message;
   } catch (err) {
     console.error("addMessage error:", err);
     return null;
