@@ -24,6 +24,7 @@ export async function getConversations(req: Request, res: Response) {
       include: {
         participant1: { select: { username: true, name: true } },
         participant2: { select: { username: true, name: true } },
+        lastMessage: true,
       },
     });
 
@@ -56,7 +57,7 @@ export async function addMessage(
 
     if (!senderUser || !receiverUser) return "No user found";
 
-    const chat = await prisma.chat.findFirst({
+    let chat = await prisma.chat.findFirst({
       where: {
         OR: [
           { participant1Id: senderUser.id, participant2Id: receiverUser.id },
@@ -74,6 +75,11 @@ export async function addMessage(
         content,
         chatId: chat.id,
       },
+    });
+
+    await prisma.chat.update({
+      where: { id: chat.id },
+      data: { lastMessage: { connect: { id: newMessage.id } } },
     });
 
     const message = {

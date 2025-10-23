@@ -84,6 +84,7 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       senderUsername: user.username,
       receiverUsername: friendUsername,
       status: "sent",
+      sentAt: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, optimisticMessage]);
     socketRef.current.emit("private_message", payload);

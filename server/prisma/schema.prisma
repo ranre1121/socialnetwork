@@ -74,15 +74,16 @@ model Comment {
 }
 
 model Chat {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   participant1Id Int
   participant2Id Int
-  createdAt      DateTime @default(now())
-  lastMessage    String
+  createdAt      DateTime  @default(now())
+  lastMessageId  Int?      @unique
 
-  participant1 User      @relation("ChatParticipant1", fields: [participant1Id], references: [id])
-  participant2 User      @relation("ChatParticipant2", fields: [participant2Id], references: [id])
-  messages     Message[] @relation("MessageChat")
+  participant1   User      @relation("ChatParticipant1", fields: [participant1Id], references: [id])
+  participant2   User      @relation("ChatParticipant2", fields: [participant2Id], references: [id])
+  messages       Message[] @relation("MessageChat")
+  lastMessage    Message?  @relation("LastMessage", fields: [lastMessageId], references: [id])
 
   @@unique([participant1Id, participant2Id])
 }
@@ -95,7 +96,9 @@ model Message {
   content    String
   sentAt     DateTime @default(now())
 
-  chat     Chat @relation("MessageChat", fields: [chatId], references: [id])
-  sender   User @relation("MessageSender", fields: [senderId], references: [id])
-  receiver User @relation("MessageReceiver", fields: [receiverId], references: [id])
+  chat     Chat  @relation("MessageChat", fields: [chatId], references: [id])
+  sender   User  @relation("MessageSender", fields: [senderId], references: [id])
+  receiver User  @relation("MessageReceiver", fields: [receiverId], references: [id])
+  chatLast Chat? @relation("LastMessage") 
 }
+

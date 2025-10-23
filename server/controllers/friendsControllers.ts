@@ -225,11 +225,10 @@ export async function acceptRequest(req: Request, res: Response) {
     if (updated.count === 0)
       return res.status(404).json({ msg: "Request not found" });
 
-    await prisma.chat.create({
+    const newChat = await prisma.chat.create({
       data: {
         participant1Id: sender.id,
         participant2Id: receiver.id,
-        lastMessage: "",
       },
     });
 
