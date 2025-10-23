@@ -93,30 +93,33 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
 
   return (
     <div className="flex flex-col h-full pb-3">
-      <div className="flex-1 overflow-y-auto space-y-3 flex flex-col justify-end">
+      <div className="flex-1 overflow-y-auto flex flex-col gap-3 px-3">
+        <div className="flex-grow" />
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
             No messages yet
           </div>
         ) : (
-          messages.map((msg) => (
+          messages.map((msg, index) => (
             <div
-              key={msg.id}
-              className={`p-3 rounded-2xl w-fit max-w-[50%] flex items-center gap-2 ${
+              key={index}
+              className={`p-3 rounded-2xl w-fit max-w-[50%] flex flex-col ${
                 msg.status === "sent"
                   ? "ml-auto bg-blue-600 text-white text-right"
                   : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
               }`}
             >
-              <p className="break-words break-all whitespace-pre-wrap">
-                {msg.content}
-              </p>
-              <div className="text-xs opacity-70 mt-1 text-right">
-                {new Date(msg.sentAt).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </div>
+              <span className="flex gap-3 items-center">
+                <p className="break-words break-all whitespace-pre-wrap">
+                  {msg.content}
+                </p>
+                <p className="text-sm text-gray-300 self-end">
+                  {new Date(msg.sentAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </span>
             </div>
           ))
         )}
