@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
 import type { Message } from "../types/Types";
+import profilePlaceholder from "../../public/images/profile-placeholder.png";
 
 type ChatProps = {
   friendUsername: string;
@@ -79,9 +80,7 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
       content: newMessage.trim(),
     };
     const optimisticMessage: any = {
-      senderId: user.id,
       content: newMessage.trim(),
-      sentAt: new Date().toISOString(),
       senderUsername: user.username,
       receiverUsername: friendUsername,
       status: "sent",
@@ -93,7 +92,11 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
 
   return (
     <div className="flex flex-col h-full pb-3">
-      <div className="flex-1 overflow-y-auto flex flex-col gap-3 px-3">
+      <div className="flex justify-center gap-1.5 bg-gray-700 rounded-t-2xl py-3">
+        <img src={profilePlaceholder} className="size-6 rounded-full " />
+        <p>@{friendUsername}</p>
+      </div>
+      <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-5 pl-3">
         <div className="flex-grow" />
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
@@ -126,7 +129,7 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="flex items-center border-t pt-3 mt-3">
+      <div className="flex items-center border-t pt-3 mt-3 px-5">
         <input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}

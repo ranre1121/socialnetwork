@@ -83,7 +83,7 @@ const Messages = () => {
 
         <div className="flex-1 h-full">
           {selectedChat ? (
-            <div className="w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 border border-gray-200 dark:border-gray-700 flex flex-col">
+            <div className="w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md  border border-gray-200 dark:border-gray-700 flex flex-col">
               <Chat
                 friendUsername={selectedChat.companion.username}
                 onFetch={() => fetchConversations()}
