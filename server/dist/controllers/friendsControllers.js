@@ -238,13 +238,13 @@ export async function listFriends(req, res) {
         const username = req.params.username;
         if (!username)
             return res.status(400).json({ msg: "No username provided" });
-        const friends = await prisma.user.findMany({
-            where: {
-                username: username,
-            },
+        const user = await prisma.user.findUnique({
+            where: { username },
             select: { friends: true },
         });
-        return res.status(200).json(friends);
+        if (!user)
+            return res.status(404).json({ message: "User not found" });
+        return res.status(200).json(user.friends);
     }
     catch (err) {
         console.error(err);

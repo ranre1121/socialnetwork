@@ -179,7 +179,9 @@ export async function getRequests(req: Request, res: Response) {
 export async function acceptRequest(req: Request, res: Response) {
   try {
     const receiverUsername = req.user?.username;
+
     const { senderUsername } = req.body;
+
     if (!receiverUsername)
       return res.status(401).json({ msg: "Not authenticated" });
     if (!senderUsername)
@@ -268,14 +270,14 @@ export async function listFriends(req: Request, res: Response) {
     const username = req.params.username;
     if (!username) return res.status(400).json({ msg: "No username provided" });
 
-    const friends = await prisma.user.findMany({
-      where: {
-        username: username,
-      },
+    const user = await prisma.user.findUnique({
+      where: { username },
       select: { friends: true },
     });
 
-    return res.status(200).json(friends);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    return res.status(200).json(user.friends);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });

@@ -163,17 +163,17 @@ const FriendRequestsModal = ({
                     <>
                       <UserCheck
                         className="hover:text-green-500 cursor-pointer"
-                        onClick={() => handleAccept(r.sender?.username)}
+                        onClick={() => handleAccept(r.requester.username)}
                       />
                       <UserX
                         className="hover:text-red-500 cursor-pointer"
-                        onClick={() => handleDecline(r.sender?.username)}
+                        onClick={() => handleDecline(r.requester.username)}
                       />
                     </>
                   ) : (
                     <UserX
                       className="hover:text-red-500 cursor-pointer"
-                      onClick={() => handleCancel(r.receiver?.username)}
+                      onClick={() => handleCancel(r.receiver.username)}
                     />
                   )}
                 </div>
