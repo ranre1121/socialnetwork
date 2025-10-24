@@ -148,9 +148,13 @@ const FriendRequestsModal = ({
                   className="size-10 rounded-full"
                 />
                 <span className="text-black dark:text-white">
-                  <p>{r.name}</p>
+                  <p>
+                    {type === "sent" ? r.receiver?.name : r.requester?.name}
+                  </p>
                   <p className="text-sm text-gray-500 dark:text-gray-300">
-                    @{r.username}
+                    {type === "sent"
+                      ? `@${r.receiver?.username}`
+                      : `@${r.requester?.username}`}
                   </p>
                 </span>
 
@@ -159,17 +163,17 @@ const FriendRequestsModal = ({
                     <>
                       <UserCheck
                         className="hover:text-green-500 cursor-pointer"
-                        onClick={() => handleAccept(r.username)}
+                        onClick={() => handleAccept(r.sender?.username)}
                       />
                       <UserX
                         className="hover:text-red-500 cursor-pointer"
-                        onClick={() => handleDecline(r.username)}
+                        onClick={() => handleDecline(r.sender?.username)}
                       />
                     </>
                   ) : (
                     <UserX
                       className="hover:text-red-500 cursor-pointer"
-                      onClick={() => handleCancel(r.username)}
+                      onClick={() => handleCancel(r.receiver?.username)}
                     />
                   )}
                 </div>

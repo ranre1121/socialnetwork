@@ -88,11 +88,11 @@ export async function addRequest(req: Request, res: Response) {
     if (!sender || !receiver)
       return res.status(400).json({ msg: "Invalid users" });
 
-    const existing = await prisma.friendship.findFirst({
+    const existing = await prisma.friendRequest.findFirst({
       where: {
         OR: [
-          { requesterId: sender.id, addresseeId: receiver.id },
-          { requesterId: receiver.id, addresseeId: sender.id },
+          { requesterId: sender.id, receiverId: receiver.id },
+          { requesterId: receiver.id, receiverId: sender.id },
         ],
       },
     });
@@ -101,8 +101,8 @@ export async function addRequest(req: Request, res: Response) {
         .status(400)
         .json({ msg: "Friendship or request already exists" });
 
-    const newFriendship = await prisma.friendship.create({
-      data: { requesterId: sender.id, addresseeId: receiver.id },
+    const newFriendship = await prisma.friendRequest.create({
+      data: { requesterId: sender.id, receiverId: receiver.id },
     });
 
     return res.status(200).json({ newFriendship });
@@ -131,11 +131,10 @@ export async function cancelRequest(req: Request, res: Response) {
     if (!sender || !receiver)
       return res.status(400).json({ msg: "Invalid users" });
 
-    const deleted = await prisma.friendship.deleteMany({
+    const deleted = await prisma.friendRequest.deleteMany({
       where: {
         requesterId: sender.id,
-        addresseeId: receiver.id,
-        status: "PENDING",
+        receiverId: receiver.id,
       },
     });
 
@@ -161,28 +160,16 @@ export async function getRequests(req: Request, res: Response) {
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) return res.status(400).json({ msg: "User not found" });
 
-    const userId = user.id;
-
-    const requests = await prisma.friendship.findMany({
-      where: {
-        status: "PENDING",
-        ...(type === "received"
-          ? { addresseeId: userId }
-          : { requesterId: userId }),
+    const requests = await prisma.friendRequest.findMany({
+      where:
+        type === "sent" ? { requesterId: user.id } : { receiverId: user.id },
+      include: {
+        requester: type === "received" && true,
+        receiver: type === "sent" && true,
       },
-      select: { requesterId: true, addresseeId: true },
     });
 
-    const ids = requests.map((r) =>
-      type === "received" ? r.requesterId : r.addresseeId
-    );
-
-    const users = await prisma.user.findMany({
-      where: { id: { in: ids } },
-      select: { username: true, name: true },
-    });
-
-    return res.status(200).json(users);
+    return res.status(200).json(requests);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: "Server error" });
@@ -207,19 +194,24 @@ export async function acceptRequest(req: Request, res: Response) {
     if (!sender || !receiver)
       return res.status(400).json({ msg: "Invalid users" });
 
-    const updated = await prisma.friendship.updateMany({
+    await prisma.friendRequest.deleteMany({
       where: {
         requesterId: sender.id,
-        addresseeId: receiver.id,
-        status: "PENDING",
+        receiverId: receiver.id,
       },
-      data: { status: "ACCEPTED" },
     });
 
-    if (updated.count === 0)
-      return res.status(404).json({ msg: "Request not found" });
+    await prisma.user.update({
+      where: { username: receiverUsername },
+      data: { friends: { connect: { id: sender.id } } },
+    });
 
-    const newChat = await prisma.chat.create({
+    await prisma.user.update({
+      where: { username: senderUsername },
+      data: { friends: { connect: { id: receiver.id } } },
+    });
+
+    await prisma.chat.create({
       data: {
         participant1Id: sender.id,
         participant2Id: receiver.id,
@@ -251,11 +243,10 @@ export async function declineRequest(req: Request, res: Response) {
     if (!sender || !receiver)
       return res.status(400).json({ msg: "Invalid users" });
 
-    const deleted = await prisma.friendship.deleteMany({
+    const deleted = await prisma.friendRequest.deleteMany({
       where: {
         requesterId: sender.id,
-        addresseeId: receiver.id,
-        status: "PENDING",
+        receiverId: receiver.id,
       },
     });
 
@@ -277,25 +268,11 @@ export async function listFriends(req: Request, res: Response) {
     const username = req.params.username;
     if (!username) return res.status(400).json({ msg: "No username provided" });
 
-    const user = await prisma.user.findUnique({ where: { username } });
-    if (!user) return res.status(400).json({ msg: "User not found" });
-
-    const userId = user.id;
-
-    const friendships = await prisma.friendship.findMany({
-      where: {
-        OR: [{ requesterId: userId }, { addresseeId: userId }],
-        status: "ACCEPTED",
-      },
-    });
-
-    const friendIds = friendships.map((f) =>
-      f.requesterId === userId ? f.addresseeId : f.requesterId
-    );
-
     const friends = await prisma.user.findMany({
-      where: { id: { in: friendIds } },
-      select: { username: true, name: true },
+      where: {
+        username: username,
+      },
+      select: { friends: true },
     });
 
     return res.status(200).json(friends);
