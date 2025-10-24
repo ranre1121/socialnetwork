@@ -15,8 +15,11 @@ model User {
   bio       String   @default("")
   createdAt DateTime @default(now())
 
-  sentRequests     Friendship[] @relation("FriendshipRequester")
-  receivedRequests Friendship[] @relation("FriendshipAddressee")
+  friends  User[] @relation("UserFriends")
+  friendOf User[] @relation("UserFriends")
+
+  sentRequests     FriendRequest[] @relation("FriendshipRequester")
+  receivedRequests FriendRequest[] @relation("FriendshipReceiver")
 
   posts    Post[]    @relation("PostAuthor")
   comments Comment[] @relation("CommentAuthor")
@@ -28,24 +31,15 @@ model User {
   postsLiked       Post[]    @relation("WhoLiked")
 }
 
-enum FriendshipStatus {
-  PENDING
-  ACCEPTED
-  DECLINED
-  BLOCKED
-}
-
-model Friendship {
-  id          Int              @id @default(autoincrement())
+model FriendRequest {
+  id          Int @id @default(autoincrement())
   requesterId Int
-  addresseeId Int
-  status      FriendshipStatus @default(PENDING)
-  createdAt   DateTime         @default(now())
+  receiverId  Int
 
   requester User @relation("FriendshipRequester", fields: [requesterId], references: [id])
-  addressee User @relation("FriendshipAddressee", fields: [addresseeId], references: [id])
+  receiver  User @relation("FriendshipReceiver", fields: [receiverId], references: [id])
 
-  @@unique([requesterId, addresseeId])
+  @@unique([requesterId, receiverId])
 }
 
 model Post {
@@ -74,16 +68,16 @@ model Comment {
 }
 
 model Chat {
-  id             Int       @id @default(autoincrement())
+  id             Int      @id @default(autoincrement())
   participant1Id Int
   participant2Id Int
-  createdAt      DateTime  @default(now())
-  lastMessageId  Int?      @unique
+  createdAt      DateTime @default(now())
+  lastMessageId  Int?     @unique
 
-  participant1   User      @relation("ChatParticipant1", fields: [participant1Id], references: [id])
-  participant2   User      @relation("ChatParticipant2", fields: [participant2Id], references: [id])
-  messages       Message[] @relation("MessageChat")
-  lastMessage    Message?  @relation("LastMessage", fields: [lastMessageId], references: [id])
+  participant1 User      @relation("ChatParticipant1", fields: [participant1Id], references: [id])
+  participant2 User      @relation("ChatParticipant2", fields: [participant2Id], references: [id])
+  messages     Message[] @relation("MessageChat")
+  lastMessage  Message?  @relation("LastMessage", fields: [lastMessageId], references: [id])
 
   @@unique([participant1Id, participant2Id])
 }
@@ -99,6 +93,5 @@ model Message {
   chat     Chat  @relation("MessageChat", fields: [chatId], references: [id])
   sender   User  @relation("MessageSender", fields: [senderId], references: [id])
   receiver User  @relation("MessageReceiver", fields: [receiverId], references: [id])
-  chatLast Chat? @relation("LastMessage") 
+  chatLast Chat? @relation("LastMessage")
 }
-

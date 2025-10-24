@@ -12,24 +12,20 @@ export async function findFriends(req, res) {
         });
         if (!currentUser)
             return res.status(404).json({ message: "User not found" });
-        const userId = currentUser.id;
-        const friendships = await prisma.friendship.findMany({
+        const friendRequests = await prisma.friendRequest.findFirst({
             where: {
-                OR: [{ requesterId: userId }, { addresseeId: userId }],
+                OR: [{ requesterId: currentUser.id }, { receiverId: currentUser.id }],
             },
+            include: { requester: true, receiver: true },
         });
-        const friendsIds = friendships
-            .filter((f) => f.status === "ACCEPTED")
-            .map((f) => (f.requesterId === userId ? f.addresseeId : f.requesterId));
-        const requestsSentIds = friendships
-            .filter((f) => f.status === "PENDING" && f.requesterId === userId)
-            .map((f) => f.addresseeId);
-        const requestsReceivedIds = friendships
-            .filter((f) => f.status === "PENDING" && f.addresseeId === userId)
-            .map((f) => f.requesterId);
+        const friends = await prisma.user.findMany({
+            where: { id: currentUser.id },
+            select: { friends: { select: { id: true } } },
+        });
+        const friendIds = friends.flatMap((user) => user.friends.map((f) => f.id));
         const users = await prisma.user.findMany({
             where: {
-                id: { notIn: [userId, ...friendsIds] },
+                id: { notIn: friendIds },
             },
         });
         const tokens = query.split(/\s+/);
@@ -52,8 +48,8 @@ export async function findFriends(req, res) {
                 name: user.name,
                 username: user.username,
                 score,
-                alreadySent: requestsSentIds.includes(user.id),
-                alreadyReceived: requestsReceivedIds.includes(user.id),
+                alreadySent: friendRequests?.requester.id === currentUser.id,
+                alreadyReceived: friendRequests?.receiver.id === currentUser.id,
             };
         })
             .filter((u) => u.score > 0)
