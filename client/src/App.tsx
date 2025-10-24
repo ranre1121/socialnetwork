@@ -16,13 +16,16 @@ import Friends from "./sections/Friends";
 import Profile from "./sections/Profile";
 /** TODO:
   
-  5) mobile adaptation
-  6) global search
-  7) profile pics
-  8) messages features
+  1) messages socket connect
+  2) messages pagination
+  3) friends remodel
+  4) mobile adaptation
+  5) global search
+  6) profile pics
+  7) messages features
   
   finally{
-    graphql, database integration
+    graphql
   }
  */
 

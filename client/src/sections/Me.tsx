@@ -101,10 +101,10 @@ const Me = () => {
         </div>
 
         <div className="w-[850px] h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
-          <h1 className="text-xl font-semibold">Posts</h1>
+          <h1 className="text-xl font-semibold ">Posts</h1>
 
           {loadingPosts ? (
-            <div className="size-5 border border-t-0 border-indigo-500 animate-spin" />
+            <div className="size-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
           ) : posts.length === 0 ? (
             <p className="text-gray-500 self-center mt-4">No posts yet</p>
           ) : (
