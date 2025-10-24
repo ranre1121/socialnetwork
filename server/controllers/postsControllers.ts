@@ -38,21 +38,11 @@ export async function getFeedPosts(req: AuthenticatedRequest, res: Response) {
 
     const user = await prisma.user.findUnique({
       where: { username },
-      select: { id: true },
+      include: { friends: true },
     });
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    const friendships = await prisma.friendship.findMany({
-      where: {
-        OR: [{ requesterId: user.id }, { addresseeId: user.id }],
-        status: "ACCEPTED",
-      },
-      select: { requesterId: true, addresseeId: true },
-    });
-
-    const friendIds = friendships.map((f) =>
-      f.requesterId === user.id ? f.addresseeId : f.requesterId
-    );
+    const friendIds = user.friends.map((f) => f.id);
     const allVisibleIds = [user.id, ...friendIds];
 
     const posts = await prisma.post.findMany({

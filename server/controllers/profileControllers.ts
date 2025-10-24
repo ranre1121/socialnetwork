@@ -19,11 +19,11 @@ export async function getProfile(req: Request, res: Response) {
     });
     if (!viewer) return res.status(404).json({ error: "Viewer not found" });
 
-    const friendships = await prisma.friendship.findMany({
+    const friendships = await prisma.user.findUnique({
       where: {
-        OR: [{ requesterId: user.id }, { addresseeId: user.id }],
-        status: "ACCEPTED",
+        username: username,
       },
+      select: { friends: true },
     });
 
     const userPosts = await prisma.post.findMany({
@@ -43,7 +43,7 @@ export async function getProfile(req: Request, res: Response) {
       username: user.username,
       name: user.name,
       bio: user.bio || "",
-      friendsCount: friendships.length,
+      friendsCount: friendships?.friends.length,
       profileOwner: currentUser === username,
       posts: userPosts.map((post) => ({
         id: post.id,
