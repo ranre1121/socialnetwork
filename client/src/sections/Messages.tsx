@@ -46,10 +46,10 @@ const Messages = () => {
   return (
     <div className="flex h-screen w-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start">
-        <div className="w-[850px] h-[1000px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col">
+        <div className="w-[850px] h-[1000px] bg-white dark:bg-gray-800 rounded-2xl shadow-md py-6 px-4 flex flex-col">
           {!selectedChat ? (
             <>
-              <h1 className="text-xl font-semibold mb-5">Messages</h1>
+              <h1 className="text-xl font-semibold mb-5 mx-2">Messages</h1>
               <div className="border-t border-gray-200 dark:border-gray-700 mb-3" />
               <div className="flex-1 overflow-y-auto flex flex-col gap-2">
                 {loading ? (
@@ -63,7 +63,7 @@ const Messages = () => {
                     <div
                       key={c.companion.username}
                       onClick={() => setSelectedChat(c)}
-                      className="py-4 px-3 rounded-lg flex items-center gap-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
+                      className="py-4 px-4 flex rounded-lg items-center gap-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
                     >
                       <img
                         src={profilePlaceholder}

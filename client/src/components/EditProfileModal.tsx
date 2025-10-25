@@ -43,14 +43,14 @@ const EditProfileModal = ({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Full name"
-            className="p-2 rounded border dark:bg-gray-700 dark:text-white"
+            className="p-2 rounded focus:outline-none dark:bg-gray-700 dark:text-white"
           />
 
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             placeholder="Bio"
-            className="p-2 rounded border dark:bg-gray-700 dark:text-white"
+            className="p-2 rounded dark:bg-gray-700 focus:outline-none dark:text-white"
           />
 
           <div className="flex justify-end gap-2">
