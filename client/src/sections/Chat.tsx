@@ -8,7 +8,7 @@ type ChatProps = {
   onFetch: () => void;
 };
 
-const Chat = ({ friendUsername, onFetch }: ChatProps) => {
+const Chat = ({ friendUsername }: ChatProps) => {
   const { user } = useUser();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");

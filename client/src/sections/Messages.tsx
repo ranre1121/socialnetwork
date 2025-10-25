@@ -46,16 +46,16 @@ const Messages = () => {
   return (
     <div className="flex h-screen w-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start">
-        <div className="w-[850px] h-[1000px] bg-white dark:bg-gray-800 rounded-2xl shadow-md py-6 px-4 flex flex-col">
+        <div className="w-[850px] h-[1000px] bg-white dark:bg-gray-800 rounded-2xl shadow-md py-6 px-2 flex flex-col">
           {!selectedChat ? (
             <>
-              <h1 className="text-xl font-semibold mb-5 mx-2">Messages</h1>
-              <div className="border-t border-gray-200 dark:border-gray-700 mb-3" />
+              <h1 className="text-xl font-semibold mb-5 mx-4">Messages</h1>
+              <div className="border-t border-gray-200 dark:border-gray-700 mb-1 mx-4" />
               <div className="flex-1 overflow-y-auto flex flex-col gap-2">
                 {loading ? (
                   <div className="size-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
                 ) : conversations.length === 0 ? (
-                  <p className="text-gray-400 dark:text-gray-500 self-center mt-4">
+                  <p className="text-gray-400 dark:text-gray-500 self-center mt-2">
                     No conversations yet
                   </p>
                 ) : (

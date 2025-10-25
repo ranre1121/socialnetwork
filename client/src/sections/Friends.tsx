@@ -98,16 +98,16 @@ const Friends = () => {
               <p>Add a friend</p>
             </button>
           </div>
-          <div className="border-t border-gray-200 dark:border-gray-700 mt-5" />
-          <div className="flex-1 overflow-y-auto mt-2 flex flex-col gap-2">
+
+          <div className="flex-1 overflow-y-auto mt-5 flex flex-col gap-2">
             {friends?.length === 0 && !loading ? (
               <p className="text-gray-400 dark:text-gray-500 self-center mt-4">
                 You don’t have any friends yet
               </p>
             ) : (
               friends?.map((f, i) => (
-                <div key={i}>
-                  <div className="py-5 rounded-lg flex items-center gap-3">
+                <div key={i} className="">
+                  <div className="py-5 border-t border-gray-700 flex items-center gap-3">
                     <img
                       src={profilePlaceholder}
                       alt="profile"
@@ -160,7 +160,6 @@ const Friends = () => {
                       </span>
                     )}
                   </div>
-                  <div className="border-t border-gray-200 dark:border-gray-700" />
                 </div>
               ))
             )}
