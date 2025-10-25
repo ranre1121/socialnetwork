@@ -3,6 +3,7 @@ import { useUser } from "../context/UserContext";
 import Chat from "./Chat";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { useLocation } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import type { Conversation } from "../types/Types";
 import { formatMessageTime } from "../utils/messagesUtils";
 
@@ -10,17 +11,22 @@ const Messages = () => {
   const { user } = useUser();
   const location = useLocation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedChat, setSelectedChat] = useState<
-    Conversation | null | undefined
-  >(null);
+  const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
+  const [loading, setLoading] = useState(true);
 
   async function fetchConversations() {
-    const token = localStorage.getItem("token");
-    const res = await fetch("http://localhost:8000/messages/conversations", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setConversations(data);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:8000/messages/conversations", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setConversations(data);
+    } catch (err) {
+      console.error("Error fetching conversations:", err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -28,71 +34,83 @@ const Messages = () => {
     fetchConversations();
   }, [user]);
 
+  // Automatically open chat if navigated from Friends
   useEffect(() => {
-    if (location.state) {
-      setSelectedChat(
-        conversations.find(
-          (c) => c.companion.username === location.state.username
-        )
+    if (location.state?.username && conversations.length > 0) {
+      const target = conversations.find(
+        (c) => c.companion.username === location.state.username
       );
+      setSelectedChat(target || null);
     }
-  }, [conversations]);
+  }, [conversations, location.state]);
 
   return (
-    <div className="flex h-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
-      <div className="flex flex-1 justify-center gap-5 max-w-[1100px] mx-auto pl-[80px]">
-        <div className="w-[300px] bg-white dark:bg-gray-800 rounded-2xl shadow-md py-6 flex flex-col border border-gray-200 dark:border-gray-700 h-full overflow-x-hidden">
-          <h2 className="text-xl font-semibold mb-4 px-4">Messages</h2>
-          <div className="flex-1 overflow-y-auto overflow-x-hidden">
-            {conversations.map((c) => (
-              <div
-                key={c.companion.username}
-                onClick={() => setSelectedChat(c)}
-                className={`py-4.5 px-4 cursor-pointer transition ${
-                  selectedChat?.companion.username === c.companion.username
-                    ? "bg-gray-100 dark:bg-gray-700"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <img
-                    src={profilePlaceholder}
-                    className="size-8 rounded-full"
-                  />
-
-                  <span className="flex flex-col leading-4 w-full">
-                    <p className="font-semibold dark:text-white">
-                      {c.companion.username}
-                    </p>
-
-                    <span className="text-xs flex items-center text-gray-400 overflow-hidden">
-                      <p className="flex-1 max-w-40 truncate">
-                        {c?.lastMessage?.content || "No messages yet"}
-                      </p>
-
-                      <p className="ml-auto flex-shrink-0 whitespace-nowrap">
-                        {formatMessageTime(c?.lastMessage?.sentAt) || ""}
-                      </p>
-                    </span>
-                  </span>
-                </div>
+    <div className="flex h-screen w-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
+      <div className="flex flex-1 flex-col items-center justify-start">
+        <div className="w-[850px] h-[1000px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col">
+          {!selectedChat ? (
+            // Conversation list
+            <>
+              <h1 className="text-xl font-semibold mb-5">Messages</h1>
+              <div className="border-t border-gray-200 dark:border-gray-700 mb-3" />
+              <div className="flex-1 overflow-y-auto flex flex-col gap-2">
+                {loading ? (
+                  <p className="text-gray-500 dark:text-gray-400 self-center mt-4">
+                    Loading conversations...
+                  </p>
+                ) : conversations.length === 0 ? (
+                  <p className="text-gray-400 dark:text-gray-500 self-center mt-4">
+                    No conversations yet
+                  </p>
+                ) : (
+                  conversations.map((c) => (
+                    <div
+                      key={c.companion.username}
+                      onClick={() => setSelectedChat(c)}
+                      className="py-4 px-3 rounded-lg flex items-center gap-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
+                    >
+                      <img
+                        src={profilePlaceholder}
+                        alt="profile"
+                        className="size-10 rounded-full"
+                      />
+                      <div className="flex flex-col w-full leading-5">
+                        <p className="font-semibold">{c.companion.username}</p>
+                        <div className="flex text-sm text-gray-500 dark:text-gray-300">
+                          <span className="truncate flex-1">
+                            {c.lastMessage?.content || "No messages yet"}
+                          </span>
+                          <span className="ml-auto flex-shrink-0 text-xs">
+                            {formatMessageTime(c.lastMessage?.sentAt) || ""}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex-1 h-full">
-          {selectedChat ? (
-            <div className="w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md  border border-gray-200 dark:border-gray-700 flex flex-col">
-              <Chat
-                friendUsername={selectedChat.companion.username}
-                onFetch={() => fetchConversations()}
-              />
-            </div>
+            </>
           ) : (
-            <div className="flex items-center justify-center w-full h-full bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 text-gray-500">
-              Select a conversation to start chatting
-            </div>
+            // Chat view
+            <>
+              <div className="flex items-center gap-3 mb-5">
+                <button
+                  onClick={() => setSelectedChat(null)}
+                  className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
+                >
+                  <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
+                </button>
+                <h2 className="text-lg font-semibold">
+                  @{selectedChat.companion.username}
+                </h2>
+              </div>
+              <div className="flex-1 border-t border-gray-200 dark:border-gray-700">
+                <Chat
+                  friendUsername={selectedChat.companion.username}
+                  onFetch={() => fetchConversations()}
+                />
+              </div>
+            </>
           )}
         </div>
       </div>

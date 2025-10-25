@@ -95,10 +95,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
 
   return (
     <div className="flex flex-col h-full pb-3">
-      <div className="flex justify-center gap-1.5 bg-gray-700 rounded-t-2xl py-3">
-        <img src={profilePlaceholder} className="size-6 rounded-full " />
-        <p>@{friendUsername}</p>
-      </div>
       <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-5 pl-3">
         <div className="flex-grow" />
         {messages.length === 0 ? (
