@@ -17,6 +17,7 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const handlePrivateMessage = (message: Message) => {
+    onFetch();
     if (!message) return;
     if (message.sender === user?.username) return;
     setMessages((prev) =>
@@ -88,6 +89,7 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
     };
     setMessages((prev) => [...prev, optimisticMessage]);
     socketRef.current.emit("private_message", payload);
+
     setNewMessage("");
   };
 

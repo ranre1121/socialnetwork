@@ -18,11 +18,10 @@ import Profile from "./sections/Profile";
   
   1) messages socket connect
   2) messages pagination
-  3) friends remodel
   4) mobile adaptation
   5) global search
   6) profile pics
-  7) messages features
+  
   
   finally{
     graphql
