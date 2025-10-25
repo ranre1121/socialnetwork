@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
 import type { Message } from "../types/Types";
-import profilePlaceholder from "../../public/images/profile-placeholder.png";
 
 type ChatProps = {
   friendUsername: string;
@@ -17,7 +16,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const handlePrivateMessage = (message: Message) => {
-    onFetch();
     if (!message) return;
     if (message.sender === user?.username) return;
     setMessages((prev) =>
@@ -25,7 +23,6 @@ const Chat = ({ friendUsername, onFetch }: ChatProps) => {
         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
       )
     );
-    onFetch();
   };
 
   useEffect(() => {

@@ -34,7 +34,6 @@ const Messages = () => {
     fetchConversations();
   }, [user]);
 
-  // Automatically open chat if navigated from Friends
   useEffect(() => {
     if (location.state?.username && conversations.length > 0) {
       const target = conversations.find(
@@ -49,15 +48,12 @@ const Messages = () => {
       <div className="flex flex-1 flex-col items-center justify-start">
         <div className="w-[850px] h-[1000px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col">
           {!selectedChat ? (
-            // Conversation list
             <>
               <h1 className="text-xl font-semibold mb-5">Messages</h1>
               <div className="border-t border-gray-200 dark:border-gray-700 mb-3" />
               <div className="flex-1 overflow-y-auto flex flex-col gap-2">
                 {loading ? (
-                  <p className="text-gray-500 dark:text-gray-400 self-center mt-4">
-                    Loading conversations...
-                  </p>
+                  <div className="size-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
                 ) : conversations.length === 0 ? (
                   <p className="text-gray-400 dark:text-gray-500 self-center mt-4">
                     No conversations yet
@@ -67,7 +63,7 @@ const Messages = () => {
                     <div
                       key={c.companion.username}
                       onClick={() => setSelectedChat(c)}
-                      className="py-4 px-3 rounded-lg flex items-center gap-3 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
+                      className="py-4 px-3 rounded-lg flex items-center gap-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
                     >
                       <img
                         src={profilePlaceholder}
@@ -91,11 +87,13 @@ const Messages = () => {
               </div>
             </>
           ) : (
-            // Chat view
             <>
               <div className="flex items-center gap-3 mb-5">
                 <button
-                  onClick={() => setSelectedChat(null)}
+                  onClick={() => {
+                    setSelectedChat(null);
+                    fetchConversations();
+                  }}
                   className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
                 >
                   <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
