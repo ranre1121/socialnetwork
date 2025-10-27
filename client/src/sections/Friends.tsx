@@ -72,7 +72,7 @@ const Friends = () => {
     <div className="flex h-screen w-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start">
         <div className="w-[850px] h-[900px] bg-white dark:bg-gray-800 rounded-2xl shadow-md px-6 flex flex-col">
-          <div className="flex items-center border-b dark:border-gray-700 py-4 mb-2">
+          <div className="flex items-center border-b dark:border-gray-700 py-4.5 mb-1">
             <h1 className="text-xl font-semibold">Friends</h1>
             <button
               onClick={() => setIsRequestsModalOpen(true)}
