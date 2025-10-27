@@ -19,28 +19,25 @@ const Friends = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token || !user) return;
-
       setLoading(true);
       const res = await fetch(
         `http://localhost:8000/friends/list/${user.username}`,
         {
           method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-
       if (res.status === 401) {
         localStorage.removeItem("token");
         window.location.href = "/login";
         return;
       }
-
       const data = await res.json();
       setFriends(data);
     } catch (err) {
       console.error("Error fetching friends:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,7 +49,6 @@ const Friends = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token || !user) return;
-
       const res = await fetch("http://localhost:8000/friends/delete", {
         method: "POST",
         headers: {
@@ -64,11 +60,7 @@ const Friends = () => {
           friendUsername: friendUsername,
         }),
       });
-
-      if (!res.ok) {
-        console.error("Failed to delete friend");
-        return;
-      }
+      if (!res.ok) return;
       setConfirmDelete(null);
       fetchFriends();
     } catch (err) {
@@ -84,15 +76,14 @@ const Friends = () => {
             <h1 className="text-xl font-semibold">Friends</h1>
             <button
               onClick={() => setIsRequestsModalOpen(true)}
-              className="ml-auto bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 rounded-lg flex gap-2 py-1 items-center hover:bg-gray-300 dark:hover:bg-gray-600 "
+              className="ml-auto bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 rounded-lg flex gap-2 py-1 items-center hover:bg-gray-300 dark:hover:bg-gray-600"
             >
               <Users className="size-5" />
               <p>Requests</p>
             </button>
-
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="ml-2 bg-blue-600 text-white px-3 rounded-lg flex gap-2 py-1 items-center hover:bg-blue-700 "
+              className="ml-2 bg-blue-600 text-white px-3 rounded-lg flex gap-2 py-1 items-center hover:bg-blue-700"
             >
               <UserPlus className="size-5" />
               <p>Add a friend</p>
@@ -100,14 +91,17 @@ const Friends = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto mt-5 flex flex-col gap-2">
-            {friends?.length === 0 && !loading ? (
+            <div className="border-t border-gray-400 dark:border-gray-700 w-full" />
+            {loading ? (
+              <div className="size-5 border-2 mt-5 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
+            ) : friends?.length === 0 ? (
               <p className="text-gray-400 dark:text-gray-500 self-center mt-4">
                 You don’t have any friends yet
               </p>
             ) : (
               friends?.map((f, i) => (
-                <div key={i} className="">
-                  <div className="py-5 border-t border-gray-700 flex items-center gap-3">
+                <div key={i}>
+                  <div className="py-5 flex items-center gap-3">
                     <img
                       src={profilePlaceholder}
                       alt="profile"
@@ -115,9 +109,7 @@ const Friends = () => {
                     />
                     <span className="leading-5">
                       <p
-                        onClick={() => {
-                          navigate(`/profile/${f.username}`);
-                        }}
+                        onClick={() => navigate(`/profile/${f.username}`)}
                         className="cursor-pointer hover:underline"
                       >
                         {f.name}
@@ -126,7 +118,6 @@ const Friends = () => {
                         @{f.username}
                       </p>
                     </span>
-
                     {confirmDelete === f.username ? (
                       <div className="ml-auto flex gap-3 items-center">
                         <p className="text-md">Remove a friend?</p>
