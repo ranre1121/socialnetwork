@@ -87,8 +87,8 @@ const Chat = ({ friendUsername }: ChatProps) => {
   };
 
   return (
-    <div className="flex flex-col h-[80%]">
-      <div className="overflow-y-auto flex flex-col gap-3 pr-5 pl-3 max-h-[70%] py-2">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-5 pl-3 h-full py-2">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
             No messages yet
@@ -120,7 +120,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="flex items-center border-t pt-3 mt-3 px-5">
+      <div className="flex items-center border-t pt-3 mt-3 px-5 ">
         <input
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
