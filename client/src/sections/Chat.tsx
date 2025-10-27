@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
 import type { Message } from "../types/Types";
@@ -13,6 +13,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const socketRef = useRef<Socket | null>(null);
+  const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const handlePrivateMessage = (message: Message) => {
@@ -24,6 +25,10 @@ const Chat = ({ friendUsername }: ChatProps) => {
       )
     );
   };
+
+  useLayoutEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+  }, [messages]);
 
   useEffect(() => {
     if (!user || socketRef.current) return;
@@ -61,6 +66,8 @@ const Chat = ({ friendUsername }: ChatProps) => {
         );
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     }
     fetchMessages();
@@ -90,9 +97,13 @@ const Chat = ({ friendUsername }: ChatProps) => {
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-5 pl-3 h-full py-2">
         {messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-            No messages yet
-          </div>
+          loading ? (
+            <div className="size-5 mt-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+              No messages yet
+            </div>
+          )
         ) : (
           messages.map((msg, index) => (
             <div
