@@ -71,8 +71,8 @@ const Friends = () => {
   return (
     <div className="flex h-screen w-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start">
-        <div className="w-[850px] h-[1000px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col">
-          <div className="flex items-center">
+        <div className="w-[850px] h-[900px] bg-white dark:bg-gray-800 rounded-2xl shadow-md px-6 flex flex-col">
+          <div className="flex items-center border-b dark:border-gray-700 py-4 mb-2">
             <h1 className="text-xl font-semibold">Friends</h1>
             <button
               onClick={() => setIsRequestsModalOpen(true)}
@@ -90,8 +90,7 @@ const Friends = () => {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto mt-5 flex flex-col gap-2">
-            <div className="border-t border-gray-400 dark:border-gray-700 w-full" />
+          <div className="flex-1 overflow-y-auto flex flex-col gap-2">
             {loading ? (
               <div className="size-5 border-2 mt-5 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
             ) : friends?.length === 0 ? (

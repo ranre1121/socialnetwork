@@ -66,10 +66,6 @@ const Chat = ({ friendUsername }: ChatProps) => {
     fetchMessages();
   }, [user, friendUsername]);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-  }, [messages]);
-
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
     const payload = {
@@ -91,9 +87,8 @@ const Chat = ({ friendUsername }: ChatProps) => {
   };
 
   return (
-    <div className="flex flex-col h-full pb-3">
-      <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-5 pl-3">
-        <div className="flex-grow" />
+    <div className="flex flex-col h-[80%]">
+      <div className="overflow-y-auto flex flex-col gap-3 pr-5 pl-3 max-h-[70%] py-2">
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
             No messages yet

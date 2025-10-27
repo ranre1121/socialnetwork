@@ -46,48 +46,47 @@ const Messages = () => {
   return (
     <div className="flex h-screen w-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start">
-        <div className="w-[850px] h-[1000px] bg-white dark:bg-gray-800 rounded-2xl shadow-md py-7 px-2 flex flex-col">
-          {!selectedChat ? (
-            <>
-              <h1 className="text-xl font-semibold mb-5 mx-4">Messages</h1>
-              <div className="border-t border-gray-400 dark:border-gray-700 mb-1 mx-4" />
-              <div className="flex-1 overflow-y-auto flex flex-col gap-2">
-                {loading ? (
-                  <div className="size-5 mt-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
-                ) : conversations.length === 0 ? (
-                  <p className="text-gray-400 dark:text-gray-500 self-center mt-2">
-                    No conversations yet
-                  </p>
-                ) : (
-                  conversations.map((c) => (
-                    <div
-                      key={c.companion.username}
-                      onClick={() => setSelectedChat(c)}
-                      className="py-4 px-4 flex rounded-lg items-center gap-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
-                    >
-                      <img
-                        src={profilePlaceholder}
-                        alt="profile"
-                        className="size-10 rounded-full"
-                      />
-                      <div className="flex flex-col w-full leading-5">
-                        <p className="font-semibold">{c.companion.username}</p>
-                        <div className="flex text-sm text-gray-500 dark:text-gray-300">
-                          <span className="truncate flex-1">
-                            {c.lastMessage?.content || "No messages yet"}
-                          </span>
-                          <span className="ml-auto flex-shrink-0 text-xs">
-                            {formatMessageTime(c.lastMessage?.sentAt) || ""}
-                          </span>
-                        </div>
-                      </div>
+        <div className="w-[850px] h-[900px] bg-white dark:bg-gray-800 rounded-2xl shadow-md px-2 flex flex-col">
+          <h1 className="text-xl font-semibold mb-2 mx-4 border-b border-gray-700 py-5">
+            Messages
+          </h1>
+
+          <div className="flex-1 overflow-y-auto flex flex-col gap-2">
+            {loading ? (
+              <div className="size-5 mt-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
+            ) : conversations.length === 0 ? (
+              <p className="text-gray-400 dark:text-gray-500 self-center mt-2">
+                No conversations yet
+              </p>
+            ) : (
+              conversations.map((c) => (
+                <div
+                  key={c.companion.username}
+                  onClick={() => setSelectedChat(c)}
+                  className="py-4 px-4 flex rounded-lg items-center gap-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
+                >
+                  <img
+                    src={profilePlaceholder}
+                    alt="profile"
+                    className="size-10 rounded-full"
+                  />
+                  <div className="flex flex-col w-full leading-5">
+                    <p className="font-semibold">{c.companion.username}</p>
+                    <div className="flex text-sm text-gray-500 dark:text-gray-300">
+                      <span className="truncate flex-1">
+                        {c.lastMessage?.content || "No messages yet"}
+                      </span>
+                      <span className="ml-auto flex-shrink-0 text-xs">
+                        {formatMessageTime(c.lastMessage?.sentAt) || ""}
+                      </span>
                     </div>
-                  ))
-                )}
-              </div>
-            </>
-          ) : (
-            <>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* <>
               <div className="flex items-center gap-3 mb-5 px-3">
                 <button
                   onClick={() => {
@@ -102,14 +101,13 @@ const Messages = () => {
                   @{selectedChat.companion.username}
                 </h2>
               </div>
-              <div className="flex-1 border-t border-gray-200 dark:border-gray-700">
+              <div className="border-t border-gray-200 dark:border-gray-500">
                 <Chat
                   friendUsername={selectedChat.companion.username}
                   onFetch={() => fetchConversations()}
                 />
               </div>
-            </>
-          )}
+            </> */}
         </div>
       </div>
     </div>
