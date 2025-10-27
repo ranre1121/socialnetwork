@@ -93,6 +93,7 @@ const Messages = () => {
               <div className="flex items-center gap-3 mb-5 px-3">
                 <button
                   onClick={() => {
+                    if (location.state) location.state = null;
                     setSelectedChat(null);
                     fetchConversations();
                   }}
