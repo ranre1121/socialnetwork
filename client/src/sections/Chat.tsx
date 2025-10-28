@@ -15,6 +15,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const socketRef = useRef<Socket | null>(null);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [firstMessageOfTheDay, setFirstMessageOfTheDay] = useState<Message>();
 
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
@@ -28,6 +29,22 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
   useLayoutEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+  }, [messages]);
+
+  useEffect(() => {
+    if (messages.length === 0) return;
+
+    const lastMessageDate = new Date(messages[messages.length - 1].sentAt);
+    const [lastMessageDay, lastMessageMonth] = [
+      lastMessageDate.getDate(),
+      lastMessageDate.getMonth() + 1,
+    ];
+
+    const firstMessageOfTheDay = messages.find(
+      (m) => new Date(m.sentAt).getDate() === lastMessageDay
+    );
+
+    setFirstMessageOfTheDay(firstMessageOfTheDay);
   }, [messages]);
 
   useEffect(() => {
@@ -106,25 +123,34 @@ const Chat = ({ friendUsername }: ChatProps) => {
           )
         ) : (
           messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`p-3 rounded-2xl w-fit max-w-[50%] flex flex-col ${
-                msg.status === "sent"
-                  ? "ml-auto bg-blue-600 text-white text-right"
-                  : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
-              }`}
-            >
-              <span className="flex gap-3 items-center">
-                <p className="break-words break-all whitespace-pre-wrap">
-                  {msg.content}
-                </p>
-                <p className="text-sm text-gray-300 self-end">
-                  {new Date(msg.sentAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </span>
+            <div className="sticky">
+              {msg.sentAt === firstMessageOfTheDay?.sentAt && (
+                <div className="sticky top-0 z-10 flex justify-center py-2">
+                  <span className="px-3 text-sm text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-md shadow-sm">
+                    Today
+                  </span>
+                </div>
+              )}
+
+              <div
+                className={`p-3 rounded-2xl w-fit max-w-[50%] flex flex-col ${
+                  msg.status === "sent"
+                    ? "ml-auto bg-blue-600 text-white text-right"
+                    : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
+                }`}
+              >
+                <span className="flex gap-3 items-center">
+                  <p className="break-words break-all whitespace-pre-wrap">
+                    {msg.content}
+                  </p>
+                  <p className="text-sm text-gray-300 self-end">
+                    {new Date(msg.sentAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </span>
+              </div>
             </div>
           ))
         )}
