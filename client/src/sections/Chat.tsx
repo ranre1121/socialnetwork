@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useLayoutEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
 import type { Message } from "../types/Types";
@@ -16,7 +16,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [messagesByDates, setMessagesByDates] = useState<{
-    [key: string]: number[];
+    [key: string]: Message[];
   }>({});
 
   const handlePrivateMessage = (message: Message) => {
@@ -29,27 +29,23 @@ const Chat = ({ friendUsername }: ChatProps) => {
     );
   };
 
-  useLayoutEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
   }, [messages]);
 
   useEffect(() => {
     if (messages.length === 0) return;
 
-    messages.map((m) => {
-      const [messageMonth, messageDay] = [
-        new Date(m.sentAt).getMonth() + 1,
-        new Date(m.sentAt).getDate(),
-      ];
+    const grouped: { [key: string]: Message[] } = {};
+    for (const m of messages) {
+      const messageDate = `${new Date(m.sentAt).getMonth() + 1}:${new Date(
+        m.sentAt
+      ).getDate()}`;
+      if (!grouped[messageDate]) grouped[messageDate] = [];
+      grouped[messageDate].push(m);
+    }
 
-      const messageDate = `${messageMonth}:${messageDay}`;
-      if (!messagesByDates[messageDate]?.includes(m.id)) {
-        setMessagesByDates((prev) => ({
-          ...messagesByDates,
-          [messageDate]: [...(prev[messageDate] || []), m.id],
-        }));
-      }
-    });
+    setMessagesByDates(grouped);
   }, [messages]);
 
   useEffect(() => {
@@ -131,25 +127,54 @@ const Chat = ({ friendUsername }: ChatProps) => {
             </div>
           )
         ) : (
-          messages.map((msg) => (
-            <div
-              className={`p-3 rounded-2xl w-fit max-w-[50%] flex flex-col ${
-                msg.status === "sent"
-                  ? "ml-auto bg-blue-600 text-white text-right"
-                  : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
-              }`}
-            >
-              <span className="flex gap-3 items-center">
-                <p className="break-words break-all whitespace-pre-wrap">
-                  {msg.content}
-                </p>
-                <p className="text-sm text-gray-300 self-end">
-                  {new Date(msg.sentAt).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-              </span>
+          // messages.map((msg) => (
+          //   <div
+          //     className={`p-3 rounded-2xl w-fit max-w-[50%] flex flex-col ${
+          //       msg.status === "sent"
+          //         ? "ml-auto bg-blue-600 text-white text-right"
+          //         : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
+          //     }`}
+          //   >
+          //     <span className="flex gap-3 items-center">
+          //       <p className="break-words break-all whitespace-pre-wrap">
+          //         {msg.content}
+          //       </p>
+          //       <p className="text-sm text-gray-300 self-end">
+          //         {new Date(msg.sentAt).toLocaleTimeString([], {
+          //           hour: "2-digit",
+          //           minute: "2-digit",
+          //         })}
+          //       </p>
+          //     </span>
+          //   </div>
+          // ))
+          Object.keys(messagesByDates).map((date) => (
+            <div className="flex flex-col gap-2">
+              <div className="text-white sticky top-0 my-2 bg-gray-900 w-fit px-2 rounded-md">
+                {date}
+              </div>
+
+              {messagesByDates[date].map((msg) => (
+                <div
+                  className={`p-3 rounded-2xl w-fit max-w-[50%] flex flex-col  ${
+                    msg.status === "sent"
+                      ? "ml-auto bg-blue-600 text-white text-right"
+                      : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
+                  }`}
+                >
+                  <span className="flex gap-3 items-center">
+                    <p className="break-words break-all whitespace-pre-wrap ">
+                      {msg.content}
+                    </p>
+                    <p className="text-sm text-gray-300 self-end">
+                      {new Date(msg.sentAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </span>
+                </div>
+              ))}
             </div>
           ))
         )}
