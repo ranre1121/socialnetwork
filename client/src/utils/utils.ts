@@ -14,3 +14,33 @@ export const formatPostDate = (dateString: string) => {
   }
   return date.toLocaleDateString([], { month: "short", day: "numeric" });
 };
+
+export const formatMessageDate = (dateString: string) => {
+  const [year, month, day] = dateString.split(":").map(Number);
+  const date = new Date(year, month - 1, day);
+  const today = new Date();
+
+  const isToday =
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear();
+
+  if (isToday) return "Today";
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  return `${monthNames[month - 1]} ${day}`;
+};
