@@ -139,23 +139,21 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
               {messagesByDates[date].map((msg) => (
                 <div
-                  className={`p-3 rounded-2xl w-fit max-w-[50%] flex flex-col  ${
+                  className={`p-3 rounded-2xl w-fit max-w-[50%] inline-block ${
                     msg.status === "sent"
                       ? "ml-auto bg-blue-600 text-white text-right"
                       : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
                   }`}
                 >
-                  <span className="flex gap-3 items-center">
-                    <p className="break-words break-all whitespace-pre-wrap ">
-                      {msg.content}
-                    </p>
-                    <p className="text-sm text-gray-300 self-end">
-                      {new Date(msg.sentAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </span>
+                  <p className="whitespace-pre-line break-words text-left">
+                    {msg.content}
+                  </p>
+                  <p className="text-sm text-gray-300 mt-1 self-end">
+                    {new Date(msg.sentAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
                 </div>
               ))}
             </div>
