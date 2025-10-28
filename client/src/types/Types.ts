@@ -37,6 +37,7 @@ type Post = {
 };
 
 type Message = {
+  id: number;
   sender: string;
   receiver: string;
   content: string;
