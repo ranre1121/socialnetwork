@@ -6,5 +6,5 @@ export declare function addMessage(sender: string, receiver: string, content: st
     content: string;
     sentAt: Date;
 } | null>;
-export declare function getMessages(req: Request, res: Response): Promise<Response<any, Record<string, any>> | "no chat found" | undefined>;
+export declare function getMessages(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
 //# sourceMappingURL=messagesControllers.d.ts.map

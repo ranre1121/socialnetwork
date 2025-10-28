@@ -99,50 +99,48 @@ export async function addMessage(
 export async function getMessages(req: Request, res: Response) {
   try {
     const currentUsername = req.user?.username;
-    if (!currentUsername)
-      return res.status(200).json({ msg: "User not found" });
-
-    const user = await prisma.user.findUnique({
-      where: { username: currentUsername },
-    });
-
-    if (!user) return res.status(200).json({ msg: "User was not found" });
-
     const companionUsername = req.params.username;
+    const { before, limit = 20 } = req.query;
 
-    if (!companionUsername)
-      return res.status(200).json({ msg: "No companion username provided" });
+    if (!currentUsername || !companionUsername)
+      return res.status(400).json({ msg: "Missing usernames" });
 
-    const companion = await prisma.user.findUnique({
-      where: { username: companionUsername },
-    });
+    const [user, companion] = await Promise.all([
+      prisma.user.findUnique({ where: { username: currentUsername } }),
+      prisma.user.findUnique({ where: { username: companionUsername } }),
+    ]);
 
-    if (!companion)
-      return res.status(200).json({ msg: "No companion user found" });
+    if (!user || !companion)
+      return res.status(404).json({ msg: "User not found" });
 
     const chat = await prisma.chat.findFirst({
       where: {
         OR: [
-          { participant1Id: companion.id, participant2Id: user.id },
           { participant1Id: user.id, participant2Id: companion.id },
+          { participant1Id: companion.id, participant2Id: user.id },
         ],
       },
     });
 
-    if (!chat) return res.status(200).json({ msg: "Chat was not found" });
+    if (!chat) return res.status(404).json({ msg: "Chat not found" });
+
+    const where: any = { chatId: chat.id };
+    if (before) {
+      where.sentAt = { lt: new Date(before as string) };
+    }
 
     const messages = await prisma.message.findMany({
-      where: { chatId: chat.id },
+      where,
+      orderBy: { sentAt: "desc" },
+      take: Number(limit),
     });
 
-    const updatedMessages = messages.map((m) => ({
+    const formatted = messages.map((m) => ({
       ...m,
       status: m.senderId === user.id ? "sent" : "received",
     }));
 
-    if (!chat) return "no chat found";
-
-    res.status(200).json(updatedMessages);
+    res.status(200).json(formatted);
   } catch (err) {
     console.error("getMessages error:", err);
     res.status(500).json({ message: "Server error" });
