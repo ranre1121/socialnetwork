@@ -13,7 +13,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 
 const buttons = [
-  { icon: <Compass />, text: "Me" },
+  { icon: <Compass />, text: "Feed" },
   { icon: <Mail />, text: "Messages" },
   { icon: <Users />, text: "Friends" },
   { icon: <UserCircle />, text: "Profile" },
@@ -27,7 +27,7 @@ const Navbar: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
   const location = useLocation();
   const { user, loading, setUser } = useUser();
 
-  const currentPage = location.pathname.split("/")[1] || "me";
+  const currentPage = location.pathname.split("/")[1] || "feed";
 
   useEffect(() => {
     if (loading) return;

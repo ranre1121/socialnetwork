@@ -56,12 +56,15 @@ const App = () => {
       {user && <Navbar dark={dark} toggleTheme={toggleTheme} />}
       <Routes>
         <Route path="/" element={user ? <Me /> : <Navigate to="/login" />} />
-        <Route path="/me" element={user ? <Me /> : <Navigate to="/login" />} />
+        <Route
+          path="/feed"
+          element={user ? <Me /> : <Navigate to="/login" />}
+        />
         <Route
           path="/login"
           element={
             user ? (
-              <Navigate to="/me" />
+              <Navigate to="/feed" />
             ) : (
               <Login dark={dark} toggleTheme={toggleTheme} />
             )
@@ -69,7 +72,7 @@ const App = () => {
         />
         <Route
           path="/register"
-          element={user ? <Navigate to="/me" /> : <Register />}
+          element={user ? <Navigate to="/feed" /> : <Register />}
         />
         <Route
           path="/profile/:username"

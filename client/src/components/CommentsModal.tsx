@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Check, Trash2, X } from "lucide-react";
+import { Check, Loader2, Trash2, X } from "lucide-react";
 import type { Post as PostType } from "../types/Types";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { formatPostDate } from "../utils/utils";
@@ -136,7 +136,9 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
         <div className="border-b border-gray-300 dark:border-gray-700 my-4" />
 
         {loading ? (
-          <p className="text-gray-500">Loading comments...</p>
+          <div className="flex justify-center w-full">
+            <Loader2 className="w-6 h-6 text-gray-500 dark:text-gray-300 animate-spin" />
+          </div>
         ) : comments.length === 0 ? (
           <p className="text-gray-500">No comments yet.</p>
         ) : (
