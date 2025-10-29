@@ -21,6 +21,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
+    if (message.sender === user?.username) return;
     setMessages((prev) =>
       [...prev, message].sort(
         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
