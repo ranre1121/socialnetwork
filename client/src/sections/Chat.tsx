@@ -18,7 +18,11 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const [messagesByDates, setMessagesByDates] = useState<
     Record<string, Message[]>
   >({});
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
+  // Handle incoming socket messages
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
     if (message.sender === user?.username) return;
@@ -29,6 +33,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
     );
   };
 
+  // Group messages by date
   useEffect(() => {
     if (messages.length === 0) return;
     const grouped: Record<string, Message[]> = {};
@@ -48,12 +53,14 @@ const Chat = ({ friendUsername }: ChatProps) => {
     setMessagesByDates(grouped);
   }, [messages]);
 
+  // Socket connection
   useEffect(() => {
     if (!user || socketRef.current) return;
     const socket = io("http://localhost:8000");
     socketRef.current = socket;
     socket.on("connect", () => socket.emit("join", user.username));
     socket.on("private_message", handlePrivateMessage);
+
     return () => {
       socket.off("private_message", handlePrivateMessage);
       socket.disconnect();
@@ -61,8 +68,10 @@ const Chat = ({ friendUsername }: ChatProps) => {
     };
   }, [user]);
 
+  // Fetch initial messages
   useEffect(() => {
     if (!user || !friendUsername) return;
+
     async function fetchMessages() {
       try {
         const token = localStorage.getItem("token");
@@ -84,16 +93,89 @@ const Chat = ({ friendUsername }: ChatProps) => {
         setLoading(false);
       }
     }
+
     fetchMessages();
   }, [user, friendUsername]);
 
+  // Fetch older messages when scrolled to top
+  const fetchOlderMessages = async () => {
+    if (
+      !user ||
+      !friendUsername ||
+      !hasMore ||
+      loadingMore ||
+      messages.length === 0
+    )
+      return;
+
+    try {
+      setLoadingMore(true);
+      const oldest = messages[0].sentAt;
+      const token = localStorage.getItem("token");
+      const res = await fetch(
+        `http://localhost:8000/messages/${friendUsername}?before=${oldest}&limit=20`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch older messages");
+      const data: Message[] = await res.json();
+
+      if (data.length === 0) {
+        setHasMore(false);
+        return;
+      }
+
+      // Preserve scroll position
+      const container = scrollRef.current;
+      const prevScrollHeight = container?.scrollHeight || 0;
+
+      setMessages((prev) =>
+        [...data, ...prev].sort(
+          (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+        )
+      );
+
+      requestAnimationFrame(() => {
+        if (container) {
+          const newScrollHeight = container.scrollHeight;
+          container.scrollTop = newScrollHeight - prevScrollHeight;
+        }
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Detect scroll to top
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      if (
+        container.scrollHeight - container.scrollTop ===
+        container.clientHeight
+      ) {
+        fetchOlderMessages();
+      }
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [messages, loadingMore]);
+
+  // Send message
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
+
     const payload = {
       sender: user.username,
       receiver: friendUsername,
       content: newMessage.trim(),
     };
+
     const optimisticMessage: Message = {
       id: Date.now(),
       chatId: 0,
@@ -103,6 +185,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
       sentAt: new Date().toISOString(),
       status: "sent",
     } as any;
+
     setMessages((prev) => [...prev, optimisticMessage]);
     socketRef.current.emit("private_message", payload);
     setNewMessage("");
@@ -110,7 +193,16 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto flex flex-col-reverse gap-3 pr-5 pl-3 h-full py-2">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto flex flex-col-reverse gap-3 pr-5 pl-3 h-full py-2"
+      >
+        {loadingMore && (
+          <div className="flex justify-center my-2">
+            <div className="size-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+
         {messages.length === 0 ? (
           loading ? (
             <div className="size-5 mt-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />

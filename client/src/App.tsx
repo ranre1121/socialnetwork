@@ -16,12 +16,11 @@ import Friends from "./sections/Friends";
 import Profile from "./sections/Profile";
 /** TODO:
   
-  1) messages socket connect
+  1) app socket connection
   2) messages pagination
   4) mobile adaptation
   5) global search
   6) profile pics
-  
   
   finally{
     graphql

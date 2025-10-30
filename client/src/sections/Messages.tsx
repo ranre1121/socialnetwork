@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { useUser } from "../context/UserContext";
 import Chat from "./Chat";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import type { Conversation } from "../types/Types";
 import { formatMessageTime } from "../utils/messagesUtils";
+import { select } from "motion/react-client";
 
 const Messages = () => {
   const { user } = useUser();
+  const navigate = useNavigate();
   const location = useLocation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedChat, setSelectedChat] = useState<Conversation | null>(null);
@@ -101,7 +103,12 @@ const Messages = () => {
                 >
                   <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
                 </button>
-                <h2 className="text-lg font-semibold">
+                <h2
+                  className="text-lg font-semibold cursor-pointer hover:underline"
+                  onClick={() => {
+                    navigate(`/profile/${selectedChat.companion.username}`);
+                  }}
+                >
                   @{selectedChat.companion.username}
                 </h2>
               </div>
