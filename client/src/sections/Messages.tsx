@@ -6,7 +6,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import type { Conversation } from "../types/Types";
 import { formatMessageTime } from "../utils/messagesUtils";
-import { select } from "motion/react-client";
 
 const Messages = () => {
   const { user } = useUser();
