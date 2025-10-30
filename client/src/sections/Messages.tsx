@@ -66,7 +66,7 @@ const Messages = () => {
                     <div
                       key={c.companion.username}
                       onClick={() => setSelectedChat(c)}
-                      className="py-4 px-4 flex rounded-lg items-center gap-3 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
+                      className="py-3 px-4 flex rounded-lg items-center gap-3 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
                     >
                       <img
                         src={profilePlaceholder}

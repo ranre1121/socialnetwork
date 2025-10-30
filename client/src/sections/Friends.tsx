@@ -100,7 +100,7 @@ const Friends = () => {
             ) : (
               friends?.map((f, i) => (
                 <div key={i}>
-                  <div className="py-5 flex items-center gap-3">
+                  <div className="py-3 flex items-center gap-3">
                     <img
                       src={profilePlaceholder}
                       alt="profile"
