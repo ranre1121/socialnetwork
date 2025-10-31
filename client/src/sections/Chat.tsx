@@ -16,6 +16,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [hasMore, setHasMore] = useState(false);
   const socketRef = useRef<Socket | null>(null);
+  const lastMessageRef = useRef(null);
 
   // Handle incoming socket messages
   const handlePrivateMessage = (message: Message) => {
@@ -35,6 +36,19 @@ const Chat = ({ friendUsername }: ChatProps) => {
       return updated;
     });
   };
+
+  useEffect(() => {
+    const lastMessage = lastMessageRef.current;
+    if (!lastMessage) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => entry.isIntersecting && console.log("in view"),
+      { threshold: 0.1 } // visible when 10% of the element is in view
+    );
+
+    observer.observe(lastMessage);
+    return () => observer.disconnect();
+  }, [messages]);
 
   // Connect socket
   useEffect(() => {
@@ -146,26 +160,33 @@ const Chat = ({ friendUsername }: ChatProps) => {
                   </p>
                 </div>
 
-                {messages[date].map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-3 rounded-2xl w-fit max-w-[50%] ${
-                      msg.status === "sent"
-                        ? "ml-auto bg-blue-600 text-white text-right"
-                        : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
-                    }`}
-                  >
-                    <p className="whitespace-pre-line break-words text-left">
-                      {msg.content}
-                    </p>
-                    <p className="text-sm text-gray-300 mt-1 self-end">
-                      {new Date(msg.sentAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
-                ))}
+                {messages[date].map((msg, idx) => {
+                  // console.log("index:", idx);
+                  // console.log("content", msg.content);
+                  const isLast = idx === 0;
+
+                  return (
+                    <div
+                      key={idx}
+                      ref={isLast ? lastMessageRef : null}
+                      className={`p-3 rounded-2xl w-fit max-w-[50%] ${
+                        msg.status === "sent"
+                          ? "ml-auto bg-blue-600 text-white text-right"
+                          : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
+                      }`}
+                    >
+                      <p className="whitespace-pre-line break-words text-left">
+                        {msg.content}
+                      </p>
+                      <p className="text-sm text-gray-300 mt-1 self-end">
+                        {new Date(msg.sentAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             ))
         )}
