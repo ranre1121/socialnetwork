@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
 import type { Message } from "../types/Types";
@@ -11,31 +11,39 @@ type ChatProps = {
 
 const Chat = ({ friendUsername }: ChatProps) => {
   const { user } = useUser();
-  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const socketRef = useRef<Socket | null>(null);
   const [loading, setLoading] = useState(true);
+  const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [hasMore, setHasMore] = useState(false);
-  const [messagesByDates, setMessagesByDates] = useState<
-    Record<string, Message[]>
-  >({});
+  const socketRef = useRef<Socket | null>(null);
 
+  // Handle incoming socket messages
   const handlePrivateMessage = (message: Message) => {
-    if (!message) return;
-    if (message.sender === user?.username) return;
-    setMessages((prev) =>
-      [...prev, message].sort(
+    if (!message || message.sender === user?.username) return;
+
+    const date = new Date(message.sentAt);
+    const key = `${date.getFullYear()}:${
+      date.getMonth() + 1
+    }:${date.getDate()}`;
+
+    setMessages((prev) => {
+      const updated = { ...prev };
+      if (!updated[key]) updated[key] = [];
+      updated[key] = [...updated[key], message].sort(
         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-      )
-    );
+      );
+      return updated;
+    });
   };
 
+  // Connect socket
   useEffect(() => {
     if (!user || socketRef.current) return;
     const socket = io("http://localhost:8000");
     socketRef.current = socket;
     socket.on("connect", () => socket.emit("join", user.username));
     socket.on("private_message", handlePrivateMessage);
+
     return () => {
       socket.off("private_message", handlePrivateMessage);
       socket.disconnect();
@@ -43,8 +51,10 @@ const Chat = ({ friendUsername }: ChatProps) => {
     };
   }, [user]);
 
+  // Fetch messages
   useEffect(() => {
     if (!user || !friendUsername) return;
+
     async function fetchMessages() {
       try {
         const token = localStorage.getItem("token");
@@ -56,12 +66,10 @@ const Chat = ({ friendUsername }: ChatProps) => {
         if (!res.ok) throw new Error("Failed to fetch messages");
         const data: Message[] = await res.json();
 
-        // Sort messages chronologically
         const sorted = data.sort(
           (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
         );
 
-        // Group by date
         const grouped: Record<string, Message[]> = {};
         for (const m of sorted) {
           const date = new Date(m.sentAt);
@@ -72,8 +80,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
           grouped[key].push(m);
         }
 
-        setMessages(sorted);
-        setMessagesByDates(grouped);
+        setMessages(grouped);
       } catch (err) {
         console.error(err);
       } finally {
@@ -86,11 +93,13 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
+
     const payload = {
       sender: user.username,
       receiver: friendUsername,
       content: newMessage.trim(),
     };
+
     const optimisticMessage: Message = {
       id: Date.now(),
       chatId: 0,
@@ -100,7 +109,19 @@ const Chat = ({ friendUsername }: ChatProps) => {
       sentAt: new Date().toISOString(),
       status: "sent",
     } as any;
-    setMessages((prev) => [...prev, optimisticMessage]);
+
+    const date = new Date(optimisticMessage.sentAt);
+    const key = `${date.getFullYear()}:${
+      date.getMonth() + 1
+    }:${date.getDate()}`;
+
+    setMessages((prev) => {
+      const updated = { ...prev };
+      if (!updated[key]) updated[key] = [];
+      updated[key] = [...updated[key], optimisticMessage];
+      return updated;
+    });
+
     socketRef.current.emit("private_message", payload);
     setNewMessage("");
   };
@@ -108,16 +129,14 @@ const Chat = ({ friendUsername }: ChatProps) => {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto flex flex-col-reverse gap-3 pr-5 pl-3 h-full py-2">
-        {messages.length === 0 ? (
-          loading ? (
-            <div className="size-5 mt-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-              No messages yet
-            </div>
-          )
+        {loading ? (
+          <div className="size-5 mt-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
+        ) : Object.keys(messages).length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+            No messages yet
+          </div>
         ) : (
-          Object.keys(messagesByDates)
+          Object.keys(messages)
             .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
             .map((date) => (
               <div key={date} className="flex flex-col gap-2">
@@ -127,7 +146,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
                   </p>
                 </div>
 
-                {messagesByDates[date].slice().map((msg, idx) => (
+                {messages[date].map((msg, idx) => (
                   <div
                     key={idx}
                     className={`p-3 rounded-2xl w-fit max-w-[50%] ${
