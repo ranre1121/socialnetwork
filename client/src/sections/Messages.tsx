@@ -54,7 +54,7 @@ const Messages = () => {
                 Messages
               </h1>
 
-              <div className="flex-1 overflow-y-auto flex flex-col gap-2">
+              <div className="flex-1 -mt-1 overflow-y-auto flex flex-col gap-2">
                 {loading ? (
                   <div className="size-5 mt-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
                 ) : conversations.length === 0 ? (
