@@ -15,6 +15,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const [newMessage, setNewMessage] = useState("");
   const socketRef = useRef<Socket | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const [messagesByDates, setMessagesByDates] = useState<
     Record<string, Message[]>
   >({});
@@ -28,25 +29,6 @@ const Chat = ({ friendUsername }: ChatProps) => {
       )
     );
   };
-
-  useEffect(() => {
-    if (messages.length === 0) return;
-    const grouped: Record<string, Message[]> = {};
-    for (const m of messages) {
-      const date = new Date(m.sentAt);
-      const key = `${date.getFullYear()}:${
-        date.getMonth() + 1
-      }:${date.getDate()}`;
-      if (!grouped[key]) grouped[key] = [];
-      grouped[key].push(m);
-    }
-    for (const key in grouped) {
-      grouped[key].sort(
-        (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-      );
-    }
-    setMessagesByDates(grouped);
-  }, [messages]);
 
   useEffect(() => {
     if (!user || socketRef.current) return;
@@ -70,20 +52,35 @@ const Chat = ({ friendUsername }: ChatProps) => {
           `http://localhost:8000/messages/${friendUsername}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
+
         if (!res.ok) throw new Error("Failed to fetch messages");
         const data: Message[] = await res.json();
-        setMessages(
-          data.sort(
-            (a, b) =>
-              new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-          )
+
+        // Sort messages chronologically
+        const sorted = data.sort(
+          (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
         );
+
+        // Group by date
+        const grouped: Record<string, Message[]> = {};
+        for (const m of sorted) {
+          const date = new Date(m.sentAt);
+          const key = `${date.getFullYear()}:${
+            date.getMonth() + 1
+          }:${date.getDate()}`;
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(m);
+        }
+
+        setMessages(sorted);
+        setMessagesByDates(grouped);
       } catch (err) {
         console.error(err);
       } finally {
         setLoading(false);
       }
     }
+
     fetchMessages();
   }, [user, friendUsername]);
 
