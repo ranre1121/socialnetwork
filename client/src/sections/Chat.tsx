@@ -14,7 +14,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
-  const [hasMore, setHasMore] = useState(false);
+
   const socketRef = useRef<Socket | null>(null);
   const lastMessageRef = useRef(null);
 
