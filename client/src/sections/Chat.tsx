@@ -14,22 +14,31 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
+  const [hasMore, setHasMore] = useState(true);
 
   const socketRef = useRef<Socket | null>(null);
-  const lastMessageRef = useRef(null);
+  const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   async function fetchMessages(date: string) {
+    if (!hasMore && date !== "") return;
+
     try {
       const token = localStorage.getItem("token");
-
-      const res = await fetch(
+      const url =
         date === ""
           ? `http://localhost:8000/messages/${friendUsername}`
-          : `http://localhost:8000/messages/${friendUsername}?before=${date}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+          : `http://localhost:8000/messages/${friendUsername}?before=${date}`;
+
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!res.ok) throw new Error("Failed to fetch messages");
       const data: Message[] = await res.json();
+
+      if (date !== "" && data.length === 0) {
+        setHasMore(false);
+        return;
+      }
 
       const sorted = data.sort(
         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
@@ -37,24 +46,30 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
       const grouped: Record<string, Message[]> = {};
       for (const m of sorted) {
-        const date = new Date(m.sentAt);
-        const key = `${date.getFullYear()}:${
-          date.getMonth() + 1
-        }:${date.getDate()}`;
-        if (!grouped[key]) grouped[key] = [];
-        grouped[key].push(m);
+        const dateKey = `${new Date(m.sentAt).getFullYear()}:${
+          new Date(m.sentAt).getMonth() + 1
+        }:${new Date(m.sentAt).getDate()}`;
+        if (!grouped[dateKey]) grouped[dateKey] = [];
+        grouped[dateKey].push(m);
       }
 
       setMessages((prev) => {
-        const merged = { ...grouped };
+        const merged = { ...prev };
 
-        for (const date in prev) {
-          if (!merged[date]) merged[date] = prev[date];
-          else
-            merged[date] = [...merged[date], ...prev[date]].sort(
+        for (const date in grouped) {
+          if (!merged[date]) {
+            merged[date] = grouped[date];
+          } else {
+            // merge + dedupe by id
+            const combined = [...merged[date], ...grouped[date]];
+            const unique = Array.from(
+              new Map(combined.map((m) => [m.id, m])).values()
+            );
+            merged[date] = unique.sort(
               (a, b) =>
                 new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
             );
+          }
         }
 
         return merged;
@@ -65,6 +80,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
       setLoading(false);
     }
   }
+
   const handlePrivateMessage = (message: Message) => {
     if (!message || message.sender === user?.username) return;
 
@@ -85,7 +101,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
   useEffect(() => {
     const lastMessage = lastMessageRef.current;
-    if (!lastMessage) return;
+    if (!lastMessage || !hasMore) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -93,10 +109,6 @@ const Chat = ({ friendUsername }: ChatProps) => {
         if (entry.isIntersecting) {
           const date = entry.target.getAttribute("data-sent-at");
           if (date) {
-            console.log(
-              "👀 Last message in view, fetching older messages before:",
-              date
-            );
             fetchMessages(date);
           }
         }
@@ -106,7 +118,13 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
     observer.observe(lastMessage);
     return () => observer.disconnect();
-  }, [messages]);
+  }, [messages, hasMore]);
+
+  useEffect(() => {
+    if (!user || !friendUsername) return;
+    setHasMore(true);
+    fetchMessages("");
+  }, [user, friendUsername]);
 
   useEffect(() => {
     if (!user || socketRef.current) return;
@@ -121,12 +139,6 @@ const Chat = ({ friendUsername }: ChatProps) => {
       socketRef.current = null;
     };
   }, [user]);
-
-  useEffect(() => {
-    if (!user || !friendUsername) return;
-
-    fetchMessages("");
-  }, [user, friendUsername]);
 
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
@@ -185,12 +197,11 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
                 {messages[date].map((msg, idx) => {
                   const isLast = idx === 0;
-
                   return (
                     <div
                       key={idx}
                       ref={isLast ? lastMessageRef : null}
-                      data-sent-at={isLast ? msg.sentAt : null}
+                      data-sent-at={isLast ? msg.sentAt : undefined}
                       className={`p-3 rounded-2xl w-fit max-w-[50%] ${
                         msg.status === "sent"
                           ? "ml-auto bg-blue-600 text-white text-right"
