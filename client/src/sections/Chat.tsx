@@ -15,27 +15,27 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [hasMore, setHasMore] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const socketRef = useRef<Socket | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   async function fetchMessages(date: string) {
-    if (!hasMore && date !== "") return;
+    const container = scrollRef.current;
+    const prevScrollHeight = container?.scrollHeight || 0;
 
     try {
       const token = localStorage.getItem("token");
-      const url =
+      const res = await fetch(
         date === ""
           ? `http://localhost:8000/messages/${friendUsername}`
-          : `http://localhost:8000/messages/${friendUsername}?before=${date}`;
-
-      const res = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+          : `http://localhost:8000/messages/${friendUsername}?before=${date}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       if (!res.ok) throw new Error("Failed to fetch messages");
       const data: Message[] = await res.json();
 
-      if (date !== "" && data.length === 0) {
+      if (data.length === 0) {
         setHasMore(false);
         return;
       }
@@ -46,21 +46,18 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
       const grouped: Record<string, Message[]> = {};
       for (const m of sorted) {
-        const dateKey = `${new Date(m.sentAt).getFullYear()}:${
-          new Date(m.sentAt).getMonth() + 1
-        }:${new Date(m.sentAt).getDate()}`;
-        if (!grouped[dateKey]) grouped[dateKey] = [];
-        grouped[dateKey].push(m);
+        const d = new Date(m.sentAt);
+        const key = `${d.getFullYear()}:${d.getMonth() + 1}:${d.getDate()}`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(m);
       }
 
       setMessages((prev) => {
         const merged = { ...prev };
 
         for (const date in grouped) {
-          if (!merged[date]) {
-            merged[date] = grouped[date];
-          } else {
-            // merge + dedupe by id
+          if (!merged[date]) merged[date] = grouped[date];
+          else {
             const combined = [...merged[date], ...grouped[date]];
             const unique = Array.from(
               new Map(combined.map((m) => [m.id, m])).values()
@@ -73,6 +70,15 @@ const Chat = ({ friendUsername }: ChatProps) => {
         }
 
         return merged;
+      });
+
+      // 🔥 Wait for the DOM to render the new messages
+      requestAnimationFrame(() => {
+        if (container) {
+          const newScrollHeight = container.scrollHeight;
+          const diff = newScrollHeight - prevScrollHeight;
+          container.scrollTop += diff; // ✅ Maintain position
+        }
       });
     } catch (err) {
       console.error(err);
@@ -177,7 +183,10 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto flex flex-col-reverse gap-3 pr-5 pl-3 h-full py-2">
+      <div
+        className="flex-1 overflow-y-auto flex flex-col-reverse gap-3 pr-5 pl-3 h-full py-2"
+        ref={scrollRef}
+      >
         {loading ? (
           <div className="size-5 mt-5 border-2 border-indigo-500 rounded-full animate-spin border-t-transparent self-center" />
         ) : Object.keys(messages).length === 0 ? (
