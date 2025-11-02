@@ -45,7 +45,20 @@ const Chat = ({ friendUsername }: ChatProps) => {
         grouped[key].push(m);
       }
 
-      setMessages(grouped);
+      setMessages((prev) => {
+        const merged = { ...grouped };
+
+        for (const date in prev) {
+          if (!merged[date]) merged[date] = prev[date];
+          else
+            merged[date] = [...merged[date], ...prev[date]].sort(
+              (a, b) =>
+                new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+            );
+        }
+
+        return merged;
+      });
     } catch (err) {
       console.error(err);
     } finally {
@@ -75,9 +88,19 @@ const Chat = ({ friendUsername }: ChatProps) => {
     if (!lastMessage) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) =>
-        entry.isIntersecting &&
-        fetchMessages(entry.target.getAttribute("sent-at")),
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting) {
+          const date = entry.target.getAttribute("data-sent-at");
+          if (date) {
+            console.log(
+              "👀 Last message in view, fetching older messages before:",
+              date
+            );
+            fetchMessages(date);
+          }
+        }
+      },
       { threshold: 0.1 }
     );
 
@@ -167,7 +190,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
                     <div
                       key={idx}
                       ref={isLast ? lastMessageRef : null}
-                      sent-at={isLast ? msg.sentAt : null}
+                      data-sent-at={isLast ? msg.sentAt : null}
                       className={`p-3 rounded-2xl w-fit max-w-[50%] ${
                         msg.status === "sent"
                           ? "ml-auto bg-blue-600 text-white text-right"
