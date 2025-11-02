@@ -18,7 +18,40 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const socketRef = useRef<Socket | null>(null);
   const lastMessageRef = useRef(null);
 
-  // Handle incoming socket messages
+  async function fetchMessages(date: string) {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        date === ""
+          ? `http://localhost:8000/messages/${friendUsername}`
+          : `http://localhost:8000/messages/${friendUsername}?before=${date}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!res.ok) throw new Error("Failed to fetch messages");
+      const data: Message[] = await res.json();
+
+      const sorted = data.sort(
+        (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+      );
+
+      const grouped: Record<string, Message[]> = {};
+      for (const m of sorted) {
+        const date = new Date(m.sentAt);
+        const key = `${date.getFullYear()}:${
+          date.getMonth() + 1
+        }:${date.getDate()}`;
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(m);
+      }
+
+      setMessages(grouped);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
   const handlePrivateMessage = (message: Message) => {
     if (!message || message.sender === user?.username) return;
 
@@ -42,15 +75,16 @@ const Chat = ({ friendUsername }: ChatProps) => {
     if (!lastMessage) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => entry.isIntersecting && console.log("in view"),
-      { threshold: 0.1 } // visible when 10% of the element is in view
+      ([entry]) =>
+        entry.isIntersecting &&
+        fetchMessages(entry.target.getAttribute("sent-at")),
+      { threshold: 0.1 }
     );
 
     observer.observe(lastMessage);
     return () => observer.disconnect();
   }, [messages]);
 
-  // Connect socket
   useEffect(() => {
     if (!user || socketRef.current) return;
     const socket = io("http://localhost:8000");
@@ -65,44 +99,10 @@ const Chat = ({ friendUsername }: ChatProps) => {
     };
   }, [user]);
 
-  // Fetch messages
   useEffect(() => {
     if (!user || !friendUsername) return;
 
-    async function fetchMessages() {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(
-          `http://localhost:8000/messages/${friendUsername}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        if (!res.ok) throw new Error("Failed to fetch messages");
-        const data: Message[] = await res.json();
-
-        const sorted = data.sort(
-          (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-        );
-
-        const grouped: Record<string, Message[]> = {};
-        for (const m of sorted) {
-          const date = new Date(m.sentAt);
-          const key = `${date.getFullYear()}:${
-            date.getMonth() + 1
-          }:${date.getDate()}`;
-          if (!grouped[key]) grouped[key] = [];
-          grouped[key].push(m);
-        }
-
-        setMessages(grouped);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchMessages();
+    fetchMessages("");
   }, [user, friendUsername]);
 
   const sendMessage = () => {
@@ -161,14 +161,13 @@ const Chat = ({ friendUsername }: ChatProps) => {
                 </div>
 
                 {messages[date].map((msg, idx) => {
-                  // console.log("index:", idx);
-                  // console.log("content", msg.content);
                   const isLast = idx === 0;
 
                   return (
                     <div
                       key={idx}
                       ref={isLast ? lastMessageRef : null}
+                      sent-at={isLast ? msg.sentAt : null}
                       className={`p-3 rounded-2xl w-fit max-w-[50%] ${
                         msg.status === "sent"
                           ? "ml-auto bg-blue-600 text-white text-right"
