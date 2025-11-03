@@ -17,7 +17,6 @@ import Profile from "./sections/Profile";
 /** TODO:
   
   1) app socket connection
-  2) messages pagination
   4) mobile adaptation
   5) global search
   6) profile pics

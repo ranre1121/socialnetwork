@@ -72,12 +72,11 @@ const Chat = ({ friendUsername }: ChatProps) => {
         return merged;
       });
 
-      // 🔥 Wait for the DOM to render the new messages
       requestAnimationFrame(() => {
         if (container) {
           const newScrollHeight = container.scrollHeight;
           const diff = newScrollHeight - prevScrollHeight;
-          container.scrollTop += diff; // ✅ Maintain position
+          container.scrollTop += diff;
         }
       });
     } catch (err) {
