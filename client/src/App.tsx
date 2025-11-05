@@ -19,9 +19,11 @@ import Profile from "./sections/Profile";
   2) mobile adaptation
   3) global search
   4) profile pics
+
   finally{
     graphql
   }
+    
  */
 
 const App = () => {
