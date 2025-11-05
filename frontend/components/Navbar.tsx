@@ -47,7 +47,7 @@ export default function Navbar({
       router.push(`/profile/${user?.username}`);
       return;
     }
-    router.push(`/${page === "feed" ? "" : page}`);
+    router.push(`/${page}`);
   };
 
   return (

@@ -2,12 +2,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Moon, Sun } from "lucide-react";
+import { useUser } from "@/context/UserContext";
 
 const Login: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
   toggleTheme,
   dark,
 }) => {
   const router = useRouter();
+  const { setUser } = useUser();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +23,8 @@ const Login: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
     const data = await res.json();
     if (data.token) {
       localStorage.setItem("token", data.token);
+      setUser(data.user);
+      router.push("/");
     } else {
       alert(data.message || "Login failed");
     }
