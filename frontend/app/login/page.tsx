@@ -24,7 +24,7 @@ const Login: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
     if (data.token) {
       localStorage.setItem("token", data.token);
       setUser(data.user);
-      router.push("/");
+      router.push("/feed");
     } else {
       alert(data.message || "Login failed");
     }

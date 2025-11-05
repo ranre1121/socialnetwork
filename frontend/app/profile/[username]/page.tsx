@@ -1,11 +1,13 @@
+"use client";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import profilePlaceholder from "../../public/images/profile-placeholder.png";
+import { useParams, useRouter } from "next/navigation";
+import profilePlaceholder from "@/public/images/profile-placeholder.png";
 import { Mail } from "lucide-react";
-import type { Profile as ProfileType } from "../types/Types";
-import Post from "../components/Post";
-import EditProfileModal from "../components/EditProfileModal";
-import FriendsListModal from "../components/FriendsListModal";
+import type { Profile as ProfileType } from "@/types/Types";
+import Post from "@/components/Post";
+import EditProfileModal from "@/components/EditProfileModal";
+import FriendsListModal from "@/components/FriendsListModal";
+import Image from "next/image";
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
@@ -13,8 +15,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFriendsModal, setShowFriendsModal] = useState(false);
-
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleSave = async (name: string, bio: string) => {
     try {
@@ -62,7 +63,7 @@ const Profile = () => {
   }, [username]);
 
   const handleNavigate = () => {
-    navigate("/messages", { state: { username } });
+    router.push(`/messages?username=${username}`);
   };
 
   if (loading && !profile) {
@@ -89,7 +90,7 @@ const Profile = () => {
     <div className="flex justify-center w-full py-10 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
       <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl py-8 flex flex-col gap-8 transition-colors">
         <div className="relative px-8">
-          <img
+          <Image
             src={profilePlaceholder}
             alt="Profile avatar"
             className="h-32 w-32 rounded-full object-cover border-gray-200 dark:border-gray-500 border-4 shadow-md"

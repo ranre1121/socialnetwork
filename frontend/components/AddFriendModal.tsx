@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, UserPlus } from "lucide-react";
-import profilePlaceholder from "../../public/images/profile-placeholder.png";
-import { useUser } from "../context/UserContext";
+import profilePlaceholder from "@/public/images/profile-placeholder.png";
+import { useUser } from "@/context/UserContext";
 import { Plus } from "lucide-react";
+import Image from "next/image";
 
 const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
   const [query, setQuery] = useState("");
@@ -147,7 +148,8 @@ const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
                 key={i}
                 className="py-2 rounded-lg cursor-pointer flex items-center gap-3 bg-gray-50 dark:bg-gray-700 px-2"
               >
-                <img
+                <Image
+                  alt="profile-picture"
                   src={profilePlaceholder}
                   className="size-10 rounded-full"
                 />

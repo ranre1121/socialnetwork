@@ -1,10 +1,12 @@
+"use client";
 import { useState, useEffect } from "react";
-import AddFriendModal from "../components/AddFriendModal";
-import FriendRequestsModal from "../components/FriendRequestsModal";
+import AddFriendModal from "@/components/AddFriendModal";
+import FriendRequestsModal from "@/components/FriendRequestsModal";
 import { UserMinusIcon, UserPlus, Users, Check, X, Mail } from "lucide-react";
-import { useUser } from "../context/UserContext";
+import { useUser } from "@/context/UserContext";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Friends = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -12,7 +14,7 @@ const Friends = () => {
   const [friends, setFriends] = useState<any[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useUser();
 
   const fetchFriends = async () => {
@@ -101,14 +103,14 @@ const Friends = () => {
               friends?.map((f, i) => (
                 <div key={i}>
                   <div className="py-3 flex items-center gap-3">
-                    <img
+                    <Image
                       src={profilePlaceholder}
                       alt="profile"
                       className="size-10 rounded-full"
                     />
                     <span className="leading-5">
                       <p
-                        onClick={() => navigate(`/profile/${f.username}`)}
+                        onClick={() => router.push(`/profile/${f.username}`)}
                         className="cursor-pointer hover:underline"
                       >
                         {f.name}
@@ -136,9 +138,7 @@ const Friends = () => {
                         <Mail
                           className="text-gray-600 dark:text-gray-300 hover:text-sky-500 cursor-pointer"
                           onClick={() =>
-                            navigate("/messages", {
-                              state: { username: f.username },
-                            })
+                            router.push(`/messages?username=${f.username}`)
                           }
                         />
                         <button

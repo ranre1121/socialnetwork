@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import profilePlaceholder from "../../public/images/profile-placeholder.png";
-import { useNavigate } from "react-router-dom";
+import profilePlaceholder from "@/public/images/profile-placeholder.png";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const ProfileFriendsModal = ({
   username,
@@ -12,7 +13,7 @@ const ProfileFriendsModal = ({
 }) => {
   const [friends, setFriends] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -68,11 +69,11 @@ const ProfileFriendsModal = ({
                 key={i}
                 className="flex items-center cursor-pointer gap-3 py-2 px-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
                 onClick={() => {
-                  navigate(`/profile/${f.username}`);
+                  router.push(`/profile/${f.username}`);
                   onClose();
                 }}
               >
-                <img
+                <Image
                   src={profilePlaceholder}
                   alt="profile"
                   className="size-10 rounded-full"

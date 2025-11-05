@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, UserCheck, UserX } from "lucide-react";
-import { useUser } from "../context/UserContext";
-import profilePlaceholder from "../../public/images/profile-placeholder.png";
+import { useUser } from "@/context/UserContext";
+import profilePlaceholder from "@/public/images/profile-placeholder.png";
+import Image from "next/image";
 
 const FriendRequestsModal = ({
   onClose,
@@ -143,7 +144,8 @@ const FriendRequestsModal = ({
                 key={i}
                 className="py-2 rounded-lg flex items-center gap-3 bg-gray-50 dark:bg-gray-700 px-2"
               >
-                <img
+                <Image
+                  alt="profile-picture"
                   src={profilePlaceholder}
                   className="size-10 rounded-full"
                 />
