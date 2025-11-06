@@ -1,5 +1,17 @@
-import Image from "next/image";
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/context/UserContext";
 
 export default function Home() {
-  return <div></div>;
+  const { user, loading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (loading) return;
+    if (user) router.replace("/feed");
+    else router.replace("/login");
+  }, [user, loading, router]);
+
+  return <div className="w-screen h-screen dark:bg-gray-900 bg-white" />;
 }

@@ -14,6 +14,7 @@ import {
   Sun,
 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
+import { useTheme } from "@/app/theme-provider";
 
 const buttons = [
   { icon: <Compass />, text: "Feed" },
@@ -22,17 +23,11 @@ const buttons = [
   { icon: <UserCircle />, text: "Profile" },
 ];
 
-export default function Navbar({
-  dark,
-  toggleTheme,
-}: {
-  dark: boolean;
-  toggleTheme: () => void;
-}) {
+export default function Navbar() {
   const { user, loading, setUser } = useUser();
   const router = useRouter();
   const pathname = usePathname();
-
+  const { dark, toggleTheme } = useTheme();
   const currentPage = pathname.split("/")[1] || "feed";
 
   useEffect(() => {
