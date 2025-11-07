@@ -3,6 +3,15 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 
+/**
+
+TODO:
+1) profile pictures
+2) faster loading using nextjs features (ssr etc.)
+3) graphql
+ 
+ */
+
 export default function Home() {
   const { user, loading } = useUser();
   const router = useRouter();
