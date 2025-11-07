@@ -1,5 +1,16 @@
 import type { Request, Response } from "express";
 import prisma from "../prisma.js";
+import multer from "multer";
+import path from "path";
+
+const storage = multer.diskStorage({
+  destination: (_, __, cb) => cb(null, "uploads/"),
+  filename: (_, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+const upload = multer({ storage });
 
 export async function getProfile(req: Request, res: Response) {
   try {
@@ -62,22 +73,31 @@ export async function getProfile(req: Request, res: Response) {
     res.status(500).json({ error: "Failed to load profile" });
   }
 }
+export const uploadProfilePic = upload.single("image");
 
 export async function updateProfile(req: Request, res: Response) {
   try {
     const currentUser = req.user?.username;
-
     if (!currentUser) return res.status(401).json({ error: "Unauthorized" });
 
-    const { name, bio, isProfileOwner } = req.body;
-    if (!isProfileOwner) return res.status(400).json({ error: "No access" });
+    const { name, bio } = req.body;
+
+    let profilePictureUrl;
+    if (req.file) profilePictureUrl = `/uploads/${req.file.filename}`;
 
     await prisma.user.update({
       where: { username: currentUser },
-      data: { name, bio },
+      data: {
+        name,
+        bio,
+        ...(profilePictureUrl && { profilePicture: profilePictureUrl }),
+      },
     });
 
-    res.json({ message: "Profile updated successfully" });
+    res.json({
+      message: "Profile updated successfully",
+      profilePicture: profilePictureUrl,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to update profile" });

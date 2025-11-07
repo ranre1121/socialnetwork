@@ -28,6 +28,8 @@ app.use("/messages", messagesRoutes);
 
 const server = http.createServer(app);
 
+app.use("/uploads", express.static("uploads"));
+
 const io = new Server(server, {
   cors: {
     origin: "*",

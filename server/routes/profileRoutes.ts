@@ -2,15 +2,13 @@ import { Router } from "express";
 import {
   getProfile,
   updateProfile,
+  uploadProfilePic,
 } from "../controllers/profileControllers.js";
 import { verifyToken } from "../middlewares/authMiddlewares.js";
 
 const router = Router();
 
-// Public: view profile by username
 router.get("/:username", verifyToken, getProfile);
-
-// Private: update own profile
-router.put("/update", verifyToken, updateProfile);
+router.put("/update", verifyToken, uploadProfilePic, updateProfile);
 
 export default router;

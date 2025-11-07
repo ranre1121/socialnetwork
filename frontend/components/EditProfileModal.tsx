@@ -42,19 +42,28 @@ const EditProfileModal = ({
         setUploading(true);
         const formData = new FormData();
         formData.append("image", file);
-        const res = await fetch("http://localhost:8000/upload/profile-pic", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        formData.append("name", name);
+        formData.append("bio", bio);
+        formData.append("isProfileOwner", "true");
+
+        const res = await fetch("http://localhost:8000/profile/update", {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+          },
           body: formData,
         });
+
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Upload failed");
-        uploadedUrl = data.imageUrl;
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+        uploadedUrl = data.profilePicture;
       } catch {
         alert("Failed to upload image");
       } finally {
         setUploading(false);
       }
+    } else {
+      await onSave(name, bio);
     }
 
     await onSave(name, bio, uploadedUrl || undefined);

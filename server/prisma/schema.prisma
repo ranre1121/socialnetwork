@@ -14,7 +14,7 @@ model User {
   password  String
   bio       String   @default("")
   createdAt DateTime @default(now())
-
+  profilePicture String? 
   friends  User[] @relation("UserFriends")
   friendOf User[] @relation("UserFriends")
 
