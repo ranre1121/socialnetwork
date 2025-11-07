@@ -3,20 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Moon, Sun } from "lucide-react";
+import { useTheme } from "../theme-provider";
 
 const Register = () => {
   const router = useRouter();
-  const [dark, setDark] = useState(false);
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const [message, setMessage] = useState("");
 
-  const toggleTheme = () => {
-    setDark(!dark);
-    document.documentElement.classList.toggle("dark");
-  };
+  const { dark, toggleTheme } = useTheme();
 
   async function handleRegister() {
     if (password !== passwordConfirmation) {

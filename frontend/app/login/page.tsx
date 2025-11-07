@@ -3,14 +3,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Moon, Sun } from "lucide-react";
 import { useUser } from "@/context/UserContext";
+import { useTheme } from "../theme-provider";
 
-const Login: React.FC<{ dark: boolean; toggleTheme: () => void }> = ({
-  toggleTheme,
-  dark,
-}) => {
+const Login = () => {
   const router = useRouter();
   const { setUser } = useUser();
 
+  const { dark, toggleTheme } = useTheme();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
