@@ -80,7 +80,7 @@ export default function Messages() {
                         unoptimized
                       />
                       <div className="flex flex-col w-full leading-5">
-                        <p className="font-semibold">{c.companion.username}</p>
+                        <p className="font-semibold">{c.companion.name}</p>
                         <div className="flex text-sm text-gray-500 dark:text-gray-300">
                           <span className="truncate flex-1">
                             {c.lastMessage?.content || "No messages yet"}
@@ -102,7 +102,7 @@ export default function Messages() {
                   onClick={() => {
                     setSelectedChat(null);
                     fetchConversations();
-                    router.replace("/messages"); // ✅ replaces location.state reset
+                    router.replace("/messages");
                   }}
                   className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
                 >
@@ -114,7 +114,7 @@ export default function Messages() {
                     router.push(`/profile/${selectedChat?.companion.username}`)
                   }
                 >
-                  @{selectedChat?.companion.username}
+                  {selectedChat?.companion.name}
                 </h2>
               </div>
 

@@ -147,9 +147,9 @@ const FriendRequestsModal = ({
                 <Image
                   alt="profile-picture"
                   src={
-                    type === "sent"
+                    (type === "sent"
                       ? r.receiver.profilePicture
-                      : r.requester.profilePicture || profilePlaceholder
+                      : r.requester.profilePicture) || profilePlaceholder
                   }
                   className="size-10 rounded-full"
                   width={0}
