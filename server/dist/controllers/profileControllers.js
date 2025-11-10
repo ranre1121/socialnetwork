@@ -56,6 +56,7 @@ export async function getProfile(req, res) {
             bio: user.bio || "",
             friendsCount: friendships?.friends.length,
             profileOwner: currentUser === username,
+            profilePicture: user.profilePicture,
             posts: userPosts.map((post) => ({
                 id: post.id,
                 content: post.content,
@@ -81,7 +82,9 @@ export async function updateProfile(req, res) {
             return res.status(401).json({ error: "Unauthorized" });
         const { name, bio } = req.body;
         let profilePictureUrl;
-        profilePictureUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+        if (req.file) {
+            profilePictureUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+        }
         await prisma.user.update({
             where: { username: currentUser },
             data: {

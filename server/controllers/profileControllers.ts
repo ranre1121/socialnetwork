@@ -4,11 +4,15 @@ import multer from "multer";
 import path from "path";
 
 const storage = multer.diskStorage({
-  destination: (_, __, cb) => cb(null, "uploads/"),
-  filename: (_, file, cb) => {
+  destination: (_: any, __: any, cb: any) => cb(null, "uploads/"),
+  filename: (_: any, file: any, cb: any) => {
     cb(null, `${Date.now()}-${file.originalname}`);
   },
 });
+
+interface MulterRequest extends Request {
+  file?: Express.Multer.File;
+}
 
 const upload = multer({ storage });
 
@@ -63,6 +67,7 @@ export async function getProfile(req: Request, res: Response) {
       bio: user.bio || "",
       friendsCount: friendships?.friends.length,
       profileOwner: currentUser === username,
+      profilePicture: user.profilePicture,
       posts: userPosts.map((post) => ({
         id: post.id,
         content: post.content,
@@ -82,7 +87,7 @@ export async function getProfile(req: Request, res: Response) {
 }
 export const uploadProfilePic = upload.single("image");
 
-export async function updateProfile(req: Request, res: Response) {
+export async function updateProfile(req: MulterRequest, res: Response) {
   try {
     const currentUser = req.user?.username;
     if (!currentUser) return res.status(401).json({ error: "Unauthorized" });
@@ -90,7 +95,9 @@ export async function updateProfile(req: Request, res: Response) {
     const { name, bio } = req.body;
 
     let profilePictureUrl;
-    profilePictureUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+    if (req.file) {
+      profilePictureUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+    }
 
     await prisma.user.update({
       where: { username: currentUser },

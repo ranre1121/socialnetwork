@@ -20,6 +20,7 @@ type Profile = {
   friendsCount: number;
   image: string;
   profileOwner: boolean;
+  profilePicture: string;
 };
 
 type Post = {

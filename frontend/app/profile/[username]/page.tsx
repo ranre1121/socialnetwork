@@ -91,9 +91,12 @@ const Profile = () => {
       <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl py-8 flex flex-col gap-8 transition-colors">
         <div className="relative px-8">
           <Image
-            src={profilePlaceholder}
+            src={profile.profilePicture || profilePlaceholder}
             alt="Profile avatar"
-            className="h-32 w-32 rounded-full object-cover border-gray-200 dark:border-gray-500 border-4 shadow-md"
+            className="size-32 rounded-full object-cover  dark:border-gray-500 border-2 shadow-md"
+            width={0}
+            height={0}
+            unoptimized
           />
         </div>
 
