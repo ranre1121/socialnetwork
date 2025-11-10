@@ -62,6 +62,7 @@ export async function loginUser(req, res) {
                 username: user.username,
                 name: user.name,
                 bio: user.bio,
+                profilePicture: user.profilePicture,
             },
         });
     }

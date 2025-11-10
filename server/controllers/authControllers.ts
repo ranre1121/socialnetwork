@@ -80,6 +80,7 @@ export async function loginUser(req: Request, res: Response) {
         username: user.username,
         name: user.name,
         bio: user.bio,
+        profilePicture: user.profilePicture,
       },
     });
   } catch (err) {

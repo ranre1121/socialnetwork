@@ -46,10 +46,10 @@ const EditProfileModal = ({
         formData.append("bio", bio);
         formData.append("isProfileOwner", "true");
 
-        const res = await fetch("http://localhost:8000/profile/update", {
+        const res = await fetch("http://localhost:8000/profiles/update", {
           method: "PUT",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: formData,
         });

@@ -2,6 +2,7 @@ type User = {
   username: string;
   name: string;
   id: number;
+  profilePicture: string;
 };
 
 type Friend = {
@@ -17,6 +18,7 @@ type Profile = {
   posts: Post[];
   bio: string;
   friendsCount: number;
+  image: string;
   profileOwner: boolean;
 };
 
@@ -29,6 +31,7 @@ type Post = {
     id: number;
     username: string;
     name: string;
+    profilePicture: string;
   };
   comments: string[];
   commentsCount: number;

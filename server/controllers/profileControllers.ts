@@ -40,7 +40,14 @@ export async function getProfile(req: Request, res: Response) {
     const userPosts = await prisma.post.findMany({
       where: { authorId: user.id },
       include: {
-        author: { select: { id: true, name: true, username: true } },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            profilePicture: true,
+          },
+        },
         likes: {
           where: { id: viewer.id },
           select: { id: true },
@@ -83,7 +90,7 @@ export async function updateProfile(req: Request, res: Response) {
     const { name, bio } = req.body;
 
     let profilePictureUrl;
-    if (req.file) profilePictureUrl = `/uploads/${req.file.filename}`;
+    profilePictureUrl = `http://localhost:8000/uploads/${req.file.filename}`;
 
     await prisma.user.update({
       where: { username: currentUser },

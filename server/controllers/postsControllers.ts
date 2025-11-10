@@ -49,7 +49,14 @@ export async function getFeedPosts(req: AuthenticatedRequest, res: Response) {
       where: { authorId: { in: allVisibleIds } },
       orderBy: { createdAt: "desc" },
       include: {
-        author: { select: { id: true, name: true, username: true } },
+        author: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            profilePicture: true,
+          },
+        },
         likes: {
           where: { id: user.id },
           select: { id: true },

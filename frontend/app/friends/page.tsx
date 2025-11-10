@@ -104,7 +104,7 @@ const Friends = () => {
                 <div key={i}>
                   <div className="py-3 flex items-center gap-3">
                     <Image
-                      src={profilePlaceholder}
+                      src={f.profilePicture || profilePlaceholder}
                       alt="profile"
                       className="size-10 rounded-full"
                     />

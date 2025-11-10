@@ -66,8 +66,11 @@ const Post = ({ post, onFetch }: PostTypes) => {
     <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-start gap-3">
       <Image
         alt="profile-picture"
-        src={profilePlaceholder}
+        src={post.author.profilePicture || profilePlaceholder}
+        width={100}
+        height={100}
         className="rounded-full size-7"
+        unoptimized
       />
       <div className="w-full">
         <span className="flex gap-1 items-center">

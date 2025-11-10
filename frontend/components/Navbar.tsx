@@ -49,11 +49,12 @@ export default function Navbar() {
     <nav className="fixed top-10 left-[100px] flex flex-col gap-5 w-[250px] items-center bg-white dark:bg-gray-900 rounded-xl py-5 pb-10 shadow-lg border border-gray-200 dark:border-gray-700">
       <div className="flex flex-col items-center justify-center gap-5">
         <Image
-          src={profilePlaceholder}
-          className="rounded-full"
+          src={user?.profilePicture || profilePlaceholder}
+          className="rounded-full h-25 w-25"
           alt="profile"
-          width={80}
-          height={80}
+          height={0}
+          width={0}
+          unoptimized
         />
         <span className="flex flex-col items-center">
           <span className="font-bold flex gap-2 items-center px-7 relative text-black dark:text-white">
