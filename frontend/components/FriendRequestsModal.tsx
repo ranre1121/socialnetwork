@@ -146,8 +146,15 @@ const FriendRequestsModal = ({
               >
                 <Image
                   alt="profile-picture"
-                  src={profilePlaceholder}
+                  src={
+                    type === "sent"
+                      ? r.receiver.profilePicture
+                      : r.requester.profilePicture || profilePlaceholder
+                  }
                   className="size-10 rounded-full"
+                  width={0}
+                  height={0}
+                  unoptimized
                 />
                 <span className="text-black dark:text-white">
                   <p>

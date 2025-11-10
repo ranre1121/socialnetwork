@@ -48,6 +48,7 @@ export async function findFriends(req, res) {
                 name: user.name,
                 username: user.username,
                 score,
+                profilePicture: user.profilePicture,
                 alreadySent: friendRequests?.requester.id === currentUser.id,
                 alreadyReceived: friendRequests?.receiver.id === currentUser.id,
             };

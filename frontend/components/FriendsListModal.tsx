@@ -74,9 +74,10 @@ const ProfileFriendsModal = ({
                 }}
               >
                 <Image
-                  src={profilePlaceholder}
+                  src={f.profilePicture || profilePlaceholder}
                   alt="profile"
                   className="size-10 rounded-full"
+                  unoptimized
                 />
                 <div className="flex flex-col">
                   <p className="cursor-pointer hover:underline text-gray-900 dark:text-white">

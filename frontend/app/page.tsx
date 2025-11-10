@@ -6,7 +6,6 @@ import { useUser } from "@/context/UserContext";
 /**
 
 TODO:
-1) profile pictures
 2) faster loading using nextjs features (ssr etc.)
 3) graphql
  

@@ -65,7 +65,12 @@ type Comment = {
   id: number;
   text: string;
   createdAt: string;
-  author: { id: number; username: string; name: string };
+  author: {
+    id: number;
+    username: string;
+    name: string;
+    profilePicture: string;
+  };
   isOwner: boolean;
 };
 

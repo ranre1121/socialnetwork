@@ -113,7 +113,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
         <div className="flex gap-3">
           <Image
             alt="profile-picture"
-            src={profilePlaceholder}
+            src={post.author.profilePicture || profilePlaceholder}
             className="size-8  rounded-full"
           />
           <div>
@@ -155,9 +155,10 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
                 className="flex gap-3 border-gray-200 dark:border-gray-700 pb-3"
               >
                 <Image
-                  src={profilePlaceholder}
+                  src={c.author.profilePicture || profilePlaceholder}
                   alt="avatar"
                   className="w-8 h-8 rounded-full"
+                  unoptimized
                 />
                 <div className="flex w-full items-center">
                   <div>

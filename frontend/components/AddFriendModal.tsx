@@ -150,8 +150,11 @@ const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
               >
                 <Image
                   alt="profile-picture"
-                  src={profilePlaceholder}
+                  src={m.profilePicture || profilePlaceholder}
                   className="size-10 rounded-full"
+                  width={0}
+                  height={0}
+                  unoptimized
                 />
                 <span className="leading-5 text-black dark:text-white">
                   <p>{m.name}</p>
