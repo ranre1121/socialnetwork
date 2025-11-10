@@ -311,21 +311,6 @@ export async function deleteFriend(req: Request, res: Response) {
       data: { friends: { disconnect: { username: friend.username } } },
     });
 
-    const chat = await prisma.chat.findFirst({
-      where: {
-        OR: [
-          { participant1Id: user.id, participant2Id: friend.id },
-          { participant1Id: friend.id, participant2Id: user.id },
-        ],
-      },
-    });
-
-    if (!chat) return res.status(200).json({ msg: "no chat" });
-
-    await prisma.chat.delete({
-      where: { id: chat.id },
-    });
-
     return res.status(200).json({ message: "Friend deleted" });
   } catch (err) {
     console.error(err);
