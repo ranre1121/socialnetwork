@@ -6,6 +6,8 @@ import { useUser } from "@/context/UserContext";
 /**
 
 TODO:
+
+1) mobile optimization
 2) faster loading using nextjs features (ssr etc.)
 3) graphql
  
