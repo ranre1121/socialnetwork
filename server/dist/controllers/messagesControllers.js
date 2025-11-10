@@ -17,8 +17,12 @@ export async function getConversations(req, res) {
                 ],
             },
             include: {
-                participant1: { select: { username: true, name: true } },
-                participant2: { select: { username: true, name: true } },
+                participant1: {
+                    select: { username: true, name: true, profilePicture: true },
+                },
+                participant2: {
+                    select: { username: true, name: true, profilePicture: true },
+                },
                 lastMessage: true,
             },
         });

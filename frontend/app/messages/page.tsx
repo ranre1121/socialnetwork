@@ -72,11 +72,12 @@ export default function Messages() {
                       className="py-3 px-4 flex rounded-lg items-center gap-3 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
                     >
                       <Image
-                        src={profilePlaceholder}
+                        src={c.companion.profilePicture || profilePlaceholder}
                         alt="profile"
-                        className="rounded-full"
-                        width={40}
-                        height={40}
+                        className="rounded-full size-10"
+                        width={0}
+                        height={0}
+                        unoptimized
                       />
                       <div className="flex flex-col w-full leading-5">
                         <p className="font-semibold">{c.companion.username}</p>

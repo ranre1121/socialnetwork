@@ -272,7 +272,11 @@ export async function listFriends(req: Request, res: Response) {
 
     const user = await prisma.user.findUnique({
       where: { username },
-      select: { friends: true },
+      select: {
+        friends: {
+          select: { name: true, username: true, profilePicture: true },
+        },
+      },
     });
 
     if (!user) return res.status(404).json({ message: "User not found" });

@@ -107,6 +107,9 @@ const Friends = () => {
                       src={f.profilePicture || profilePlaceholder}
                       alt="profile"
                       className="size-10 rounded-full"
+                      width={0}
+                      height={0}
+                      unoptimized
                     />
                     <span className="leading-5">
                       <p

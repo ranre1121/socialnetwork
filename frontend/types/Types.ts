@@ -49,7 +49,7 @@ type Message = {
 };
 
 type Conversation = {
-  companion: { username: string; name: string };
+  companion: { username: string; name: string; profilePicture: string };
   lastMessage: {
     id: number;
     chatId: number;
