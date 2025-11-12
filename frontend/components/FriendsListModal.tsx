@@ -77,6 +77,8 @@ const ProfileFriendsModal = ({
                   src={f.profilePicture || profilePlaceholder}
                   alt="profile"
                   className="size-10 rounded-full"
+                  width={0}
+                  height={0}
                   unoptimized
                 />
                 <div className="flex flex-col">
