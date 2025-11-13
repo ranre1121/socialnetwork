@@ -43,11 +43,12 @@ type Post = {
 type Message = {
   tempId: string;
   id: number;
-  sender: string;
-  receiver: string;
+  chatId: number;
+  sender: User;
+  receiver: User;
   content: string;
   sentAt: string;
-  status: "sent" | "received" | "pending";
+  status: "read" | "unread" | "pending" | "received";
 };
 
 type Conversation = {

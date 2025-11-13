@@ -88,7 +88,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
     }
   }
 
-  const handlePrivateMessage = (message: any) => {
+  const handlePrivateMessage = (message: Message) => {
     if (!message) return;
 
     console.log("server:", message);
@@ -99,7 +99,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
 
         for (const key in updated) {
           updated[key] = updated[key].map((msg) =>
-            msg.tempId === message.tempId ? { ...msg, status: "sent" } : msg
+            msg.tempId === message.tempId ? { ...msg, status: "unread" } : msg
           );
         }
 
@@ -230,7 +230,9 @@ const Chat = ({ friendUsername }: ChatProps) => {
                       ref={isLast ? lastMessageRef : null}
                       data-sent-at={isLast ? msg.sentAt : undefined}
                       className={`p-3 rounded-2xl w-fit max-w-[50%] ${
-                        msg.status === "sent" || msg.status === "pending"
+                        msg.status === "unread" ||
+                        msg.status === "pending" ||
+                        msg.status === "read"
                           ? "ml-auto bg-blue-600 text-white text-right"
                           : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
                       }`}
@@ -247,7 +249,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
                         </p>
                         {msg.status === "pending" ? (
                           <Clock3 className="mt-1 size-4 text-gray-300" />
-                        ) : msg.status === "sent" ? (
+                        ) : msg.status === "unread" ? (
                           <Check className="mt-1 size-4 text-gray-300" />
                         ) : (
                           <></>
