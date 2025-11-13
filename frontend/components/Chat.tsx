@@ -88,12 +88,12 @@ const Chat = ({ friendUsername }: ChatProps) => {
     }
   }
 
-  const handlePrivateMessage = (message: Message) => {
+  const handlePrivateMessage = (message: any) => {
     if (!message) return;
 
     console.log("server:", message);
 
-    if (message.sender === user?.username) {
+    if (message.sender?.username === user?.username) {
       setMessages((prev) => {
         const updated = { ...prev };
 
@@ -166,12 +166,6 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
 
-    // const payload = {
-    //   sender: user.username,
-    //   receiver: friendUsername,
-    //   content: newMessage.trim(),
-    // };
-
     const pendingMessage: Message = {
       tempId: crypto.randomUUID(),
       id: Date.now(),
@@ -196,6 +190,12 @@ const Chat = ({ friendUsername }: ChatProps) => {
     });
 
     socketRef.current.emit("private_message", pendingMessage);
+
+    const container = scrollRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+
     setNewMessage("");
   };
 

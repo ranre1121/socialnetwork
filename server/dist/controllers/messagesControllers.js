@@ -37,13 +37,13 @@ export async function getConversations(req, res) {
         res.status(500).json({ message: "Server error" });
     }
 }
-export async function addMessage(tempId, sender, receiver, content) {
+export async function addMessage(message) {
     try {
         const senderUser = await prisma.user.findUnique({
-            where: { username: sender },
+            where: { username: message.senderUsername },
         });
         const receiverUser = await prisma.user.findUnique({
-            where: { username: receiver },
+            where: { username: message.receiverUsername },
         });
         if (!senderUser || !receiverUser)
             return "No user found";
@@ -61,9 +61,13 @@ export async function addMessage(tempId, sender, receiver, content) {
             data: {
                 senderId: senderUser.id,
                 receiverId: receiverUser.id,
-                content,
+                content: message.content,
                 chatId: chat.id,
-                tempId: tempId,
+                tempId: message.tempId,
+            },
+            include: {
+                sender: { select: { username: true } },
+                receiver: { select: { username: true } },
             },
         });
         await prisma.chat.update({

@@ -1,14 +1,21 @@
 import type { Request, Response } from "express";
 export declare function getConversations(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
-export declare function addMessage(tempId: string, sender: string, receiver: string, content: string): Promise<{
+export declare function addMessage(message: any): Promise<"No user found" | "no chat found" | ({
+    sender: {
+        username: string;
+    };
+    receiver: {
+        username: string;
+    };
+} & {
     id: number;
-    receiverId: number;
     tempId: string;
     chatId: number;
     senderId: number;
+    receiverId: number;
     content: string;
     sentAt: Date;
-} | "No user found" | "no chat found" | null>;
+}) | null>;
 export declare function getMessages(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
 export declare function readMessage(reader: string, messageId: number): Promise<"No user found" | "Message was not found" | {
     id: number;

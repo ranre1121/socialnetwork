@@ -46,22 +46,17 @@ io.on("connection", (socket) => {
   });
 
   socket.on("private_message", async (payload) => {
-    const newMessage = await addMessage(
-      payload.tempId,
-      payload.senderUsername,
-      payload.receiverUsername,
-      payload.content
-    );
+    const newMessage = await addMessage(payload);
 
-    io.to(payload.receiver).emit("private_message", newMessage);
-    io.to(payload.sender).emit("private_message", newMessage);
+    io.to(payload.receiverUsername).emit("private_message", newMessage);
+    io.to(payload.senderUsername).emit("private_message", newMessage);
   });
 
-  socket.on("read_message", async (payload) => {
-    const readMessage = await readMessage(payload.readerId, payload.messageId);
+  // socket.on("read_message", async (payload) => {
+  //   const readMessage = await readMessage(payload.readerId, payload.messageId);
 
-    io.to(payload.receiver).emit("read_message", readMessage);
-  });
+  //   io.to(payload.receiver).emit("read_message", readMessage);
+  // });
 
   socket.on("disconnect", () => {});
 });
