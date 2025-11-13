@@ -11,6 +11,7 @@ TODO:
 2) faster loading using nextjs features (ssr etc.)
 3) graphql
 4) notifications
+
  */
 
 export default function Home() {

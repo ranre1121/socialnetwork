@@ -125,4 +125,43 @@ export async function getMessages(req, res) {
         res.status(500).json({ message: "Server error" });
     }
 }
+export async function readMessage(reader, messageId) {
+    try {
+        const senderUser = await prisma.user.findUnique({
+            where: { username: reader },
+        });
+        if (!senderUser)
+            return "No user found";
+        const message = await prisma.chat.findUnique({
+            where: {
+                id: messageId,
+            },
+        });
+        if (!chat)
+            return "no chat found";
+        const newMessage = await prisma.message.create({
+            data: {
+                senderId: senderUser.id,
+                receiverId: receiverUser.id,
+                content,
+                chatId: chat.id,
+            },
+        });
+        await prisma.chat.update({
+            where: { id: chat.id },
+            data: { lastMessage: { connect: { id: newMessage.id } } },
+        });
+        const message = {
+            sender: senderUser.username,
+            receiver: receiverUser.username,
+            content,
+            sentAt: newMessage.sentAt,
+        };
+        return message;
+    }
+    catch (err) {
+        console.error("addMessage error:", err);
+        return null;
+    }
+}
 //# sourceMappingURL=messagesControllers.js.map
