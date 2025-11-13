@@ -8,27 +8,30 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  name      String   @default("")
-  password  String
-  bio       String   @default("")
-  createdAt DateTime @default(now())
-  profilePicture String? 
-  friends  User[] @relation("UserFriends")
-  friendOf User[] @relation("UserFriends")
+  id              Int       @id @default(autoincrement())
+  username        String    @unique
+  name            String    @default("")
+  password        String
+  bio             String    @default("")
+  createdAt       DateTime  @default(now())
+  profilePicture  String?
 
-  sentRequests     FriendRequest[] @relation("FriendshipRequester")
+  friends         User[]    @relation("UserFriends")
+  friendOf        User[]    @relation("UserFriends")
+
+  sentRequests    FriendRequest[] @relation("FriendshipRequester")
   receivedRequests FriendRequest[] @relation("FriendshipReceiver")
 
-  posts    Post[]    @relation("PostAuthor")
-  comments Comment[] @relation("CommentAuthor")
+  posts           Post[]    @relation("PostAuthor")
+  comments        Comment[] @relation("CommentAuthor")
 
-  chats1           Chat[]    @relation("ChatParticipant1")
-  chats2           Chat[]    @relation("ChatParticipant2")
-  sentMessages     Message[] @relation("MessageSender")
+  chats1          Chat[]    @relation("ChatParticipant1")
+  chats2          Chat[]    @relation("ChatParticipant2")
+  sentMessages    Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
-  postsLiked       Post[]    @relation("WhoLiked")
+  postsLiked      Post[]    @relation("WhoLiked")
+
+  messagesRead    MessageRead[]
 }
 
 model FriendRequest {
@@ -90,8 +93,22 @@ model Message {
   content    String
   sentAt     DateTime @default(now())
 
-  chat     Chat  @relation("MessageChat", fields: [chatId], references: [id])
-  sender   User  @relation("MessageSender", fields: [senderId], references: [id])
-  receiver User  @relation("MessageReceiver", fields: [receiverId], references: [id])
-  chatLast Chat? @relation("LastMessage")
+  chat       Chat     @relation("MessageChat", fields: [chatId], references: [id])
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id])
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id])
+  chatLast   Chat?    @relation("LastMessage")
+
+  readers    MessageRead[]
+}
+
+model MessageRead {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  messageId  Int
+  readAt     DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id])
+  message    Message  @relation(fields: [messageId], references: [id])
+
+  @@unique([userId, messageId])
 }
