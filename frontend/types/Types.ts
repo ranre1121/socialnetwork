@@ -41,12 +41,13 @@ type Post = {
 };
 
 type Message = {
+  tempId: string;
   id: number;
   sender: string;
   receiver: string;
   content: string;
   sentAt: string;
-  status: "sent" | "received";
+  status: "sent" | "received" | "pending";
 };
 
 type Conversation = {

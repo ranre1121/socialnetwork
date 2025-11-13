@@ -3,6 +3,8 @@ import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
 import type { Message } from "../types/Types";
 import { formatMessageDate } from "../utils/utils";
+import { Clock3 } from "lucide-react";
+import { Check } from "lucide-react";
 
 type ChatProps = {
   friendUsername: string;
@@ -87,21 +89,37 @@ const Chat = ({ friendUsername }: ChatProps) => {
   }
 
   const handlePrivateMessage = (message: Message) => {
-    if (!message || message.sender === user?.username) return;
+    if (!message) return;
 
-    const date = new Date(message.sentAt);
-    const key = `${date.getFullYear()}:${
-      date.getMonth() + 1
-    }:${date.getDate()}`;
+    console.log("server:", message);
 
-    setMessages((prev) => {
-      const updated = { ...prev };
-      if (!updated[key]) updated[key] = [];
-      updated[key] = [...updated[key], message].sort(
-        (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-      );
-      return updated;
-    });
+    if (message.sender === user?.username) {
+      setMessages((prev) => {
+        const updated = { ...prev };
+
+        for (const key in updated) {
+          updated[key] = updated[key].map((msg) =>
+            msg.tempId === message.tempId ? { ...msg, status: "sent" } : msg
+          );
+        }
+
+        return updated;
+      });
+    } else {
+      const date = new Date(message.sentAt);
+      const key = `${date.getFullYear()}:${
+        date.getMonth() + 1
+      }:${date.getDate()}`;
+
+      setMessages((prev) => {
+        const updated = { ...prev };
+        if (!updated[key]) updated[key] = [];
+        updated[key] = [...updated[key], message].sort(
+          (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+        );
+        return updated;
+      });
+    }
   };
 
   useEffect(() => {
@@ -148,23 +166,24 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
 
-    const payload = {
-      sender: user.username,
-      receiver: friendUsername,
-      content: newMessage.trim(),
-    };
+    // const payload = {
+    //   sender: user.username,
+    //   receiver: friendUsername,
+    //   content: newMessage.trim(),
+    // };
 
-    const optimisticMessage: Message = {
+    const pendingMessage: Message = {
+      tempId: crypto.randomUUID(),
       id: Date.now(),
       chatId: 0,
       content: newMessage.trim(),
       senderUsername: user.username,
       receiverUsername: friendUsername,
       sentAt: new Date().toISOString(),
-      status: "sent",
+      status: "pending",
     } as any;
 
-    const date = new Date(optimisticMessage.sentAt);
+    const date = new Date(pendingMessage.sentAt);
     const key = `${date.getFullYear()}:${
       date.getMonth() + 1
     }:${date.getDate()}`;
@@ -172,11 +191,11 @@ const Chat = ({ friendUsername }: ChatProps) => {
     setMessages((prev) => {
       const updated = { ...prev };
       if (!updated[key]) updated[key] = [];
-      updated[key] = [...updated[key], optimisticMessage];
+      updated[key] = [...updated[key], pendingMessage];
       return updated;
     });
 
-    socketRef.current.emit("private_message", payload);
+    socketRef.current.emit("private_message", pendingMessage);
     setNewMessage("");
   };
 
@@ -211,7 +230,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
                       ref={isLast ? lastMessageRef : null}
                       data-sent-at={isLast ? msg.sentAt : undefined}
                       className={`p-3 rounded-2xl w-fit max-w-[50%] ${
-                        msg.status === "sent"
+                        msg.status === "sent" || msg.status === "pending"
                           ? "ml-auto bg-blue-600 text-white text-right"
                           : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white text-left"
                       }`}
@@ -219,12 +238,21 @@ const Chat = ({ friendUsername }: ChatProps) => {
                       <p className="whitespace-pre-line wrap-break-word text-left">
                         {msg.content}
                       </p>
-                      <p className="text-sm text-gray-300 mt-1 self-end">
-                        {new Date(msg.sentAt).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
+                      <span className="flex gap-3 items-center">
+                        <p className="text-sm text-gray-300 mt-1 self-end">
+                          {new Date(msg.sentAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                        {msg.status === "pending" ? (
+                          <Clock3 className="mt-1 size-4 text-gray-300" />
+                        ) : msg.status === "sent" ? (
+                          <Check className="mt-1 size-4 text-gray-300" />
+                        ) : (
+                          <></>
+                        )}
+                      </span>
                     </div>
                   );
                 })}

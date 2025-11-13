@@ -87,6 +87,7 @@ model Chat {
 
 model Message {
   id         Int      @id @default(autoincrement())
+  tempId     String
   chatId     Int
   senderId   Int
   receiverId Int

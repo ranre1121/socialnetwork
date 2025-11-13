@@ -9,7 +9,10 @@ import friendsRoutes from "./dist/routes/friendsRoutes.js";
 import postsRoutes from "./dist/routes/postsRoutes.js";
 import profilesRoutes from "./dist/routes/profileRoutes.js";
 import messagesRoutes from "./dist/routes/messagesRoutes.js";
-import { addMessage } from "./dist/controllers/messagesControllers.js";
+import {
+  addMessage,
+  readMessage,
+} from "./dist/controllers/messagesControllers.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 8000;
@@ -44,13 +47,20 @@ io.on("connection", (socket) => {
 
   socket.on("private_message", async (payload) => {
     const newMessage = await addMessage(
-      payload.sender,
-      payload.receiver,
+      payload.tempId,
+      payload.senderUsername,
+      payload.receiverUsername,
       payload.content
     );
 
     io.to(payload.receiver).emit("private_message", newMessage);
     io.to(payload.sender).emit("private_message", newMessage);
+  });
+
+  socket.on("read_message", async (payload) => {
+    const readMessage = await readMessage(payload.readerId, payload.messageId);
+
+    io.to(payload.receiver).emit("read_message", readMessage);
   });
 
   socket.on("disconnect", () => {});

@@ -46,6 +46,7 @@ export async function getConversations(req: Request, res: Response) {
 }
 
 export async function addMessage(
+  tempId: string,
   sender: string,
   receiver: string,
   content: string
@@ -78,6 +79,7 @@ export async function addMessage(
         receiverId: receiverUser.id,
         content,
         chatId: chat.id,
+        tempId: tempId,
       },
     });
 
@@ -86,14 +88,7 @@ export async function addMessage(
       data: { lastMessage: { connect: { id: newMessage.id } } },
     });
 
-    const message = {
-      sender: senderUser.username,
-      receiver: receiverUser.username,
-      content,
-      sentAt: newMessage.sentAt,
-    };
-
-    return message;
+    return newMessage;
   } catch (err) {
     console.error("addMessage error:", err);
     return null;

@@ -37,7 +37,7 @@ export async function getConversations(req, res) {
         res.status(500).json({ message: "Server error" });
     }
 }
-export async function addMessage(sender, receiver, content) {
+export async function addMessage(tempId, sender, receiver, content) {
     try {
         const senderUser = await prisma.user.findUnique({
             where: { username: sender },
@@ -63,19 +63,14 @@ export async function addMessage(sender, receiver, content) {
                 receiverId: receiverUser.id,
                 content,
                 chatId: chat.id,
+                tempId: tempId,
             },
         });
         await prisma.chat.update({
             where: { id: chat.id },
             data: { lastMessage: { connect: { id: newMessage.id } } },
         });
-        const message = {
-            sender: senderUser.username,
-            receiver: receiverUser.username,
-            content,
-            sentAt: newMessage.sentAt,
-        };
-        return message;
+        return newMessage;
     }
     catch (err) {
         console.error("addMessage error:", err);
@@ -132,35 +127,20 @@ export async function readMessage(reader, messageId) {
         });
         if (!senderUser)
             return "No user found";
-        const message = await prisma.chat.findUnique({
+        const message = await prisma.message.findUnique({
             where: {
                 id: messageId,
             },
         });
-        if (!chat)
-            return "no chat found";
-        const newMessage = await prisma.message.create({
-            data: {
-                senderId: senderUser.id,
-                receiverId: receiverUser.id,
-                content,
-                chatId: chat.id,
-            },
+        if (!message)
+            return "Message was not found";
+        const addedMessage = await prisma.messageRead.create({
+            data: { userId: senderUser.id, messageId: message.id },
         });
-        await prisma.chat.update({
-            where: { id: chat.id },
-            data: { lastMessage: { connect: { id: newMessage.id } } },
-        });
-        const message = {
-            sender: senderUser.username,
-            receiver: receiverUser.username,
-            content,
-            sentAt: newMessage.sentAt,
-        };
-        return message;
+        return addedMessage;
     }
     catch (err) {
-        console.error("addMessage error:", err);
+        console.error("readMessage error:", err);
         return null;
     }
 }
