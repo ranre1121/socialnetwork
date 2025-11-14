@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { useTheme } from "@/app/theme-provider";
+import ImageComponent from "./ImageComponent";
 
 const buttons = [
   { icon: <Compass />, text: "Feed" },
@@ -48,14 +49,7 @@ export default function Navbar() {
   return (
     <nav className="fixed top-10 left-[100px] flex flex-col gap-5 w-[250px] items-center bg-white dark:bg-gray-900 rounded-xl py-5 pb-10 shadow-lg border border-gray-200 dark:border-gray-700">
       <div className="flex flex-col items-center justify-center gap-5">
-        <Image
-          src={user?.profilePicture || profilePlaceholder}
-          className="rounded-full h-25 w-25"
-          alt="profile"
-          height={0}
-          width={0}
-          unoptimized
-        />
+        <ImageComponent src={user?.profilePicture} size={100} />
         <span className="flex flex-col items-center">
           <span className="font-bold flex gap-2 items-center px-7 relative text-black dark:text-white">
             <p

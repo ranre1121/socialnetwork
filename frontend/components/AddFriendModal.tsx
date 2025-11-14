@@ -4,6 +4,7 @@ import profilePlaceholder from "@/public/images/profile-placeholder.png";
 import { useUser } from "@/context/UserContext";
 import { Plus } from "lucide-react";
 import Image from "next/image";
+import ImageComponent from "./ImageComponent";
 
 const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
   const [query, setQuery] = useState("");
@@ -148,14 +149,7 @@ const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
                 key={i}
                 className="py-2 rounded-lg cursor-pointer flex items-center gap-3 bg-gray-50 dark:bg-gray-700 px-2"
               >
-                <Image
-                  alt="profile-picture"
-                  src={m.profilePicture || profilePlaceholder}
-                  className="size-10 rounded-full"
-                  width={0}
-                  height={0}
-                  unoptimized
-                />
+                <ImageComponent src={m.profilePicture} size={20} />
                 <span className="leading-5 text-black dark:text-white">
                   <p>{m.name}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-300">

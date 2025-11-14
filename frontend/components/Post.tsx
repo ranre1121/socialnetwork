@@ -11,6 +11,7 @@ import heart from "@/public/images/heart.svg";
 import CommentsModal from "./CommentsModal";
 import { formatPostDate } from "@/utils/utils";
 import { useRouter } from "next/navigation";
+import ImageComponent from "./ImageComponent";
 
 type PostTypes = {
   post: PostType;
@@ -64,14 +65,7 @@ const Post = ({ post, onFetch }: PostTypes) => {
 
   return (
     <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-start gap-3">
-      <Image
-        alt="profile-picture"
-        src={post.author.profilePicture || profilePlaceholder}
-        width={100}
-        height={100}
-        className="rounded-full size-7"
-        unoptimized
-      />
+      <ImageComponent src={post.author.profilePicture} size={30} />
       <div className="w-full">
         <span className="flex gap-1 items-center">
           <p

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Upload } from "lucide-react";
+import ImageComponent from "./ImageComponent";
 
 type EditProfileModalProps = {
   onClose: () => void;
@@ -90,15 +91,7 @@ const EditProfileModal = ({
               onMouseLeave={() => setHovered(false)}
               className="relative w-24 h-24 rounded-full overflow-hidden border border-gray-400 dark:border-gray-600 cursor-pointer group"
             >
-              <Image
-                src={preview || "/images/profile-placeholder.png"}
-                alt="profile preview"
-                fill
-                sizes="96px"
-                className={`object-cover transition duration-200 ${
-                  hovered ? "opacity-60" : ""
-                }`}
-              />
+              <ImageComponent src={preview} size={30} />
               <div
                 className={`absolute inset-0 flex items-center justify-center transition ${
                   hovered ? "opacity-100" : "opacity-0"

@@ -8,6 +8,7 @@ import profilePlaceholder from "@/public/images/profile-placeholder.png";
 import { ArrowLeft } from "lucide-react";
 import type { Conversation } from "@/types/Types";
 import { formatMessageTime } from "@/utils/utils";
+import ImageComponent from "@/components/ImageComponent";
 
 export default function Messages() {
   const { user } = useUser();
@@ -60,14 +61,7 @@ export default function Messages() {
                   }
                   className="py-3 px-4 flex rounded-lg items-center gap-3 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
                 >
-                  <Image
-                    src={c.companion.profilePicture || profilePlaceholder}
-                    alt="profile"
-                    className="rounded-full size-10"
-                    width={0}
-                    height={0}
-                    unoptimized
-                  />
+                  <ImageComponent src={c.companion.profilePicture} size={30} />
                   <div className="flex flex-col w-full leading-5">
                     <p className="font-semibold">{c.companion.name}</p>
                     <div className="flex text-sm text-gray-500 dark:text-gray-300">

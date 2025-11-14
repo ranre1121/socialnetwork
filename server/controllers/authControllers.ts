@@ -30,6 +30,7 @@ export async function registerUser(req: Request, res: Response) {
         name,
         password: hashedPassword,
         bio: "",
+        profilePicture: "http://localhost:8000/uploads/profile-placeholder.png",
       },
       select: {
         id: true,

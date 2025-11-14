@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import profilePlaceholder from "@/public/images/profile-placeholder.png";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import ImageComponent from "./ImageComponent";
 
 const ProfileFriendsModal = ({
   username,
@@ -73,14 +74,7 @@ const ProfileFriendsModal = ({
                   onClose();
                 }}
               >
-                <Image
-                  src={f.profilePicture || profilePlaceholder}
-                  alt="profile"
-                  className="size-10 rounded-full"
-                  width={0}
-                  height={0}
-                  unoptimized
-                />
+                <ImageComponent src={f.profilePicture} size={25} />
                 <div className="flex flex-col">
                   <p className="cursor-pointer hover:underline text-gray-900 dark:text-white">
                     {f.name}

@@ -7,6 +7,7 @@ import { useUser } from "@/context/UserContext";
 import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import ImageComponent from "@/components/ImageComponent";
 
 const Friends = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -103,14 +104,7 @@ const Friends = () => {
               friends?.map((f, i) => (
                 <div key={i}>
                   <div className="py-3 flex items-center gap-3">
-                    <Image
-                      src={f.profilePicture || profilePlaceholder}
-                      alt="profile"
-                      className="size-10 rounded-full"
-                      width={0}
-                      height={0}
-                      unoptimized
-                    />
+                    <ImageComponent src={f.profilePicture} size={30} />
                     <span className="leading-5">
                       <p
                         onClick={() => router.push(`/profile/${f.username}`)}

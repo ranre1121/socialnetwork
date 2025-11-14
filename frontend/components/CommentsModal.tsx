@@ -6,6 +6,7 @@ import { formatPostDate } from "@/utils/utils";
 import type { Comment } from "@/types/Types";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import ImageComponent from "./ImageComponent";
 
 type CommentsModalProps = {
   post: PostType;
@@ -111,14 +112,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
           <X className="size-5" />
         </button>
         <div className="flex gap-3">
-          <Image
-            alt="profile-picture"
-            src={post.author.profilePicture || profilePlaceholder}
-            className="size-8  rounded-full"
-            width={0}
-            height={0}
-            unoptimized
-          />
+          <ImageComponent src={post.author.profilePicture} size={20} />
           <div>
             <span className="flex gap-1 items-center">
               <p
@@ -157,14 +151,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
                 key={c.id}
                 className="flex gap-3 border-gray-200 dark:border-gray-700 pb-3"
               >
-                <Image
-                  src={c.author.profilePicture || profilePlaceholder}
-                  alt="avatar"
-                  className="w-8 h-8 rounded-full"
-                  unoptimized
-                  width={0}
-                  height={0}
-                />
+                <ImageComponent src={c.author.profilePicture} size={20} />
                 <div className="flex w-full items-center">
                   <div>
                     <p className="text-sm font-semibold dark:text-white">
