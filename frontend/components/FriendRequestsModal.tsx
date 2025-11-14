@@ -148,8 +148,8 @@ const FriendRequestsModal = ({
                 <ImageComponent
                   src={
                     type === "sent"
-                      ? r.receiver.profilePicture
-                      : r.requester.profilePicture
+                      ? r.receiver?.profilePicture
+                      : r.requester?.profilePicture
                   }
                   size={30}
                 />

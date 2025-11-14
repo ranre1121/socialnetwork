@@ -8,7 +8,7 @@ type EditProfileModalProps = {
   onClose: () => void;
   currentName: string;
   currentBio: string;
-  currentImage: string | null;
+  currentImage: string;
   onSave: (name: string, bio: string, imageUrl?: string) => Promise<void>;
 };
 
@@ -22,7 +22,7 @@ const EditProfileModal = ({
   const [name, setName] = useState(currentName);
   const [bio, setBio] = useState(currentBio);
   const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(currentImage);
+  const [preview, setPreview] = useState<string>(currentImage);
   const [uploading, setUploading] = useState(false);
   const [hovered, setHovered] = useState(false);
 

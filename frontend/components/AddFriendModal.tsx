@@ -149,7 +149,7 @@ const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
                 key={i}
                 className="py-2 rounded-lg cursor-pointer flex items-center gap-3 bg-gray-50 dark:bg-gray-700 px-2"
               >
-                <ImageComponent src={m.profilePicture} size={20} />
+                <ImageComponent src={m.profilePicture} size={30} />
                 <span className="leading-5 text-black dark:text-white">
                   <p>{m.name}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-300">
