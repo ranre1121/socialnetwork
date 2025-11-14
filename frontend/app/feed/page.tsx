@@ -7,7 +7,7 @@ import type { Post as PostType } from "@/types/Types";
 
 const Me = () => {
   const { user } = useUser();
-  const [focused, setFocused] = useState(false);
+
   const [content, setContent] = useState("");
   const [posts, setPosts] = useState<PostType[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
@@ -74,16 +74,11 @@ const Me = () => {
         <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
           <h1 className="text-xl font-semibold">Create a Post</h1>
 
-          <motion.textarea
-            onFocus={() => setFocused(true)}
+          <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            onBlur={() => setFocused(false)}
             placeholder={`What's on your mind, ${user?.name.split(" ")[0]}?`}
-            initial={{ height: "40px" }}
-            animate={{ height: focused ? "200px" : "40px" }}
-            transition={{ duration: 0.3 }}
-            className="w-full resize-none px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none bg-white dark:bg-gray-700 text-black dark:text-white"
+            className="w-full h-[100px] resize-none px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none bg-white dark:bg-gray-700 text-black dark:text-white"
           />
 
           <div className="border-t border-gray-200 dark:border-gray-700"></div>
