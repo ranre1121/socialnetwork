@@ -7,7 +7,7 @@ import type { Post as PostType } from "@/types/Types";
 
 const Me = () => {
   const { user } = useUser();
-
+  const [focused, setFocused] = useState(false);
   const [content, setContent] = useState("");
   const [posts, setPosts] = useState<PostType[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
