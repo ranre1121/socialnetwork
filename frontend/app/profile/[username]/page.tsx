@@ -63,7 +63,7 @@ const Profile = () => {
   }, [username]);
 
   const handleNavigate = () => {
-    router.push(`/messages?username=${username}`);
+    router.push(`/messages/chat/${username}`);
   };
 
   if (loading && !profile) {

@@ -202,7 +202,7 @@ const Chat = () => {
   return (
     <div className="flex flex-col h-screen w-full items-center justify-center py-10">
       <div className="bg-white dark:bg-gray-800 w-full max-w-[850px] h-full max-h-[900px] flex flex-col border-gray-700 rounded-2xl overflow-hidden backdrop-blur">
-        <div className="flex items-center gap-3 border-gray-700 border-b py-3 px-5">
+        <div className="flex items-center gap-3 border-gray-700 border-b p-5">
           <button
             onClick={() => {}}
             className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
