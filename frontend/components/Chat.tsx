@@ -3,7 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
 import type { Message } from "../types/Types";
 import { formatMessageDate } from "../utils/utils";
-import { Clock3 } from "lucide-react";
+import { CheckCheck, Clock3 } from "lucide-react";
 import { Check } from "lucide-react";
 
 type ChatProps = {
@@ -241,7 +241,15 @@ const Chat = ({ friendUsername }: ChatProps) => {
                         {msg.content}
                       </p>
                       <span className="flex gap-3 items-center">
-                        <p className="text-sm text-gray-300 mt-1 self-end">
+                        <p
+                          className={`text-sm text-gray-300 mt-1 ${
+                            msg.status === "unread" ||
+                            msg.status === "pending" ||
+                            msg.status === "read"
+                              ? "ml-auto"
+                              : "mr-auto"
+                          }`}
+                        >
                           {new Date(msg.sentAt).toLocaleTimeString([], {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -251,6 +259,8 @@ const Chat = ({ friendUsername }: ChatProps) => {
                           <Clock3 className="mt-1 size-4 text-gray-300" />
                         ) : msg.status === "unread" ? (
                           <Check className="mt-1 size-4 text-gray-300" />
+                        ) : msg.status === "read" ? (
+                          <CheckCheck className="mt-1 size-4 text-gray-300" />
                         ) : (
                           <></>
                         )}

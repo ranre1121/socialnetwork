@@ -52,11 +52,15 @@ io.on("connection", (socket) => {
     io.to(payload.senderUsername).emit("private_message", newMessage);
   });
 
-  // socket.on("read_message", async (payload) => {
-  //   const readMessage = await readMessage(payload.readerId, payload.messageId);
+  socket.on("read_message", async (payload) => {
+    const readRecord = await readMessage(payload.reader, payload.messageId);
+    if (!readRecord) return;
 
-  //   io.to(payload.receiver).emit("read_message", readMessage);
-  // });
+    io.to(payload.receiver).emit("read_message", {
+      messageId: payload.messageId,
+      reader: payload.reader,
+    });
+  });
 
   socket.on("disconnect", () => {});
 });
