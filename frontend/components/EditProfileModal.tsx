@@ -91,7 +91,7 @@ const EditProfileModal = ({
               onMouseLeave={() => setHovered(false)}
               className="relative w-24 h-24 rounded-full overflow-hidden border border-gray-400 dark:border-gray-600 cursor-pointer group"
             >
-              <ImageComponent src={preview} size={30} />
+              <ImageComponent src={preview} size={96} />
               <div
                 className={`absolute inset-0 flex items-center justify-center transition ${
                   hovered ? "opacity-100" : "opacity-0"

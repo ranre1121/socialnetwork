@@ -165,7 +165,7 @@ const Profile = () => {
           onClose={() => setIsModalOpen(false)}
           currentName={profile.name}
           currentBio={profile.bio}
-          currentImage={profile.image}
+          currentImage={profile.profilePicture}
           onSave={handleSave}
         />
       )}
