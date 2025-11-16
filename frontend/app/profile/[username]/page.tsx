@@ -89,7 +89,7 @@ const Profile = () => {
 
   return (
     <div className="flex justify-center w-full py-10 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
-      <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl py-8 flex flex-col transition-colors">
+      <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl pt-8 flex flex-col transition-colors">
         <div className="flex flex-col gap-3">
           <div className="relative px-8">
             <div className="border border-gray-300 size-fit rounded-full">
@@ -142,7 +142,7 @@ const Profile = () => {
         </div>
         <div className="w-full border-b dark:border-gray-700 mt-5" />
 
-        <div className="flex flex-col gap-3 overflow-y-auto h-[530px] py-6">
+        <div className="flex flex-col gap-3 overflow-y-auto h-[550px] py-6">
           <div className="px-5">
             {profile?.posts?.length === 0 ? (
               <div className="flex items-center justify-center text-xl">
