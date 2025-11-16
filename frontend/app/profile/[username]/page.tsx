@@ -89,58 +89,60 @@ const Profile = () => {
 
   return (
     <div className="flex justify-center w-full py-10 bg-gray-50 dark:bg-gray-900 min-h-screen transition-colors">
-      <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl py-8 flex flex-col gap-8 transition-colors">
-        <div className="relative px-8">
-          <div className="border border-gray-300 size-fit rounded-full">
-            <ImageComponent src={profile.profilePicture} size={125} />
-          </div>
-        </div>
-
-        <div className="flex items-start px-8">
-          <div className="flex flex-col justify-center">
-            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
-              {profile?.name}
-            </h2>
-            <p className="text-gray-500 dark:text-gray-400 text-xl">
-              @{profile?.username}
-            </p>
-          </div>
-
-          {profile?.profileOwner ? (
-            <button
-              className="ml-auto dark:text-white py-1.5 px-5 rounded-full border dark:border-white cursor-pointer"
-              onClick={() => setIsModalOpen(true)}
-            >
-              Edit profile
-            </button>
-          ) : (
-            <div
-              className="flex items-center justify-center border dark:border-white rounded-full p-1.5 ml-auto cursor-pointer"
-              onClick={handleNavigate}
-            >
-              <Mail className="dark:text-white size-5" />
-            </div>
-          )}
-        </div>
-
-        {profile?.bio && (
-          <p className="text-lg -mt-3 font-extralight px-8">{profile.bio}</p>
-        )}
-
-        <div className="px-8">
-          <span
-            className="flex cursor-pointer hover:underline"
-            onClick={() => setShowFriendsModal(true)}
-          >
-            <p>{profile?.friendsCount}&nbsp;</p>
-            <p className="text-gray-400">
-              {profile?.friendsCount === 1 ? "Friend" : "Friends"}
-            </p>
-          </span>
-        </div>
-
+      <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-xl py-8 flex flex-col transition-colors">
         <div className="flex flex-col gap-3">
-          <div className="w-full border-b dark:border-gray-400" />
+          <div className="relative px-8">
+            <div className="border border-gray-300 size-fit rounded-full">
+              <ImageComponent src={profile.profilePicture} size={125} />
+            </div>
+          </div>
+
+          <div className="flex items-start px-8">
+            <div className="flex flex-col justify-center">
+              <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
+                {profile?.name}
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 text-xl">
+                @{profile?.username}
+              </p>
+            </div>
+
+            {profile?.profileOwner ? (
+              <button
+                className="ml-auto dark:text-white py-1.5 px-5 rounded-full border dark:border-white cursor-pointer"
+                onClick={() => setIsModalOpen(true)}
+              >
+                Edit profile
+              </button>
+            ) : (
+              <div
+                className="flex items-center justify-center border dark:border-white rounded-full p-1.5 ml-auto cursor-pointer"
+                onClick={handleNavigate}
+              >
+                <Mail className="dark:text-white size-5" />
+              </div>
+            )}
+          </div>
+
+          {profile?.bio && (
+            <p className="text-lg -mt-3 font-extralight px-8">{profile.bio}</p>
+          )}
+
+          <div className="px-8">
+            <span
+              className="flex cursor-pointer hover:underline"
+              onClick={() => setShowFriendsModal(true)}
+            >
+              <p>{profile?.friendsCount}&nbsp;</p>
+              <p className="text-gray-400">
+                {profile?.friendsCount === 1 ? "Friend" : "Friends"}
+              </p>
+            </span>
+          </div>
+        </div>
+        <div className="w-full border-b dark:border-gray-700 mt-5" />
+
+        <div className="flex flex-col gap-3 overflow-y-auto h-[530px] py-6">
           <div className="px-5">
             {profile?.posts?.length === 0 ? (
               <div className="flex items-center justify-center text-xl">
