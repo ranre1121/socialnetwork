@@ -238,8 +238,8 @@ const Chat = () => {
               .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
               .map((date) => (
                 <div key={date} className="flex flex-col gap-2">
-                  <div className="dark:text-white sticky top-0 my-2 flex w-full justify-center">
-                    <p className="bg-gray-900 rounded-md px-2">
+                  <div className=" sticky top-0 my-2 flex w-full justify-center">
+                    <p className="dark:bg-gray-900 dark:text-white bg-gray-200 text-black rounded-md px-2">
                       {formatMessageDate(date)}
                     </p>
                   </div>
@@ -265,7 +265,7 @@ const Chat = () => {
 
                         <span className="flex gap-3 items-center">
                           <p
-                            className={`text-sm text-gray-300 mt-1 ${
+                            className={`text-sm dark:text-gray-300 mt-1 ${
                               msg.status === "unread" ||
                               msg.status === "pending" ||
                               msg.status === "read"

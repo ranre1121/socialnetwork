@@ -216,7 +216,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
             .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
             .map((date) => (
               <div key={date} className="flex flex-col gap-2">
-                <div className="dark:text-white sticky top-0 my-2 flex w-full justify-center">
+                <div className="text-white sticky top-0 my-2 flex w-full justify-center">
                   <p className="bg-gray-900 rounded-md px-2">
                     {formatMessageDate(date)}
                   </p>
