@@ -96,7 +96,6 @@ const Chat = () => {
   }
 
   const handleReadMessage = (messageId: number) => {
-    console.log(messageId);
     setCompanionLastReadId(messageId);
   };
 
@@ -109,7 +108,9 @@ const Chat = () => {
 
         for (const key in updated) {
           updated[key] = updated[key].map((msg) =>
-            msg.tempId === message.tempId ? { ...msg, status: "sent" } : msg
+            msg.tempId === message.tempId
+              ? { ...msg, status: "sent", id: message.id }
+              : msg
           );
         }
 
@@ -233,21 +234,27 @@ const Chat = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
+          if (entry.isIntersecting) {
+            const id = Number(entry.target.getAttribute("data-message-id"));
+            if (!id) return;
 
-          const id = Number(entry.target.getAttribute("data-message-id"));
-          if (!id) return;
+            // Skip your own messages
+            const message = Object.values(messages)
+              .flat()
+              .find((m) => m.id === id);
+            if (!message || message.status === "sent") return;
 
-          if (id > lastReadId) {
-            socketRef.current?.emit("read_message", {
-              chatId: chatId,
-              messageId: id,
-              username: user.username,
-            });
-            setLastReadId(id);
+            if (id > lastReadId) {
+              socketRef.current?.emit("read_message", {
+                chatId: chatId,
+                messageId: id,
+                username: user.username,
+              });
+              setLastReadId(id);
+            }
+
+            observer.unobserve(entry.target);
           }
-
-          observer.unobserve(entry.target);
         });
       },
       { threshold: 0.5 }
@@ -324,7 +331,6 @@ const Chat = () => {
                           <p className="whitespace-pre-line wrap-break-word text-left">
                             {msg.content}
                           </p>
-                          <p>{msg.id}</p>
 
                           <span className="flex gap-3 items-center">
                             <p
@@ -373,7 +379,7 @@ const Chat = () => {
             onClick={sendMessage}
             className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
-            {companionLastReadId}
+            Send
           </button>
         </div>
       </div>
