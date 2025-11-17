@@ -116,12 +116,16 @@ export async function getMessages(req, res) {
         const chatRecord = await prisma.userChatRead.findUnique({
             where: { userId_chatId: { userId: user.id, chatId: chat.id } },
         });
+        const companionChatRecord = await prisma.userChatRead.findUnique({
+            where: { userId_chatId: { userId: companion.id, chatId: chat.id } },
+        });
         const formattedMessages = messages.map((m) => ({
             ...m,
             status: m.senderId === user.id ? "delivered" : "received",
         }));
         const formatted = {
             lastReadId: chatRecord?.lastReadMessageId || 0,
+            companionLastReadId: companionChatRecord?.lastReadMessageId,
             messages: formattedMessages,
         };
         res.status(200).json(formatted);

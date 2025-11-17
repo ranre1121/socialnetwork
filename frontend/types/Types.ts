@@ -53,6 +53,7 @@ type Message = {
 
 type MessageData = {
   lastReadId: number;
+  companionLastReadId: number;
   messages: Message[];
 };
 

@@ -16,7 +16,8 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [hasMore, setHasMore] = useState(true);
-  const [lastReadId, setLastReadId] = useState<number | null>(null);
+  const [lastReadId, setLastReadId] = useState<number>(0);
+  const [companionLastReadId, setCompanionLastReadId] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const [chatId, setChatId] = useState<number | null>(null);
@@ -87,6 +88,7 @@ const Chat = () => {
 
         setLastReadId(data.lastReadId);
         setChatId(data.messages[0].chatId);
+        setCompanionLastReadId(data.companionLastReadId);
 
         return merged;
       });
@@ -353,11 +355,11 @@ const Chat = () => {
 
                             {msg.status === "pending" ? (
                               <Clock3 className="mt-1 size-4 text-gray-300" />
-                            ) : msg.status === "delivered" ? (
+                            ) : companionLastReadId < msg.id ? (
                               <Check className="mt-1 size-4 text-gray-300" />
-                            ) : msg.status === "read" ? (
+                            ) : (
                               <CheckCheck className="mt-1 size-4 text-gray-300" />
-                            ) : null}
+                            )}
                           </span>
                         </div>
                         {msg.id === lastReadId && (
