@@ -19,6 +19,7 @@ const Chat = () => {
   const [lastReadId, setLastReadId] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const [chatId, setChatId] = useState<number | null>(null);
   const messageRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const socketRef = useRef<Socket | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
@@ -85,6 +86,7 @@ const Chat = () => {
         }
 
         setLastReadId(data.lastReadId);
+        setChatId(data.messages[0].chatId);
 
         return merged;
       });
@@ -244,8 +246,14 @@ const Chat = () => {
           const id = Number(entry.target.getAttribute("data-message-id"));
           if (!id) return;
 
-          console.log(id);
-          // socketRef.current?.emit("read_message", { messageId: id });
+          if (id > lastReadId) {
+            socketRef.current?.emit("read_message", {
+              chatId: chatId,
+              messageId: id,
+              username: user.username,
+            });
+            setLastReadId(id);
+          }
 
           observer.unobserve(entry.target);
         });
@@ -305,9 +313,8 @@ const Chat = () => {
                   {messages[date].map((msg, idx) => {
                     const isLast = idx === 0;
                     return (
-                      <div>
+                      <div key={idx}>
                         <div
-                          key={idx}
                           ref={(el) => {
                             if (el) messageRefs.current[msg.id] = el;
                             else delete messageRefs.current[msg.id];
