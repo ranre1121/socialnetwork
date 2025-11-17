@@ -223,7 +223,7 @@ const Chat = () => {
 
     const container = scrollRef.current;
     if (container) {
-      container.scrollTop = container.scrollHeight;
+      container.scrollTop = 0;
     }
 
     setNewMessage("");
