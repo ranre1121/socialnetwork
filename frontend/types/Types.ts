@@ -52,7 +52,7 @@ type Message = {
 };
 
 type MessageData = {
-  lastMessageId: number;
+  lastReadId: number;
   messages: Message[];
 };
 

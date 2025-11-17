@@ -54,9 +54,20 @@ io.on("connection", (socket) => {
     const { chatId, messageId, username } = payload;
 
     const user = await prisma.user.findUnique({ where: { username } });
-    if (!user) return res.json({ msg: "No such user" });
+    if (!user) return;
 
-    const updatedChatRecord = await prisma.userChatRead.upsert({
+    const message = await prisma.message.findUnique({
+      where: { id: messageId },
+      include: {
+        sender: true,
+        receiver: true,
+      },
+    });
+
+    if (!message) return;
+
+    // Update last read message for this user in this chat
+    await prisma.userChatRead.upsert({
       where: {
         userId_chatId: {
           userId: user.id,
@@ -73,13 +84,13 @@ io.on("connection", (socket) => {
       },
     });
 
-    io.to(updatedMessage.sender.username).emit("message_read", {
+    // Notify sender ONLY if sender is NOT the reader
+    io.to(message.sender.username).emit("message_read", {
+      chatId,
       messageId,
       username,
     });
   });
-
-  socket.on("disconnect", () => {});
 });
 
 server.listen(PORT, () => {

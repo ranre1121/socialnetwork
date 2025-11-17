@@ -16,11 +16,24 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [hasMore, setHasMore] = useState(true);
+  const [lastReadId, setLastReadId] = useState<number | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-
+  const messageRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const socketRef = useRef<Socket | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
+  function scrollToMessage(id: number) {
+    const el = messageRefs.current[id];
+    if (!el || !scrollRef.current) return;
+
+    // small timeout guarantees DOM is painted
+    requestAnimationFrame(() => {
+      el.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    });
+  }
 
   async function fetchMessages(date: string) {
     const container = scrollRef.current;
@@ -71,6 +84,8 @@ const Chat = () => {
           }
         }
 
+        setLastReadId(data.lastReadId);
+
         return merged;
       });
 
@@ -90,8 +105,6 @@ const Chat = () => {
 
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
-
-    console.log("server:", message);
 
     if (message.sender?.username === user?.username) {
       setMessages((prev) => {
@@ -152,6 +165,24 @@ const Chat = () => {
   }, [user, username]);
 
   useEffect(() => {
+    if (!lastReadId) return;
+
+    let attempts = 0;
+
+    const tryScroll = () => {
+      const el = messageRefs.current[lastReadId];
+      if (el) {
+        el.scrollIntoView({ behavior: "auto", block: "center" });
+      } else if (attempts < 10) {
+        attempts++;
+        requestAnimationFrame(tryScroll);
+      }
+    };
+
+    requestAnimationFrame(tryScroll);
+  }, [messages]);
+
+  useEffect(() => {
     if (!user || socketRef.current) return;
     const socket = io("http://localhost:8000");
     socketRef.current = socket;
@@ -202,6 +233,32 @@ const Chat = () => {
 
     setNewMessage("");
   };
+  useEffect(() => {
+    if (!user) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          const id = Number(entry.target.getAttribute("data-message-id"));
+          if (!id) return;
+
+          console.log(id);
+          // socketRef.current?.emit("read_message", { messageId: id });
+
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    Object.values(messageRefs.current).forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [messages]);
 
   return (
     <div className="flex flex-col h-screen w-full items-center justify-center py-10">
@@ -248,46 +305,57 @@ const Chat = () => {
                   {messages[date].map((msg, idx) => {
                     const isLast = idx === 0;
                     return (
-                      <div
-                        key={idx}
-                        ref={isLast ? lastMessageRef : null}
-                        data-sent-at={isLast ? msg.sentAt : undefined}
-                        className={`p-3 rounded-2xl w-fit max-w-[70%] ${
-                          msg.status === "delivered" ||
-                          msg.status === "pending" ||
-                          msg.status === "read"
-                            ? "ml-auto bg-blue-600 text-white"
-                            : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
-                        }`}
-                      >
-                        <p className="whitespace-pre-line wrap-break-word text-left">
-                          {msg.content}
-                        </p>
+                      <div>
+                        <div
+                          key={idx}
+                          ref={(el) => {
+                            if (el) messageRefs.current[msg.id] = el;
+                            else delete messageRefs.current[msg.id];
 
-                        <span className="flex gap-3 items-center">
-                          <p
-                            className={`text-sm text-gray-300 mt-1 ${
-                              msg.status === "delivered" ||
-                              msg.status === "pending" ||
-                              msg.status === "read"
-                                ? "ml-auto"
-                                : "mr-auto"
-                            }`}
-                          >
-                            {new Date(msg.sentAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            if (isLast) lastMessageRef.current = el;
+                          }}
+                          data-sent-at={isLast ? msg.sentAt : undefined}
+                          data-message-id={msg.id}
+                          className={`p-3 rounded-2xl w-fit max-w-[70%] ${
+                            msg.status === "delivered" ||
+                            msg.status === "pending" ||
+                            msg.status === "read"
+                              ? "ml-auto bg-blue-600 text-white"
+                              : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+                          }`}
+                        >
+                          <p className="whitespace-pre-line wrap-break-word text-left">
+                            {msg.content}
                           </p>
 
-                          {msg.status === "pending" ? (
-                            <Clock3 className="mt-1 size-4 text-gray-300" />
-                          ) : msg.status === "delivered" ? (
-                            <Check className="mt-1 size-4 text-gray-300" />
-                          ) : msg.status === "read" ? (
-                            <CheckCheck className="mt-1 size-4 text-gray-300" />
-                          ) : null}
-                        </span>
+                          <span className="flex gap-3 items-center">
+                            <p
+                              className={`text-sm text-gray-300 mt-1 ${
+                                msg.status === "delivered" ||
+                                msg.status === "pending" ||
+                                msg.status === "read"
+                                  ? "ml-auto"
+                                  : "mr-auto"
+                              }`}
+                            >
+                              {new Date(msg.sentAt).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+
+                            {msg.status === "pending" ? (
+                              <Clock3 className="mt-1 size-4 text-gray-300" />
+                            ) : msg.status === "delivered" ? (
+                              <Check className="mt-1 size-4 text-gray-300" />
+                            ) : msg.status === "read" ? (
+                              <CheckCheck className="mt-1 size-4 text-gray-300" />
+                            ) : null}
+                          </span>
+                        </div>
+                        {msg.id === lastReadId && (
+                          <div className="">New Messages</div>
+                        )}
                       </div>
                     );
                   })}

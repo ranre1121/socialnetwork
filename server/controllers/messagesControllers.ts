@@ -143,7 +143,7 @@ export async function getMessages(req: Request, res: Response) {
     }));
 
     const formatted = {
-      lastMessageId: chatRecord?.lastReadMessageId || 0,
+      lastReadId: chatRecord?.lastReadMessageId || 0,
       messages: formattedMessages,
     };
 
