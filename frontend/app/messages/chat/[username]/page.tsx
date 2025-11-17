@@ -265,7 +265,7 @@ const Chat = () => {
 
                         <span className="flex gap-3 items-center">
                           <p
-                            className={`text-sm dark:text-gray-300 mt-1 ${
+                            className={`text-sm text-gray-300 mt-1 ${
                               msg.status === "unread" ||
                               msg.status === "pending" ||
                               msg.status === "read"

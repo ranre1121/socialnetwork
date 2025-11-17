@@ -6,13 +6,13 @@ import { useUser } from "@/context/UserContext";
 /**
 
 TODO:
+1) messages read status
+2) live typing indicator
+3) notifications
+4) comment replies 
+5) optimization
 
-1) mobile optimization
-2) faster loading using nextjs features (ssr etc.)
-3) graphql
-4) notifications
-
- */
+*/
 
 export default function Home() {
   const { user, loading } = useUser();

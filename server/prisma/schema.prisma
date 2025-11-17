@@ -30,8 +30,6 @@ model User {
   sentMessages    Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
   postsLiked      Post[]    @relation("WhoLiked")
-
-  messagesRead    MessageRead[]
 }
 
 model FriendRequest {
@@ -93,23 +91,13 @@ model Message {
   receiverId Int
   content    String
   sentAt     DateTime @default(now())
+  read       Boolean  @default(false)
 
   chat       Chat     @relation("MessageChat", fields: [chatId], references: [id])
   sender     User     @relation("MessageSender", fields: [senderId], references: [id])
   receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id])
   chatLast   Chat?    @relation("LastMessage")
 
-  readers    MessageRead[]
 }
 
-model MessageRead {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  messageId  Int
-  readAt     DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id])
-  message    Message  @relation(fields: [messageId], references: [id])
-
-  @@unique([userId, messageId])
-}

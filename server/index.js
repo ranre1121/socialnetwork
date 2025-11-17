@@ -8,11 +8,9 @@ import navbarRoutes from "./dist/routes/navbarRoutes.js";
 import friendsRoutes from "./dist/routes/friendsRoutes.js";
 import postsRoutes from "./dist/routes/postsRoutes.js";
 import profilesRoutes from "./dist/routes/profileRoutes.js";
+import prisma from "./prisma.ts";
 import messagesRoutes from "./dist/routes/messagesRoutes.js";
-import {
-  addMessage,
-  readMessage,
-} from "./dist/controllers/messagesControllers.js";
+import { addMessage } from "./dist/controllers/messagesControllers.js";
 
 dotenv.config();
 const PORT = process.env.PORT || 8000;
@@ -53,12 +51,22 @@ io.on("connection", (socket) => {
   });
 
   socket.on("read_message", async (payload) => {
-    const readRecord = await readMessage(payload.reader, payload.messageId);
-    if (!readRecord) return;
+    const { messageId, readerUsername } = payload;
 
-    io.to(payload.receiver).emit("read_message", {
-      messageId: payload.messageId,
-      reader: payload.reader,
+    const updatedMessage = await prisma.message.update({
+      where: { id: messageId },
+      data: { read: true },
+      include: {
+        sender: true,
+        receiver: true,
+      },
+    });
+
+    if (!updatedMessage) return;
+
+    io.to(updatedMessage.sender.username).emit("message_read", {
+      messageId,
+      readerUsername,
     });
   });
 
