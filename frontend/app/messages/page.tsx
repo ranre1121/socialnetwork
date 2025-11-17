@@ -63,7 +63,7 @@ export default function Messages() {
                 >
                   <ImageComponent src={c.companion.profilePicture} size={30} />
                   <div className="flex flex-col w-full leading-5">
-                    <p className="font-semibold">{c.companion.name}</p>
+                    <p>{c.companion.name}</p>
                     <div className="flex text-sm text-gray-500 dark:text-gray-300">
                       <span className="truncate flex-1">
                         {c.lastMessage?.content || "No messages yet"}

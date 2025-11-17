@@ -135,7 +135,7 @@ const Friends = () => {
                         <Mail
                           className="text-gray-600 dark:text-gray-300 hover:text-sky-500 cursor-pointer"
                           onClick={() =>
-                            router.push(`/messages?username=${f.username}`)
+                            router.push(`/messages/chat/${f.username}`)
                           }
                         />
                         <button
