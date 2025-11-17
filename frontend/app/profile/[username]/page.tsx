@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import profilePlaceholder from "@/public/images/profile-placeholder.png";
+import { useUser } from "@/context/UserContext";
 import { Mail } from "lucide-react";
 import type { Profile as ProfileType } from "@/types/Types";
 import Post from "@/components/Post";
@@ -13,6 +13,7 @@ import ImageComponent from "@/components/ImageComponent";
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
   const [profile, setProfile] = useState<ProfileType | null>(null);
+  const { user, setUser } = useUser();
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showFriendsModal, setShowFriendsModal] = useState(false);
@@ -49,8 +50,9 @@ const Profile = () => {
 
       if (!res.ok) throw new Error("Failed to fetch profile");
 
-      const data: ProfileType = await res.json();
+      const data = await res.json();
       setProfile(data);
+      setUser(data);
     } catch (err) {
       console.error(err);
       setProfile(null);
