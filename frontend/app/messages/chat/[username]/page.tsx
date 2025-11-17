@@ -99,7 +99,9 @@ const Chat = () => {
 
         for (const key in updated) {
           updated[key] = updated[key].map((msg) =>
-            msg.tempId === message.tempId ? { ...msg, status: "unread" } : msg
+            msg.tempId === message.tempId
+              ? { ...msg, status: "delivered" }
+              : msg
           );
         }
 
@@ -204,15 +206,12 @@ const Chat = () => {
       <div className="bg-white dark:bg-gray-800 w-full max-w-[850px] h-full max-h-[900px] flex flex-col border-gray-700 rounded-2xl overflow-hidden backdrop-blur">
         <div className="flex items-center gap-3 border-gray-700 border-b p-5">
           <button
-            onClick={() => {}}
+            onClick={() => {
+              router.push("/messages");
+            }}
             className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
           >
-            <ArrowLeft
-              className="size-5 text-gray-600 dark:text-gray-300"
-              onClick={() => {
-                router.push("/messages");
-              }}
-            />
+            <ArrowLeft className="size-5 text-gray-600 dark:text-gray-300" />
           </button>
           <h2
             className="text-lg font-semibold cursor-pointer hover:underline"
@@ -252,7 +251,7 @@ const Chat = () => {
                         ref={isLast ? lastMessageRef : null}
                         data-sent-at={isLast ? msg.sentAt : undefined}
                         className={`p-3 rounded-2xl w-fit max-w-[70%] ${
-                          msg.status === "unread" ||
+                          msg.status === "delivered" ||
                           msg.status === "pending" ||
                           msg.status === "read"
                             ? "ml-auto bg-blue-600 text-white"
@@ -266,7 +265,7 @@ const Chat = () => {
                         <span className="flex gap-3 items-center">
                           <p
                             className={`text-sm text-gray-300 mt-1 ${
-                              msg.status === "unread" ||
+                              msg.status === "delivered" ||
                               msg.status === "pending" ||
                               msg.status === "read"
                                 ? "ml-auto"
@@ -281,7 +280,7 @@ const Chat = () => {
 
                           {msg.status === "pending" ? (
                             <Clock3 className="mt-1 size-4 text-gray-300" />
-                          ) : msg.status === "unread" ? (
+                          ) : msg.status === "delivered" ? (
                             <Check className="mt-1 size-4 text-gray-300" />
                           ) : msg.status === "read" ? (
                             <CheckCheck className="mt-1 size-4 text-gray-300" />

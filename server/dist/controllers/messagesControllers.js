@@ -115,7 +115,7 @@ export async function getMessages(req, res) {
         });
         const formatted = messages.map((m) => ({
             ...m,
-            status: m.senderId === user.id ? "unread" : "received",
+            status: m.senderId === user.id ? "delivered" : "received",
         }));
         res.status(200).json(formatted);
     }

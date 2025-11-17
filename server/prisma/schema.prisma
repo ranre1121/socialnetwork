@@ -16,20 +16,18 @@ model User {
   createdAt       DateTime  @default(now())
   profilePicture  String?
 
-  friends         User[]    @relation("UserFriends")
-  friendOf        User[]    @relation("UserFriends")
-
-  sentRequests    FriendRequest[] @relation("FriendshipRequester")
+  friends          User[]    @relation("UserFriends")
+  friendOf         User[]    @relation("UserFriends")
+  sentRequests     FriendRequest[] @relation("FriendshipRequester")
   receivedRequests FriendRequest[] @relation("FriendshipReceiver")
-
-  posts           Post[]    @relation("PostAuthor")
-  comments        Comment[] @relation("CommentAuthor")
-
-  chats1          Chat[]    @relation("ChatParticipant1")
-  chats2          Chat[]    @relation("ChatParticipant2")
-  sentMessages    Message[] @relation("MessageSender")
+  posts            Post[]    @relation("PostAuthor")
+  comments         Comment[] @relation("CommentAuthor")
+  chats1           Chat[]    @relation("ChatParticipant1")
+  chats2           Chat[]    @relation("ChatParticipant2")
+  sentMessages     Message[] @relation("MessageSender")
   receivedMessages Message[] @relation("MessageReceiver")
-  postsLiked      Post[]    @relation("WhoLiked")
+  postsLiked       Post[]    @relation("WhoLiked")
+  chatReads        UserChatRead[]
 }
 
 model FriendRequest {
@@ -79,6 +77,7 @@ model Chat {
   participant2 User      @relation("ChatParticipant2", fields: [participant2Id], references: [id])
   messages     Message[] @relation("MessageChat")
   lastMessage  Message?  @relation("LastMessage", fields: [lastMessageId], references: [id])
+  userReads    UserChatRead[]
 
   @@unique([participant1Id, participant2Id])
 }
@@ -91,13 +90,21 @@ model Message {
   receiverId Int
   content    String
   sentAt     DateTime @default(now())
-  read       Boolean  @default(false)
 
-  chat       Chat     @relation("MessageChat", fields: [chatId], references: [id])
-  sender     User     @relation("MessageSender", fields: [senderId], references: [id])
-  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id])
-  chatLast   Chat?    @relation("LastMessage")
-
+  chat     Chat @relation("MessageChat", fields: [chatId], references: [id])
+  sender   User @relation("MessageSender", fields: [senderId], references: [id])
+  receiver User @relation("MessageReceiver", fields: [receiverId], references: [id])
+  chatLast Chat? @relation("LastMessage")
 }
 
+model UserChatRead {
+  id               Int   @id @default(autoincrement())
+  userId           Int
+  chatId           Int
+  lastReadMessageId Int
 
+  user User @relation(fields: [userId], references: [id])
+  chat Chat @relation(fields: [chatId], references: [id])
+
+  @@unique([userId, chatId])
+}

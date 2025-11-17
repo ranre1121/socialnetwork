@@ -51,22 +51,31 @@ io.on("connection", (socket) => {
   });
 
   socket.on("read_message", async (payload) => {
-    const { messageId, readerUsername } = payload;
+    const { chatId, messageId, username } = payload;
 
-    const updatedMessage = await prisma.message.update({
-      where: { id: messageId },
-      data: { read: true },
-      include: {
-        sender: true,
-        receiver: true,
+    const user = await prisma.user.findUnique({ where: { username } });
+    if (!user) return res.json({ msg: "No such user" });
+
+    const updatedChatRecord = await prisma.userChatRead.upsert({
+      where: {
+        userId_chatId: {
+          userId: user.id,
+          chatId,
+        },
+      },
+      update: {
+        lastReadMessageId: messageId,
+      },
+      create: {
+        userId: user.id,
+        chatId,
+        lastReadMessageId: messageId,
       },
     });
 
-    if (!updatedMessage) return;
-
     io.to(updatedMessage.sender.username).emit("message_read", {
       messageId,
-      readerUsername,
+      username,
     });
   });
 
