@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "@/context/UserContext";
-import type { Message } from "@/types/Types";
+import type { MessageData, Message } from "@/types/Types";
 import { formatMessageDate } from "@/utils/utils";
 import { ArrowLeft, CheckCheck, Clock3 } from "lucide-react";
 import { Check } from "lucide-react";
@@ -35,14 +35,14 @@ const Chat = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) throw new Error("Failed to fetch messages");
-      const data: Message[] = await res.json();
+      const data: MessageData = await res.json();
 
-      if (data.length === 0) {
+      if (data.messages.length === 0) {
         setHasMore(false);
         return;
       }
 
-      const sorted = data.sort(
+      const sorted = data.messages.sort(
         (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
       );
 
@@ -164,6 +164,8 @@ const Chat = () => {
       socketRef.current = null;
     };
   }, [user]);
+
+  useEffect(() => {}, []);
 
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;

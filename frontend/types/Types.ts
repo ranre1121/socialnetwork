@@ -51,6 +51,11 @@ type Message = {
   status: "read" | "delivered" | "pending" | "received";
 };
 
+type MessageData = {
+  lastMessageId: number;
+  messages: Message[];
+};
+
 type Conversation = {
   companion: { username: string; name: string; profilePicture: string };
   lastMessage: {
@@ -76,4 +81,13 @@ type Comment = {
   isOwner: boolean;
 };
 
-export type { User, Post, Friend, Profile, Message, Conversation, Comment };
+export type {
+  User,
+  Post,
+  Friend,
+  Profile,
+  Message,
+  Conversation,
+  Comment,
+  MessageData,
+};
