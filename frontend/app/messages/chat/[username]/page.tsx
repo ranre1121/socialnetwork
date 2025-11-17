@@ -24,18 +24,6 @@ const Chat = () => {
   const messageRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const socketRef = useRef<Socket | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
-  function scrollToMessage(id: number) {
-    const el = messageRefs.current[id];
-    if (!el || !scrollRef.current) return;
-
-    // small timeout guarantees DOM is painted
-    requestAnimationFrame(() => {
-      el.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-    });
-  }
 
   async function fetchMessages(date: string) {
     const container = scrollRef.current;
@@ -106,6 +94,11 @@ const Chat = () => {
       setLoading(false);
     }
   }
+
+  const handleReadMessage = (messageId: number) => {
+    console.log(messageId);
+    setCompanionLastReadId(messageId);
+  };
 
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
@@ -190,6 +183,7 @@ const Chat = () => {
     socketRef.current = socket;
     socket.on("connect", () => socket.emit("join", user.username));
     socket.on("private_message", handlePrivateMessage);
+    socket.on("read_message", handleReadMessage);
 
     return () => {
       socket.off("private_message", handlePrivateMessage);
@@ -197,8 +191,6 @@ const Chat = () => {
       socketRef.current = null;
     };
   }, [user]);
-
-  useEffect(() => {}, []);
 
   const sendMessage = () => {
     if (!newMessage.trim() || !user || !socketRef.current) return;
@@ -236,7 +228,7 @@ const Chat = () => {
     setNewMessage("");
   };
   useEffect(() => {
-    if (!user) return;
+    if (!user || !chatId) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -266,7 +258,7 @@ const Chat = () => {
     });
 
     return () => observer.disconnect();
-  }, [messages]);
+  }, [messages, chatId]);
 
   return (
     <div className="flex flex-col h-screen w-full items-center justify-center py-10">
@@ -332,6 +324,7 @@ const Chat = () => {
                           <p className="whitespace-pre-line wrap-break-word text-left">
                             {msg.content}
                           </p>
+                          <p>{msg.id}</p>
 
                           <span className="flex gap-3 items-center">
                             <p
@@ -380,7 +373,7 @@ const Chat = () => {
             onClick={sendMessage}
             className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
-            Send
+            {companionLastReadId}
           </button>
         </div>
       </div>

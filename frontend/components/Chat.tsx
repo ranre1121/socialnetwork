@@ -91,8 +91,6 @@ const Chat = ({ friendUsername }: ChatProps) => {
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
 
-    console.log("server:", message);
-
     if (message.sender?.username === user?.username) {
       setMessages((prev) => {
         const updated = { ...prev };

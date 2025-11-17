@@ -66,7 +66,6 @@ io.on("connection", (socket) => {
 
     if (!message) return;
 
-    // Update last read message for this user in this chat
     await prisma.userChatRead.upsert({
       where: {
         userId_chatId: {
@@ -84,12 +83,7 @@ io.on("connection", (socket) => {
       },
     });
 
-    // Notify sender ONLY if sender is NOT the reader
-    io.to(message.sender.username).emit("message_read", {
-      chatId,
-      messageId,
-      username,
-    });
+    io.to(message.sender.username).emit("read_message", messageId);
   });
 });
 
