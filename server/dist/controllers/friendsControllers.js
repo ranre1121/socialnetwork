@@ -187,12 +187,22 @@ export async function acceptRequest(req, res) {
             where: { username: senderUsername },
             data: { friends: { connect: { id: receiver.id } } },
         });
-        await prisma.chat.create({
-            data: {
-                participant1Id: sender.id,
-                participant2Id: receiver.id,
+        const conversation = await prisma.chat.findFirst({
+            where: {
+                OR: [
+                    { participant1Id: sender.id, participant2Id: receiver.id },
+                    { participant1Id: receiver.id, participant2Id: sender.id },
+                ],
             },
         });
+        if (!conversation) {
+            await prisma.chat.create({
+                data: {
+                    participant1Id: sender.id,
+                    participant2Id: receiver.id,
+                },
+            });
+        }
         return res.status(200).json({ msg: "Friend request accepted" });
     }
     catch (err) {
@@ -269,7 +279,7 @@ export async function deleteFriend(req, res) {
             where: { username: friendUsername },
         });
         if (!user || !friend)
-            return res.status(400).json({ error: "Invalid users" });
+            return res.status(400).json({ error: "Ivalid user" });
         await prisma.user.update({
             where: {
                 username: username,
