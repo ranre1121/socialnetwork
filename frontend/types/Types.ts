@@ -48,7 +48,7 @@ type Message = {
   receiver: User;
   content: string;
   sentAt: string;
-  status: "read" | "delivered" | "pending" | "received";
+  status: "sent" | "received" | "pending";
 };
 
 type MessageData = {

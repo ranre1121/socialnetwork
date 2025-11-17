@@ -116,9 +116,7 @@ const Chat = () => {
 
         for (const key in updated) {
           updated[key] = updated[key].map((msg) =>
-            msg.tempId === message.tempId
-              ? { ...msg, status: "delivered" }
-              : msg
+            msg.tempId === message.tempId ? { ...msg, status: "sent" } : msg
           );
         }
 
@@ -326,9 +324,7 @@ const Chat = () => {
                           data-sent-at={isLast ? msg.sentAt : undefined}
                           data-message-id={msg.id}
                           className={`p-3 rounded-2xl w-fit max-w-[70%] ${
-                            msg.status === "delivered" ||
-                            msg.status === "pending" ||
-                            msg.status === "read"
+                            msg.status === "sent" || msg.status === "pending"
                               ? "ml-auto bg-blue-600 text-white"
                               : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
                           }`}
@@ -340,9 +336,8 @@ const Chat = () => {
                           <span className="flex gap-3 items-center">
                             <p
                               className={`text-sm text-gray-300 mt-1 ${
-                                msg.status === "delivered" ||
-                                msg.status === "pending" ||
-                                msg.status === "read"
+                                msg.status === "sent" ||
+                                msg.status === "pending"
                                   ? "ml-auto"
                                   : "mr-auto"
                               }`}
@@ -355,16 +350,15 @@ const Chat = () => {
 
                             {msg.status === "pending" ? (
                               <Clock3 className="mt-1 size-4 text-gray-300" />
-                            ) : companionLastReadId < msg.id ? (
+                            ) : msg.status === "sent" &&
+                              companionLastReadId < msg.id ? (
                               <Check className="mt-1 size-4 text-gray-300" />
-                            ) : (
+                            ) : msg.status === "sent" &&
+                              companionLastReadId >= msg.id ? (
                               <CheckCheck className="mt-1 size-4 text-gray-300" />
-                            )}
+                            ) : null}
                           </span>
                         </div>
-                        {msg.id === lastReadId && (
-                          <div className="">New Messages</div>
-                        )}
                       </div>
                     );
                   })}

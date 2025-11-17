@@ -121,7 +121,7 @@ export async function getMessages(req, res) {
         });
         const formattedMessages = messages.map((m) => ({
             ...m,
-            status: m.senderId === user.id ? "delivered" : "received",
+            status: m.senderId === user.id ? "sent" : "received",
         }));
         const formatted = {
             lastReadId: chatRecord?.lastReadMessageId || 0,
