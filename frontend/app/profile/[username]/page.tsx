@@ -34,7 +34,8 @@ const Profile = () => {
           isProfileOwner: profile?.profileOwner,
         }),
       });
-      await fetchProfile();
+      const data = await fetchProfile();
+      setUser(data);
     } catch (err) {
       console.error(err);
     }
@@ -52,7 +53,7 @@ const Profile = () => {
 
       const data = await res.json();
       setProfile(data);
-      setUser(data);
+      return data;
     } catch (err) {
       console.error(err);
       setProfile(null);
