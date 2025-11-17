@@ -276,6 +276,10 @@ export async function deleteFriend(req, res) {
             },
             data: { friends: { disconnect: { username: friend.username } } },
         });
+        await prisma.user.update({
+            where: { username: friend.username },
+            data: { friends: { disconnect: { username: user.username } } },
+        });
         return res.status(200).json({ message: "Friend deleted" });
     }
     catch (err) {
