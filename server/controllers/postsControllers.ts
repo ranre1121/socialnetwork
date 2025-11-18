@@ -1,16 +1,12 @@
 import prisma from "../prisma.js";
 import type { Request, Response } from "express";
 
-interface AuthenticatedRequest extends Request {
-  user?: { username: string };
-}
-
-export async function addPost(req: AuthenticatedRequest, res: Response) {
+export async function addPost(req: Request, res: Response) {
   try {
-    const username = req.user?.username;
-    if (!username) return res.status(401).json({ error: "Not authorized" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ error: "Not authorized" });
 
-    const author = await prisma.user.findUnique({ where: { username } });
+    const author = await prisma.user.findUnique({ where: { id } });
     if (!author) return res.status(404).json({ error: "Author not found" });
 
     const { content } = req.body;
@@ -31,13 +27,13 @@ export async function addPost(req: AuthenticatedRequest, res: Response) {
     res.status(500).json({ error: "Failed to save post" });
   }
 }
-export async function getFeedPosts(req: AuthenticatedRequest, res: Response) {
+export async function getFeedPosts(req: Request, res: Response) {
   try {
-    const username = req.user?.username;
-    if (!username) return res.status(401).json({ error: "Unauthorized" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ error: "Unauthorized" });
 
     const user = await prisma.user.findUnique({
-      where: { username },
+      where: { id },
       include: { friends: true },
     });
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -82,10 +78,13 @@ export async function getFeedPosts(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function deletePost(req: AuthenticatedRequest, res: Response) {
+export async function deletePost(req: Request, res: Response) {
   try {
-    const username = req.user?.username;
-    if (!username) return res.status(401).json({ error: "Unauthorized" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ error: "Unauthorized" });
+
+    const user = await prisma.user.findUnique({ where: { id } });
+    if (!user) return res.status(401).json({ msg: "Not authorized" });
 
     if (!req.params.id) {
       return res.status(400).json({ error: "Invalid post ID" });
@@ -101,7 +100,7 @@ export async function deletePost(req: AuthenticatedRequest, res: Response) {
     });
     if (!post) return res.status(404).json({ error: "Post not found" });
 
-    if (post.author.username !== username)
+    if (post.author.id !== user.id)
       return res.status(403).json({ error: "Not allowed to delete this post" });
 
     await prisma.post.delete({ where: { id: postId } });
@@ -112,10 +111,10 @@ export async function deletePost(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function likePost(req: AuthenticatedRequest, res: Response) {
+export async function likePost(req: Request, res: Response) {
   try {
-    const username = req.user?.username;
-    if (!username) return res.status(401).json({ error: "Unauthorized" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ error: "Unauthorized" });
 
     if (!req.params.id) {
       return res.status(400).json({ error: "Invalid post ID" });
@@ -125,7 +124,7 @@ export async function likePost(req: AuthenticatedRequest, res: Response) {
     if (isNaN(postId))
       return res.status(400).json({ error: "Invalid post ID" });
 
-    const user = await prisma.user.findUnique({ where: { username } });
+    const user = await prisma.user.findUnique({ where: { id } });
     if (!user) return res.status(404).json({ error: "User not found" });
 
     const post = await prisma.post.findUnique({
@@ -134,7 +133,7 @@ export async function likePost(req: AuthenticatedRequest, res: Response) {
     });
     if (!post) return res.status(404).json({ error: "Post not found" });
 
-    const alreadyLiked = post.likes.some((u) => u.username === username);
+    const alreadyLiked = post.likes.some((u) => u.username === user.username);
 
     let updatedPost;
     if (alreadyLiked) {
@@ -162,10 +161,10 @@ export async function likePost(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function addComment(req: AuthenticatedRequest, res: Response) {
+export async function addComment(req: Request, res: Response) {
   try {
-    const username = req.user?.username;
-    if (!username) return res.status(401).json({ error: "Unauthorized" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ error: "Unauthorized" });
 
     if (!req.params.id) {
       return res.status(400).json({ error: "Invalid post ID" });
@@ -175,7 +174,7 @@ export async function addComment(req: AuthenticatedRequest, res: Response) {
     if (isNaN(postId))
       return res.status(400).json({ error: "Invalid post ID" });
 
-    const user = await prisma.user.findUnique({ where: { username } });
+    const user = await prisma.user.findUnique({ where: { id } });
     if (!user) return res.status(404).json({ error: "User not found" });
 
     const { commentContent, parentId } = req.body;
@@ -211,10 +210,10 @@ export async function addComment(req: AuthenticatedRequest, res: Response) {
   }
 }
 
-export async function getComments(req: AuthenticatedRequest, res: Response) {
+export async function getComments(req: Request, res: Response) {
   try {
-    const username = req.user?.username;
-    if (!username) return res.status(401).json({ error: "Unauthorized" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ error: "Unauthorized" });
     if (!req.params.id) {
       return res.status(400).json({ error: "Invalid post ID" });
     }
@@ -226,7 +225,7 @@ export async function getComments(req: AuthenticatedRequest, res: Response) {
       select: { author: true, createdAt: true, id: true, text: true },
     });
     const user = await prisma.user.findUnique({
-      where: { username: username },
+      where: { id },
     });
     const userId = user?.id;
     const updatedComments = comments.map((comment) => ({
@@ -238,11 +237,11 @@ export async function getComments(req: AuthenticatedRequest, res: Response) {
   } catch (error) {}
 }
 
-export async function deleteComment(req: AuthenticatedRequest, res: Response) {
+export async function deleteComment(req: Request, res: Response) {
   try {
-    const username = req.user?.username;
+    const id = req.user?.id;
 
-    if (!username) return res.status(401).json({ error: "Unauthorized" });
+    if (!id) return res.status(401).json({ error: "Unauthorized" });
     if (!req.params.id) {
       return res.status(400).json({ error: "Invalid post ID" });
     }
@@ -254,6 +253,9 @@ export async function deleteComment(req: AuthenticatedRequest, res: Response) {
     const comment = await prisma.comment.findUnique({
       where: { id: commentId },
     });
+
+    if (comment?.authorId !== id)
+      return res.status(402).json({ msg: "No access" });
 
     const deleted = await prisma.comment.delete({ where: { id: commentId } });
 

@@ -11,16 +11,16 @@ const upload = multer({ storage });
 export async function getProfile(req, res) {
     try {
         const username = req.params.username;
-        const currentUser = req.user?.username;
+        const id = req.user?.id;
         if (!username)
             return res.status(400).json({ error: "Enter a valid username" });
-        if (!currentUser)
+        if (!id)
             return res.status(401).json({ error: "Not authorized" });
         const user = await prisma.user.findUnique({ where: { username } });
         if (!user)
             return res.status(404).json({ error: "User not found" });
         const viewer = await prisma.user.findUnique({
-            where: { username: currentUser },
+            where: { id },
             select: { id: true },
         });
         if (!viewer)
@@ -55,7 +55,7 @@ export async function getProfile(req, res) {
             name: user.name,
             bio: user.bio || "",
             friendsCount: friendships?.friends.length,
-            profileOwner: currentUser === username,
+            profileOwner: user.username === username,
             profilePicture: user.profilePicture,
             posts: userPosts.map((post) => ({
                 id: post.id,
@@ -77,8 +77,8 @@ export async function getProfile(req, res) {
 export const uploadProfilePic = upload.single("image");
 export async function updateProfile(req, res) {
     try {
-        const currentUser = req.user?.username;
-        if (!currentUser)
+        const id = req.user?.id;
+        if (!id)
             return res.status(401).json({ error: "Unauthorized" });
         const { name, bio } = req.body;
         let profilePictureUrl;
@@ -86,7 +86,7 @@ export async function updateProfile(req, res) {
             profilePictureUrl = `http://localhost:8000/uploads/${req.file.filename}`;
         }
         await prisma.user.update({
-            where: { username: currentUser },
+            where: { id },
             data: {
                 name,
                 bio,
