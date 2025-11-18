@@ -27,37 +27,47 @@ export default function RootLayout({
 }
 
 function AppContent({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useUser();
+  const { user, loading, setUser, setLoading } = useUser();
   const pathname = usePathname();
   const router = useRouter();
-  const { dark, toggleTheme } = useTheme();
 
   const verifyToken = async () => {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:8000/auth/verify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = res.json();
+      if (!token) {
+        setLoading(false);
+        router.push("/login");
+        return;
+      }
 
-    if (!res.ok) {
+      const res = await fetch("http://localhost:8000/auth/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        router.push("/login");
+        setUser(null);
+        localStorage.removeItem("token");
+      } else {
+        setUser(data);
+      }
+    } catch (err) {
       router.push("/login");
-    } else {
-      router.push(pathname);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (loading) return;
-
     verifyToken();
-  }, [user, loading, pathname, router]);
+  }, [pathname]);
 
-  if (loading) return <div className="w-screen h-screen dark:bg-gray-800" />;
+  if (loading) return <div className="w-screen h-screen dark:bg-gray-900" />;
 
   return (
     <>

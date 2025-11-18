@@ -20,8 +20,12 @@ export default function Home() {
 
   useEffect(() => {
     if (loading) return;
-    // const;
-    // router.replace("/login");
+
+    if (!user) {
+      router.replace("/login"); // not authenticated
+    } else {
+      router.replace("/feed"); // authenticated
+    }
   }, [user, loading, router]);
 
   return <div className="w-screen h-screen dark:bg-gray-900 bg-white" />;

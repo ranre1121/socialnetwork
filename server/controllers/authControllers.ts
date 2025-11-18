@@ -81,7 +81,6 @@ export async function loginUser(req: Request, res: Response) {
         id: user.id,
         username: user.username,
         name: user.name,
-        bio: user.bio,
         profilePicture: user.profilePicture,
       },
     });
@@ -101,6 +100,5 @@ export async function userContext(req: Request, res: Response) {
     username: user?.username,
     profilePicture: user?.profilePicture,
     name: user?.name,
-    success: true,
   });
 }

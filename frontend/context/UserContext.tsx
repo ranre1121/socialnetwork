@@ -6,6 +6,7 @@ type UserContextType = {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -16,48 +17,8 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    let mounted = true;
-
-    const fetchUser = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        if (!mounted) return;
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const res = await fetch("http://localhost:8000/data/username", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!mounted) return;
-
-        if (!res.ok) {
-          setUser(null);
-        } else {
-          const data = await res.json();
-          setUser(data);
-        }
-      } catch (err) {
-        if (!mounted) return;
-        setUser(null);
-      } finally {
-        if (!mounted) return;
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
   return (
-    <UserContext.Provider value={{ user, setUser, loading }}>
+    <UserContext.Provider value={{ user, setUser, loading, setLoading }}>
       {children}
     </UserContext.Provider>
   );

@@ -63,7 +63,6 @@ export async function loginUser(req, res) {
                 id: user.id,
                 username: user.username,
                 name: user.name,
-                bio: user.bio,
                 profilePicture: user.profilePicture,
             },
         });
@@ -82,7 +81,6 @@ export async function userContext(req, res) {
         username: user?.username,
         profilePicture: user?.profilePicture,
         name: user?.name,
-        success: true,
     });
 }
 //# sourceMappingURL=authControllers.js.map
