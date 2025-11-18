@@ -3,12 +3,11 @@ import prisma from "../prisma.js";
 
 export async function findFriends(req: Request, res: Response) {
   try {
-    const currentUsernameId = req.user?.id;
-    if (!currentUsernameId)
-      return res.status(401).json({ msg: "Not authenticated" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ msg: "Not authenticated" });
 
     const currentUser = await prisma.user.findUnique({
-      where: { id: currentUsernameId },
+      where: { id },
     });
     if (!currentUser)
       return res.status(404).json({ message: "User not found" });
@@ -74,15 +73,15 @@ export async function findFriends(req: Request, res: Response) {
 
 export async function addRequest(req: Request, res: Response) {
   try {
-    const senderId = req.user?.id;
-    if (!senderId) return res.status(401).json({ msg: "Not authenticated" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ msg: "Not authenticated" });
 
     const { receiverUsername } = req.body;
     if (!receiverUsername)
       return res.status(400).json({ msg: "Receiver username required" });
 
     const sender = await prisma.user.findUnique({
-      where: { id: senderId },
+      where: { id },
     });
     const receiver = await prisma.user.findUnique({
       where: { username: receiverUsername },
@@ -116,15 +115,15 @@ export async function addRequest(req: Request, res: Response) {
 
 export async function cancelRequest(req: Request, res: Response) {
   try {
-    const senderId = req.user?.id;
-    if (!senderId) return res.status(401).json({ msg: "Not authenticated" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ msg: "Not authenticated" });
 
     const { receiverUsername } = req.body;
     if (!receiverUsername)
       return res.status(400).json({ msg: "Receiver username required" });
 
     const sender = await prisma.user.findUnique({
-      where: { id: senderId },
+      where: { id },
     });
     const receiver = await prisma.user.findUnique({
       where: { username: receiverUsername },
@@ -151,14 +150,14 @@ export async function cancelRequest(req: Request, res: Response) {
 
 export async function getRequests(req: Request, res: Response) {
   try {
-    const usernameId = req.user?.id;
-    if (!usernameId) return res.status(401).json({ msg: "Not authenticated" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ msg: "Not authenticated" });
 
     const type = req.query.type as string;
     if (!["sent", "received"].includes(type))
       return res.status(400).json({ msg: "Invalid type" });
 
-    const user = await prisma.user.findUnique({ where: { id: usernameId } });
+    const user = await prisma.user.findUnique({ where: { id } });
     if (!user) return res.status(400).json({ msg: "User not found" });
 
     const requests = await prisma.friendRequest.findMany({
@@ -179,11 +178,11 @@ export async function getRequests(req: Request, res: Response) {
 
 export async function acceptRequest(req: Request, res: Response) {
   try {
-    const receiverId = req.user?.id;
+    const id = req.user?.id;
 
     const { senderUsername } = req.body;
 
-    if (!receiverId) return res.status(401).json({ msg: "Not authenticated" });
+    if (!id) return res.status(401).json({ msg: "Not authenticated" });
     if (!senderUsername)
       return res.status(400).json({ msg: "Sender username required" });
 
@@ -191,7 +190,7 @@ export async function acceptRequest(req: Request, res: Response) {
       where: { username: senderUsername },
     });
     const receiver = await prisma.user.findUnique({
-      where: { id: receiverId },
+      where: { id },
     });
     if (!sender || !receiver)
       return res.status(400).json({ msg: "Invalid users" });
@@ -240,9 +239,9 @@ export async function acceptRequest(req: Request, res: Response) {
 
 export async function declineRequest(req: Request, res: Response) {
   try {
-    const receiverId = req.user?.id;
+    const id = req.user?.id;
     const { senderUsername } = req.body;
-    if (!receiverId) return res.status(401).json({ msg: "Not authenticated" });
+    if (!id) return res.status(401).json({ msg: "Not authenticated" });
     if (!senderUsername)
       return res.status(400).json({ msg: "Sender username required" });
 
@@ -250,7 +249,7 @@ export async function declineRequest(req: Request, res: Response) {
       where: { username: senderUsername },
     });
     const receiver = await prisma.user.findUnique({
-      where: { id: receiverId },
+      where: { id },
     });
     if (!sender || !receiver)
       return res.status(400).json({ msg: "Invalid users" });
@@ -274,15 +273,14 @@ export async function declineRequest(req: Request, res: Response) {
 
 export async function listFriends(req: Request, res: Response) {
   try {
-    const currentUserId = req.user?.id;
-    if (!currentUserId)
-      return res.status(401).json({ message: "Unauthorized" });
+    const id = req.user?.id;
+    if (!id) return res.status(401).json({ message: "Unauthorized" });
 
     const username = req.params.username;
     if (!username) return res.status(400).json({ msg: "No username provided" });
 
     const user = await prisma.user.findUnique({
-      where: { id: currentUserId },
+      where: { id },
       select: {
         friends: {
           select: { name: true, username: true, profilePicture: true },

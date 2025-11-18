@@ -1,11 +1,11 @@
 import prisma from "../prisma.js";
 export async function getConversations(req, res) {
     try {
-        const currentUsername = req.user?.username;
-        if (!currentUsername)
+        const id = req.user?.id;
+        if (!id)
             return res.status(200).json({ msg: "no username provided" });
         const currentUser = await prisma.user.findUnique({
-            where: { username: currentUsername },
+            where: { id },
         });
         if (!currentUser)
             return res.status(200).json({ msg: "user was not found" });
@@ -83,13 +83,13 @@ export async function addMessage(message) {
 }
 export async function getMessages(req, res) {
     try {
-        const currentUsername = req.user?.username;
+        const id = req.user?.id;
         const companionUsername = req.params.username;
         const { before, limit = 20 } = req.query;
-        if (!currentUsername || !companionUsername)
+        if (!id || !companionUsername)
             return res.status(400).json({ msg: "Missing usernames" });
         const [user, companion] = await Promise.all([
-            prisma.user.findUnique({ where: { username: currentUsername } }),
+            prisma.user.findUnique({ where: { id } }),
             prisma.user.findUnique({ where: { username: companionUsername } }),
         ]);
         if (!user || !companion)
