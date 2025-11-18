@@ -6,7 +6,6 @@ import Navbar from "@/components/Navbar";
 import { useUser } from "@/context/UserContext";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { useTheme } from "@/app/theme-provider";
 
 export default function RootLayout({
   children,

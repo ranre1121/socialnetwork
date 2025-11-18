@@ -1,75 +1,27 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import AddFriendModal from "@/components/AddFriendModal";
 import FriendRequestsModal from "@/components/FriendRequestsModal";
-import { UserMinusIcon, UserPlus, Users, Check, X, Mail } from "lucide-react";
+import { UserMinusIcon, Users, Check, X, Mail } from "lucide-react";
 import { useUser } from "@/context/UserContext";
-import profilePlaceholder from "../../public/images/profile-placeholder.png";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import ImageComponent from "@/components/ImageComponent";
+import { useFriends } from "@/hooks/useFriends";
 
 const Friends = () => {
+  const { user } = useUser();
+  const router = useRouter();
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRequestsModalOpen, setIsRequestsModalOpen] = useState(false);
-  const [friends, setFriends] = useState<any[]>([]);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const { user } = useUser();
 
-  const fetchFriends = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token || !user) return;
-      setLoading(true);
-      const res = await fetch(
-        `http://localhost:8000/friends/list/${user.username}`,
-        {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        window.location.href = "/login";
-        return;
-      }
-      const data = await res.json();
-      setFriends(data);
-    } catch (err) {
-      console.error("Error fetching friends:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { friends, loading, fetchFriends, deleteFriend } = useFriends();
 
   useEffect(() => {
     fetchFriends();
-  }, []);
-
-  const handleDelete = async (friendUsername: string) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token || !user) return;
-      const res = await fetch("http://localhost:8000/friends/delete", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          username: user.username,
-          friendUsername: friendUsername,
-        }),
-      });
-      if (!res.ok) return;
-      setConfirmDelete(null);
-      fetchFriends();
-    } catch (err) {
-      console.error("Error deleting friend:", err);
-    }
-  };
+  }, [user, fetchFriends]);
 
   return (
     <div className="flex h-screen w-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
@@ -77,6 +29,7 @@ const Friends = () => {
         <div className="w-[850px] h-[900px] bg-white dark:bg-gray-800 rounded-2xl shadow-md px-6 flex flex-col">
           <div className="flex items-center border-b dark:border-gray-700 py-4.5 mb-1">
             <h1 className="text-xl font-semibold">Friends</h1>
+
             <button
               onClick={() => setIsRequestsModalOpen(true)}
               className="ml-auto bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-3 rounded-lg flex gap-2 py-1 items-center hover:bg-gray-300 dark:hover:bg-gray-600"
@@ -84,11 +37,12 @@ const Friends = () => {
               <Users className="size-5" />
               <p>Requests</p>
             </button>
+
             <button
               onClick={() => setIsAddModalOpen(true)}
               className="ml-2 bg-blue-600 text-white px-3 rounded-lg flex gap-2 py-1 items-center hover:bg-blue-700"
             >
-              <UserPlus className="size-5" />
+              <Users className="size-5" />
               <p>Add a friend</p>
             </button>
           </div>
@@ -116,13 +70,18 @@ const Friends = () => {
                         @{f.username}
                       </p>
                     </span>
+
                     {confirmDelete === f.username ? (
                       <div className="ml-auto flex gap-3 items-center">
                         <p className="text-md">Remove a friend?</p>
                         <div className="flex gap-2">
                           <Check
                             className="hover:text-green-500 cursor-pointer"
-                            onClick={() => handleDelete(f.username)}
+                            onClick={() =>
+                              deleteFriend(f.username, () =>
+                                setConfirmDelete(null)
+                              )
+                            }
                           />
                           <X
                             className="hover:text-red-500 cursor-pointer"

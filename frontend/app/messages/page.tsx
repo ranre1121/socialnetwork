@@ -1,41 +1,19 @@
 "use client";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { useUser } from "@/context/UserContext";
-import Chat from "@/components/Chat";
-import profilePlaceholder from "@/public/images/profile-placeholder.png";
-import { ArrowLeft } from "lucide-react";
-import type { Conversation } from "@/types/Types";
-import { formatMessageTime } from "@/utils/utils";
+import { useRouter } from "next/navigation";
+import { useConversations } from "@/hooks/useConversations";
 import ImageComponent from "@/components/ImageComponent";
+import { formatMessageTime } from "@/utils/utils";
 
 export default function Messages() {
   const { user } = useUser();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  async function fetchConversations() {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/messages/conversations", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      setConversations(data);
-    } catch (err) {
-      console.error("Error fetching conversations:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const { conversations, loading, fetchConversations } = useConversations();
 
   useEffect(() => {
-    if (!user) return;
-    fetchConversations();
-  }, [user]);
+    if (user) fetchConversations();
+  }, [user, fetchConversations]);
 
   return (
     <div className="flex h-screen w-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">

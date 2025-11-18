@@ -19,7 +19,7 @@ export function verifyToken(req, res, next) {
         next();
     }
     catch {
-        return res.status(403).json({ message: "Token is not valid" });
+        return res.status(401).json({ message: "Token is not valid" });
     }
 }
 //# sourceMappingURL=authMiddlewares.js.map

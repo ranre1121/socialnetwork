@@ -3,7 +3,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import prisma from "../prisma.js";
-import { verifyToken } from "../middlewares/authMiddlewares.js";
 
 dotenv.config();
 
@@ -72,7 +71,7 @@ export async function loginUser(req: Request, res: Response) {
     const token = jwt.sign(
       { username: user.username },
       process.env.JWT_SECRET as string,
-      { expiresIn: "10s" }
+      { expiresIn: "1h" }
     );
 
     return res.status(200).json({

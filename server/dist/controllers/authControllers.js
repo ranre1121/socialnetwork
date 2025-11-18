@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import prisma from "../prisma.js";
-import { verifyToken } from "../middlewares/authMiddlewares.js";
 dotenv.config();
 export async function registerUser(req, res) {
     try {
@@ -56,7 +55,7 @@ export async function loginUser(req, res) {
         if (!validPassword) {
             return res.status(400).json({ msg: "Invalid password" });
         }
-        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: "10s" });
+        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: "1h" });
         return res.status(200).json({
             token,
             user: {

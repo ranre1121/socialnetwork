@@ -1,70 +1,27 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
-import { Mail } from "lucide-react";
-import type { Profile as ProfileType } from "@/types/Types";
 import Post from "@/components/Post";
 import EditProfileModal from "@/components/EditProfileModal";
 import FriendsListModal from "@/components/FriendsListModal";
-import Image from "next/image";
 import ImageComponent from "@/components/ImageComponent";
+import { Mail } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
 
 const Profile = () => {
   const { username } = useParams<{ username: string }>();
-  const [profile, setProfile] = useState<ProfileType | null>(null);
-  const { user, setUser } = useUser();
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [showFriendsModal, setShowFriendsModal] = useState(false);
+  const { user } = useUser();
   const router = useRouter();
 
-  const handleSave = async (name: string, bio: string) => {
-    try {
-      const token = localStorage.getItem("token");
-      await fetch("http://localhost:8000/profiles/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name,
-          bio,
-          isProfileOwner: profile?.profileOwner,
-        }),
-      });
-      const data = await fetchProfile();
-      setUser(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showFriendsModal, setShowFriendsModal] = useState(false);
 
-  const fetchProfile = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:8000/profiles/${username}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) throw new Error("Failed to fetch profile");
-
-      const data = await res.json();
-      setProfile(data);
-      return data;
-    } catch (err) {
-      console.error(err);
-      setProfile(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { profile, loading, fetchProfile, handleSave } = useProfile(username!);
 
   useEffect(() => {
-    fetchProfile();
-  }, [username]);
+    if (user) fetchProfile();
+  }, [user, fetchProfile]);
 
   const handleNavigate = () => {
     router.push(`/messages/chat/${username}`);
@@ -103,14 +60,14 @@ const Profile = () => {
           <div className="flex items-start px-8">
             <div className="flex flex-col justify-center">
               <h2 className="text-xl font-extrabold text-gray-900 dark:text-white">
-                {profile?.name}
+                {profile.name}
               </h2>
               <p className="text-gray-500 dark:text-gray-400 text-xl">
-                @{profile?.username}
+                @{profile.username}
               </p>
             </div>
 
-            {profile?.profileOwner ? (
+            {profile.profileOwner ? (
               <button
                 className="ml-auto dark:text-white py-1.5 px-5 rounded-full border dark:border-white cursor-pointer"
                 onClick={() => setIsModalOpen(true)}
@@ -127,7 +84,7 @@ const Profile = () => {
             )}
           </div>
 
-          {profile?.bio && (
+          {profile.bio && (
             <p className="text-lg -mt-3 font-extralight px-8">{profile.bio}</p>
           )}
 
@@ -136,32 +93,29 @@ const Profile = () => {
               className="flex cursor-pointer hover:underline"
               onClick={() => setShowFriendsModal(true)}
             >
-              <p>{profile?.friendsCount}&nbsp;</p>
+              <p>{profile.friendsCount}&nbsp;</p>
               <p className="text-gray-400">
-                {profile?.friendsCount === 1 ? "Friend" : "Friends"}
+                {profile.friendsCount === 1 ? "Friend" : "Friends"}
               </p>
             </span>
           </div>
         </div>
+
         <div className="w-full border-b dark:border-gray-700 mt-5" />
 
-        <div className="flex flex-col gap-3 overflow-y-auto h-[550px] py-6">
-          <div className="px-5">
-            {profile?.posts?.length === 0 ? (
-              <div className="flex items-center justify-center text-xl">
-                User has no posts yet.
-              </div>
-            ) : (
-              <div className="flex flex-col gap-3">
-                {profile?.posts
-                  ?.slice()
-                  .reverse()
-                  .map((post) => (
-                    <Post key={post.id} post={post} onFetch={fetchProfile} />
-                  ))}
-              </div>
-            )}
-          </div>
+        <div className="flex flex-col gap-3 overflow-y-auto h-[550px] py-6 px-5">
+          {profile.posts?.length === 0 ? (
+            <div className="flex items-center justify-center text-xl">
+              User has no posts yet.
+            </div>
+          ) : (
+            profile.posts
+              .slice()
+              .reverse()
+              .map((post) => (
+                <Post key={post.id} post={post} onFetch={fetchProfile} />
+              ))
+          )}
         </div>
       </div>
 

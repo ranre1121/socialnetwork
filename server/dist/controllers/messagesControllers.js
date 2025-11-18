@@ -135,21 +135,4 @@ export async function getMessages(req, res) {
         res.status(500).json({ message: "Server error" });
     }
 }
-// export async function readMessage(reader: string, messageId: number) {
-//   try {
-//     const senderUser = await prisma.user.findUnique({
-//       where: { username: reader },
-//     });
-//     if (!senderUser) return "No user found";
-//     const message = await prisma.message.findUnique({
-//       where: {
-//         id: messageId,
-//       },
-//     });
-//     if (!message) return "Message was not found";
-//   } catch (err) {
-//     console.error("readMessage error:", err);
-//     return null;
-//   }
-// }
 //# sourceMappingURL=messagesControllers.js.map

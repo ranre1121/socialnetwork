@@ -25,6 +25,6 @@ export function verifyToken(req: Request, res: Response, next: NextFunction) {
     req.user = decoded as JwtPayload & { username: string };
     next();
   } catch {
-    return res.status(403).json({ message: "Token is not valid" });
+    return res.status(401).json({ message: "Token is not valid" });
   }
 }
