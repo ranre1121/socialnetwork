@@ -71,7 +71,7 @@ export async function loginUser(req: Request, res: Response) {
     const token = jwt.sign(
       { username: user.username },
       process.env.JWT_SECRET as string,
-      { expiresIn: "1h" }
+      { expiresIn: "3s" }
     );
 
     return res.status(200).json({
