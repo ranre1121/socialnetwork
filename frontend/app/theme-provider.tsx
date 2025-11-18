@@ -11,7 +11,6 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [dark, setDark] = useState(false);
 
-  // Run once on mount to sync with system or localStorage
   useEffect(() => {
     const isDark =
       localStorage.theme === "dark" ||

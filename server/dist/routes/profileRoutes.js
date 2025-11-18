@@ -3,6 +3,6 @@ import { getProfile, updateProfile, uploadProfilePic, } from "../controllers/pro
 import { verifyToken } from "../middlewares/authMiddlewares.js";
 const router = Router();
 router.get("/:username", verifyToken, getProfile);
-router.put("/update", verifyToken, uploadProfilePic, updateProfile);
+router.put("/update", verifyToken, uploadProfilePic);
 export default router;
 //# sourceMappingURL=profileRoutes.js.map

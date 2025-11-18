@@ -32,20 +32,29 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { dark, toggleTheme } = useTheme();
 
+  const verifyToken = async () => {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("http://localhost:8000/auth/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = res.json();
+
+    if (!res.ok) {
+      router.push("/login");
+    } else {
+      router.push(pathname);
+    }
+  };
+
   useEffect(() => {
     if (loading) return;
 
-    const protectedRoutes = ["/", "/feed", "/messages", "/friends", "/profile"];
-    const isProtected = protectedRoutes.some((r) => pathname.startsWith(r));
-
-    if (
-      !user &&
-      isProtected &&
-      pathname !== "/login" &&
-      pathname !== "/register"
-    ) {
-      router.replace("/login");
-    }
+    verifyToken();
   }, [user, loading, pathname, router]);
 
   if (loading) return <div className="w-screen h-screen dark:bg-gray-800" />;

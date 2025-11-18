@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import prisma from "../prisma.js";
+import { verifyToken } from "../middlewares/authMiddlewares.js";
 
 dotenv.config();
 
@@ -71,7 +72,7 @@ export async function loginUser(req: Request, res: Response) {
     const token = jwt.sign(
       { username: user.username },
       process.env.JWT_SECRET as string,
-      { expiresIn: "1h" }
+      { expiresIn: "10s" }
     );
 
     return res.status(200).json({
@@ -88,4 +89,26 @@ export async function loginUser(req: Request, res: Response) {
     console.error(err);
     res.status(500).json({ msg: "Server error" });
   }
+}
+
+export async function verify(req: Request, res: Response) {
+  try {
+    const verified = async () => {
+      // if (!req.user) return res.status(400).json({ msg: "Something wrong" });
+      // if (!req.user.username)
+      //   return res.status(400).json({ msg: "Something wrong" });
+      const user = await prisma.user.findUnique({
+        where: { username: req.user?.username as string },
+      });
+
+      return res.status(200).json({
+        username: user?.username,
+        profilePicture: user?.profilePicture,
+        name: user?.name,
+        success: true,
+      });
+    };
+
+    verifyToken(req, res, verified);
+  } catch (error) {}
 }

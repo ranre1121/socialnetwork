@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import prisma from "../prisma.js";
+import { verifyToken } from "../middlewares/authMiddlewares.js";
 dotenv.config();
 export async function registerUser(req, res) {
     try {
@@ -55,7 +56,7 @@ export async function loginUser(req, res) {
         if (!validPassword) {
             return res.status(400).json({ msg: "Invalid password" });
         }
-        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: "1h" });
+        const token = jwt.sign({ username: user.username }, process.env.JWT_SECRET, { expiresIn: "10s" });
         return res.status(200).json({
             token,
             user: {
@@ -71,5 +72,25 @@ export async function loginUser(req, res) {
         console.error(err);
         res.status(500).json({ msg: "Server error" });
     }
+}
+export async function verify(req, res) {
+    try {
+        const verified = async () => {
+            // if (!req.user) return res.status(400).json({ msg: "Something wrong" });
+            // if (!req.user.username)
+            //   return res.status(400).json({ msg: "Something wrong" });
+            const user = await prisma.user.findUnique({
+                where: { username: req.user?.username },
+            });
+            return res.status(200).json({
+                username: user?.username,
+                profilePicture: user?.profilePicture,
+                name: user?.name,
+                success: true,
+            });
+        };
+        verifyToken(req, res, verified);
+    }
+    catch (error) { }
 }
 //# sourceMappingURL=authControllers.js.map
