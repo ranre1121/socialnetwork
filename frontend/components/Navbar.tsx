@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import profilePlaceholder from "@/public/images/profile-placeholder.png";
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {

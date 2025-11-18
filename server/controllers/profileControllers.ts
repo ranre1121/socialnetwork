@@ -10,10 +10,6 @@ const storage = multer.diskStorage({
   },
 });
 
-interface MulterRequest extends Request {
-  file?: Express.Multer.File;
-}
-
 const upload = multer({ storage });
 
 export async function getProfile(req: Request, res: Response) {
@@ -87,7 +83,7 @@ export async function getProfile(req: Request, res: Response) {
 }
 export const uploadProfilePic = upload.single("image");
 
-export async function updateProfile(req: MulterRequest, res: Response) {
+export async function updateProfile(req: Request, res: Response) {
   try {
     const id = req.user?.id;
     if (!id) return res.status(401).json({ error: "Unauthorized" });
