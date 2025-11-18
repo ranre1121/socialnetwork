@@ -73,24 +73,16 @@ export async function loginUser(req, res) {
         res.status(500).json({ msg: "Server error" });
     }
 }
-export async function verify(req, res) {
-    try {
-        const verified = async () => {
-            // if (!req.user) return res.status(400).json({ msg: "Something wrong" });
-            // if (!req.user.username)
-            //   return res.status(400).json({ msg: "Something wrong" });
-            const user = await prisma.user.findUnique({
-                where: { username: req.user?.username },
-            });
-            return res.status(200).json({
-                username: user?.username,
-                profilePicture: user?.profilePicture,
-                name: user?.name,
-                success: true,
-            });
-        };
-        verifyToken(req, res, verified);
-    }
-    catch (error) { }
+export async function userContext(req, res) {
+    const user = await prisma.user.findUnique({
+        where: { username: req.user?.username },
+    });
+    return res.status(200).json({
+        userId: user?.id,
+        username: user?.username,
+        profilePicture: user?.profilePicture,
+        name: user?.name,
+        success: true,
+    });
 }
 //# sourceMappingURL=authControllers.js.map
