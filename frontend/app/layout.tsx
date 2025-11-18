@@ -65,7 +65,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     verifyToken();
-  }, [pathname]);
+  }, []);
 
   if (loading) return <div className="w-screen h-screen dark:bg-gray-900" />;
 
