@@ -112,7 +112,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
           <X className="size-5" />
         </button>
         <div className="flex gap-3">
-          <ImageComponent src={post.author.profilePicture} size={20} />
+          <ImageComponent src={post.author.profilePicture} size={30} />
           <div>
             <span className="flex gap-1 items-center">
               <p
@@ -151,7 +151,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
                 key={c.id}
                 className="flex gap-3 border-gray-200 dark:border-gray-700 pb-3"
               >
-                <ImageComponent src={c.author.profilePicture} size={20} />
+                <ImageComponent src={c.author.profilePicture} size={30} />
                 <div className="flex w-full items-center">
                   <div>
                     <p className="text-sm font-semibold dark:text-white">
