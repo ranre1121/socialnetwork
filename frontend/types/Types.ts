@@ -47,6 +47,7 @@ type Message = {
   tempId: string;
   id: number;
   chatId: number;
+  countId: number;
   sender: User;
   receiver: User;
   content: string;
@@ -55,8 +56,8 @@ type Message = {
 };
 
 type MessageData = {
-  lastReadId: number;
-  companionLastReadId: number;
+  lastRead: number;
+  companionLastRead: number;
   messages: Message[];
 };
 

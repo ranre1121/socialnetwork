@@ -144,8 +144,8 @@ export async function getMessages(req, res) {
             status: m.senderId === user.id ? "sent" : "received",
         }));
         const formatted = {
-            lastReadId: chatRecord?.messagesRead || 0,
-            companionLastReadId: companionChatRecord?.messagesRead || 0,
+            lastRead: chatRecord?.messagesRead || 0,
+            companionLastRead: companionChatRecord?.messagesRead || 0,
             messages: formattedMessages,
         };
         res.status(200).json(formatted);

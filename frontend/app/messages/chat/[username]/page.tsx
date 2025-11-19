@@ -16,8 +16,8 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [hasMore, setHasMore] = useState(true);
-  const [lastReadId, setLastReadId] = useState<number>(0);
-  const [companionLastReadId, setCompanionLastReadId] = useState(0);
+  const [lastRead, setLastRead] = useState<number>(0);
+  const [companionLastRead, setCompanionLastRead] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const [chatId, setChatId] = useState<number | null>(null);
@@ -74,9 +74,9 @@ const Chat = () => {
           }
         }
 
-        setLastReadId(data.lastReadId);
+        setLastRead(data.lastRead);
         setChatId(data.messages[0].chatId);
-        setCompanionLastReadId(data.companionLastReadId);
+        setCompanionLastRead(data.companionLastRead);
 
         return merged;
       });
@@ -96,7 +96,7 @@ const Chat = () => {
   }
 
   const handleReadMessage = (messageId: number) => {
-    setCompanionLastReadId(messageId);
+    setCompanionLastRead(messageId);
   };
 
   const handlePrivateMessage = (message: Message) => {
@@ -161,12 +161,12 @@ const Chat = () => {
   }, [user, username]);
 
   useEffect(() => {
-    if (!lastReadId) return;
+    if (!lastRead) return;
 
     let attempts = 0;
 
     const tryScroll = () => {
-      const el = messageRefs.current[lastReadId];
+      const el = messageRefs.current[lastRead];
       if (el) {
         el.scrollIntoView({ behavior: "auto", block: "center" });
       } else if (attempts < 10) {
@@ -235,22 +235,23 @@ const Chat = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const id = Number(entry.target.getAttribute("data-message-id"));
-            if (!id) return;
+            const messageCount = Number(
+              entry.target.getAttribute("data-message-count")
+            );
+            if (!messageCount) return;
 
-            // Skip your own messages
             const message = Object.values(messages)
               .flat()
-              .find((m) => m.id === id);
+              .find((m) => m.countId === messageCount);
             if (!message || message.status === "sent") return;
 
-            if (id > lastReadId) {
+            if (messageCount > lastRead) {
               socketRef.current?.emit("read_message", {
                 chatId: chatId,
-                messageId: id,
+                messageCount: messageCount,
                 username: user.username,
               });
-              setLastReadId(id);
+              setLastRead(messageCount);
             }
 
             observer.unobserve(entry.target);
@@ -321,7 +322,7 @@ const Chat = () => {
                             if (isLast) lastMessageRef.current = el;
                           }}
                           data-sent-at={isLast ? msg.sentAt : undefined}
-                          data-message-id={msg.id}
+                          data-message-count={msg.countId}
                           className={`p-3 rounded-2xl w-fit max-w-[70%] ${
                             msg.status === "sent" || msg.status === "pending"
                               ? "ml-auto bg-blue-600 text-white"
@@ -350,10 +351,10 @@ const Chat = () => {
                             {msg.status === "pending" ? (
                               <Clock3 className="mt-1 size-4 text-gray-300" />
                             ) : msg.status === "sent" &&
-                              companionLastReadId < msg.id ? (
+                              companionLastRead < msg.countId ? (
                               <Check className="mt-1 size-4 text-gray-300" />
                             ) : msg.status === "sent" &&
-                              companionLastReadId >= msg.id ? (
+                              companionLastRead >= msg.countId ? (
                               <CheckCheck className="mt-1 size-4 text-gray-300" />
                             ) : null}
                           </span>
