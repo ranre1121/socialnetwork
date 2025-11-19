@@ -87,15 +87,38 @@ export async function loginUser(req: Request, res: Response) {
   }
 }
 
-export async function userContext(req: Request, res: Response) {
+export async function welcome(req: Request, res: Response) {
+  const id = req.user?.id;
+  if (!id) return res.status(401).json({ error: "Not authorized" });
+
   const user = await prisma.user.findUnique({
-    where: { id: req.user?.id as number },
+    where: { id },
   });
+
+  if (!user) return res.status(404).json({ error: "User was not found" });
+
+  const chats = await prisma.userChatRead.findMany({
+    where: { userId: user.id },
+  });
+
+  const messageIds = (
+    await Promise.all(
+      chats.map((c) =>
+        prisma.chat.findUnique({
+          where: { id: c.id },
+          select: { lastMessageId: true },
+        })
+      )
+    )
+  ).map((result) => {});
 
   return res.status(200).json({
     userId: user?.id,
     username: user?.username,
     profilePicture: user?.profilePicture,
     name: user?.name,
+    notification: {
+      messages: "",
+    },
   });
 }

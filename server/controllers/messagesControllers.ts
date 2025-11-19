@@ -147,7 +147,7 @@ export async function getMessages(req: Request, res: Response) {
 
     const formatted = {
       lastReadId: chatRecord?.lastReadMessageId || 0,
-      companionLastReadId: companionChatRecord?.lastReadMessageId,
+      companionLastReadId: companionChatRecord?.lastReadMessageId || 0,
       messages: formattedMessages,
     };
 

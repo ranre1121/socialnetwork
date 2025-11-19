@@ -125,7 +125,7 @@ export async function getMessages(req, res) {
         }));
         const formatted = {
             lastReadId: chatRecord?.lastReadMessageId || 0,
-            companionLastReadId: companionChatRecord?.lastReadMessageId,
+            companionLastReadId: companionChatRecord?.lastReadMessageId || 0,
             messages: formattedMessages,
         };
         res.status(200).json(formatted);

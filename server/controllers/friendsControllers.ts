@@ -27,13 +27,13 @@ export async function findFriends(req: Request, res: Response) {
       select: { friends: { select: { id: true } } },
     });
 
-    let friendIds = friends.flatMap((user) => user.friends.map((f) => f.id));
+    let hidden = friends.flatMap((user) => user.friends.map((f) => f.id));
 
-    friendIds = [...friendIds, currentUser.id];
+    hidden = [...hidden, currentUser.id];
 
     const users = await prisma.user.findMany({
       where: {
-        id: { notIn: friendIds },
+        id: { notIn: hidden },
       },
     });
 
