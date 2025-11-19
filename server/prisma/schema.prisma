@@ -72,6 +72,7 @@ model Chat {
   participant2Id Int
   createdAt      DateTime @default(now())
   lastMessageId  Int?     @unique
+  totalMessages  Int      @default(0) 
 
   participant1 User      @relation("ChatParticipant1", fields: [participant1Id], references: [id])
   participant2 User      @relation("ChatParticipant2", fields: [participant2Id], references: [id])
@@ -86,6 +87,7 @@ model Message {
   id         Int      @id @default(autoincrement())
   tempId     String
   chatId     Int
+  countId    Int      @default(0)
   senderId   Int
   receiverId Int
   content    String
@@ -101,7 +103,7 @@ model UserChatRead {
   id               Int   @id @default(autoincrement())
   userId           Int
   chatId           Int
-  lastReadMessageId Int
+  messagesRead     Int   @default(0)
 
   user User @relation(fields: [userId], references: [id])
   chat Chat @relation(fields: [chatId], references: [id])

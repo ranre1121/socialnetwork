@@ -3,22 +3,15 @@ import prisma from "../prisma.js";
 
 export async function getConversations(req: Request, res: Response) {
   try {
-    const id = req.user?.id;
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ msg: "Unauthorized" });
 
-    if (!id) return res.status(200).json({ msg: "no username provided" });
-    const currentUser = await prisma.user.findUnique({
-      where: { id },
-    });
+    const currentUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!currentUser) return res.status(404).json({ msg: "User not found" });
 
-    if (!currentUser)
-      return res.status(200).json({ msg: "user was not found" });
-
-    const c = await prisma.chat.findMany({
+    const chats = await prisma.chat.findMany({
       where: {
-        OR: [
-          { participant1Id: currentUser?.id },
-          { participant2Id: currentUser.id },
-        ],
+        OR: [{ participant1Id: userId }, { participant2Id: userId }],
       },
       include: {
         participant1: {
@@ -28,16 +21,28 @@ export async function getConversations(req: Request, res: Response) {
           select: { username: true, name: true, profilePicture: true },
         },
         lastMessage: true,
+        userReads: { where: { userId } },
+        messages: { orderBy: { sentAt: "asc" } },
       },
+      orderBy: { lastMessageId: "desc" },
     });
 
-    console.log(c);
+    const conversations = chats.map((chat) => {
+      const companion =
+        chat.participant1Id === userId ? chat.participant2 : chat.participant1;
 
-    const conversations = c.map((c) => ({
-      ...c,
-      companion:
-        c.participant1Id === currentUser.id ? c.participant2 : c.participant1,
-    }));
+      const totalRead = chat.userReads[0]?.messagesRead ?? 0;
+      const totalMessages = chat.totalMessages ?? 0;
+
+      return {
+        id: chat.id,
+        companion,
+        unreadMessages: Math.max(totalMessages - totalRead, 0),
+        lastMessage: chat.lastMessage,
+        messages: chat.messages,
+        createdAt: chat.createdAt,
+      };
+    });
 
     return res.status(200).json(conversations);
   } catch (err) {
@@ -76,6 +81,7 @@ export async function addMessage(message: any) {
         content: message.content,
         chatId: chat.id,
         tempId: message.tempId,
+        countId: chat.totalMessages + 1,
       },
       include: {
         sender: { select: { username: true } },
@@ -83,18 +89,21 @@ export async function addMessage(message: any) {
       },
     });
 
-    await prisma.chat.update({
+    const updatedChat = await prisma.chat.update({
       where: { id: chat.id },
-      data: { lastMessage: { connect: { id: newMessage.id } } },
+      data: {
+        lastMessage: { connect: { id: newMessage.id } },
+        totalMessages: newMessage.countId,
+      },
     });
 
     await prisma.userChatRead.upsert({
       where: { userId_chatId: { userId: senderUser.id, chatId: chat.id } },
-      update: { lastReadMessageId: newMessage.id },
+      update: { messagesRead: updatedChat.totalMessages },
       create: {
         userId: senderUser.id,
         chatId: chat.id,
-        lastReadMessageId: newMessage.id,
+        messagesRead: 0,
       },
     });
 
@@ -158,8 +167,8 @@ export async function getMessages(req: Request, res: Response) {
     }));
 
     const formatted = {
-      lastReadId: chatRecord?.lastReadMessageId || 0,
-      companionLastReadId: companionChatRecord?.lastReadMessageId || 0,
+      lastReadId: chatRecord?.messagesRead || 0,
+      companionLastReadId: companionChatRecord?.messagesRead || 0,
       messages: formattedMessages,
     };
 

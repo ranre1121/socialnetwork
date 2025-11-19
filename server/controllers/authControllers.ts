@@ -72,35 +72,28 @@ export async function loginUser(req: Request, res: Response) {
       expiresIn: "1h",
     });
 
-    const chats = await prisma.userChatRead.findMany({
+    // 1. Get all UserChatRead rows for this user
+    const userChats = await prisma.userChatRead.findMany({
       where: { userId: user.id },
       select: {
         chatId: true,
-        lastReadMessageId: true,
+        messagesRead: true,
+        chat: {
+          select: {
+            lastMessageId: true,
+            totalMessages: true,
+          },
+        },
       },
     });
 
-    const chatIds = chats.map((c) => c.chatId);
-
-    const chatData = await prisma.chat.findMany({
-      where: { id: { in: chatIds } },
-      select: {
-        id: true,
-        lastMessageId: true,
-      },
-    });
-
-    const chatMap = chatData.reduce((acc, chat) => {
-      acc[chat.id] = chat.lastMessageId;
-      return acc;
-    }, {} as Record<number, number | null>);
-
-    const totalUnread = chats.reduce((sum, c) => {
-      const lastMsg = chatMap[c.chatId];
-      const lastRead = c.lastReadMessageId;
-      if (lastMsg == null || lastRead == null) return sum;
-      return sum + Math.max(lastMsg - lastRead, 0);
-    }, 0);
+    // 2. Count chats where lastMessageId > lastReadMessageId
+    const unreadChatsCount = userChats.filter(
+      (uc) =>
+        uc.chat.totalMessages != null &&
+        uc.messagesRead != null &&
+        uc.chat.totalMessages > uc.messagesRead
+    ).length;
 
     return res.status(200).json({
       token,
@@ -110,7 +103,7 @@ export async function loginUser(req: Request, res: Response) {
         name: user.name,
         profilePicture: user.profilePicture,
         notifications: {
-          messages: totalUnread,
+          messages: unreadChatsCount,
         },
       },
     });
@@ -130,35 +123,26 @@ export async function welcome(req: Request, res: Response) {
 
   if (!user) return res.status(404).json({ error: "User was not found" });
 
-  const chats = await prisma.userChatRead.findMany({
+  // 1. Get all UserChatRead rows for this user
+  const userChats = await prisma.userChatRead.findMany({
     where: { userId: user.id },
     select: {
       chatId: true,
-      lastReadMessageId: true,
+      messagesRead: true,
+      chat: {
+        select: {
+          totalMessages: true,
+        },
+      },
     },
   });
 
-  const chatIds = chats.map((c) => c.chatId);
-
-  const chatData = await prisma.chat.findMany({
-    where: { id: { in: chatIds } },
-    select: {
-      id: true,
-      lastMessageId: true,
-    },
-  });
-
-  const chatMap = chatData.reduce((acc, chat) => {
-    acc[chat.id] = chat.lastMessageId;
-    return acc;
-  }, {} as Record<number, number | null>);
-
-  const unreadChatsCount = chats.reduce((count, c) => {
-    const lastMsg = chatMap[c.chatId];
-    const lastRead = c.lastReadMessageId;
-    if (lastMsg == null || lastRead == null) return count;
-    return count + (lastMsg - lastRead > 0 ? 1 : 0);
-  }, 0);
+  const unreadChatsCount = userChats.filter(
+    (uc) =>
+      uc.chat.totalMessages != null &&
+      uc.messagesRead != null &&
+      uc.chat.totalMessages > uc.messagesRead
+  ).length;
 
   return res.status(200).json({
     userId: user.id,

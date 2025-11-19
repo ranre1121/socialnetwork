@@ -235,14 +235,14 @@ export async function acceptRequest(req: Request, res: Response) {
         await prisma.userChatRead.create({
           data: {
             userId: sender.id,
-            lastReadMessageId: 0,
+
             chatId: conversation.id,
           },
         }),
         await prisma.userChatRead.create({
           data: {
             userId: receiver.id,
-            lastReadMessageId: 0,
+
             chatId: conversation.id,
           },
         }),
