@@ -40,12 +40,20 @@ export default function Messages() {
                   className="py-3 px-4 flex rounded-lg items-center gap-3 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer transition"
                 >
                   <ImageComponent src={c.companion.profilePicture} size={30} />
-                  <div className="flex flex-col w-full leading-5">
-                    <p>{c.companion.name}</p>
-                    <div className="flex text-sm text-gray-500 dark:text-gray-300">
+                  <div className="flex  w-full leading-5">
+                    <div>
+                      <p>{c.companion.name}</p>
                       <span className="truncate flex-1">
                         {c.lastMessage?.content || "No messages yet"}
                       </span>
+                    </div>
+
+                    <div className="flex ml-auto items-center text-sm text-gray-500 dark:text-gray-300">
+                      {(c.unreadMessages ?? 0) > 0 && (
+                        <div className="ml-auto bg-red-500 mr-5 rounded-full font-semibold w-6 h-6 text-xs flex items-center justify-center">
+                          {c.unreadMessages ?? 0}
+                        </div>
+                      )}
                       <span className="ml-auto shrink-0 text-xs">
                         {formatMessageTime(c.lastMessage?.sentAt) || ""}
                       </span>

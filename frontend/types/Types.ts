@@ -70,6 +70,7 @@ type Conversation = {
     receiverId: string;
     sentAt: string;
   };
+  unreadMessages: number;
 };
 
 type Comment = {

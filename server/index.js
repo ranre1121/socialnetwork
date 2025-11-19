@@ -61,6 +61,7 @@ io.on("connection", (socket) => {
       include: {
         sender: true,
         receiver: true,
+        chat: true,
       },
     });
 
@@ -74,12 +75,12 @@ io.on("connection", (socket) => {
         },
       },
       update: {
-        lastReadMessageId: messageId,
+        messagesRead: message.chat.totalMessages,
       },
       create: {
         userId: user.id,
         chatId,
-        lastReadMessageId: messageId,
+        messagesRead: 0,
       },
     });
 

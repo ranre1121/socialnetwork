@@ -72,7 +72,6 @@ export async function loginUser(req: Request, res: Response) {
       expiresIn: "1h",
     });
 
-    // 1. Get all UserChatRead rows for this user
     const userChats = await prisma.userChatRead.findMany({
       where: { userId: user.id },
       select: {
@@ -87,7 +86,6 @@ export async function loginUser(req: Request, res: Response) {
       },
     });
 
-    // 2. Count chats where lastMessageId > lastReadMessageId
     const unreadChatsCount = userChats.filter(
       (uc) =>
         uc.chat.totalMessages != null &&
@@ -123,7 +121,6 @@ export async function welcome(req: Request, res: Response) {
 
   if (!user) return res.status(404).json({ error: "User was not found" });
 
-  // 1. Get all UserChatRead rows for this user
   const userChats = await prisma.userChatRead.findMany({
     where: { userId: user.id },
     select: {
