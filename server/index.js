@@ -45,6 +45,7 @@ io.on("connection", (socket) => {
 
   socket.on("private_message", async (payload) => {
     const newMessage = await addMessage(payload);
+    console.log(newMessage);
 
     io.to(payload.receiverUsername).emit("private_message", newMessage);
     io.to(payload.senderUsername).emit("private_message", newMessage);
@@ -56,7 +57,7 @@ io.on("connection", (socket) => {
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) return;
 
-    const message = await prisma.message.findUnique({
+    const message = await prisma.message.findFirst({
       where: { chatId, countId: messageCount },
       include: {
         sender: true,

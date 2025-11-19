@@ -101,6 +101,7 @@ const Chat = () => {
 
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
+    console.log(message);
 
     if (message.sender?.username === user?.username) {
       setMessages((prev) => {
@@ -109,7 +110,12 @@ const Chat = () => {
         for (const key in updated) {
           updated[key] = updated[key].map((msg) =>
             msg.tempId === message.tempId
-              ? { ...msg, status: "sent", id: message.id }
+              ? {
+                  ...msg,
+                  status: "sent",
+                  id: message.id,
+                  countId: message.countId,
+                }
               : msg
           );
         }
