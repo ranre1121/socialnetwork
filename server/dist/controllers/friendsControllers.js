@@ -188,7 +188,8 @@ export async function acceptRequest(req, res) {
             where: { id: sender.id },
             data: { friends: { connect: { id: receiver.id } } },
         });
-        const conversation = await prisma.chat.findFirst({
+        let conversation;
+        conversation = await prisma.chat.findFirst({
             where: {
                 OR: [
                     { participant1Id: sender.id, participant2Id: receiver.id },
@@ -197,12 +198,28 @@ export async function acceptRequest(req, res) {
             },
         });
         if (!conversation) {
-            await prisma.chat.create({
+            conversation = await prisma.chat.create({
                 data: {
                     participant1Id: sender.id,
                     participant2Id: receiver.id,
                 },
             });
+            await Promise.all([
+                await prisma.userChatRead.create({
+                    data: {
+                        userId: sender.id,
+                        lastReadMessageId: 0,
+                        chatId: conversation.id,
+                    },
+                }),
+                await prisma.userChatRead.create({
+                    data: {
+                        userId: receiver.id,
+                        lastReadMessageId: 0,
+                        chatId: conversation.id,
+                    },
+                }),
+            ]);
         }
         return res.status(200).json({ msg: "Friend request accepted" });
     }

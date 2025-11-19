@@ -31,6 +31,8 @@ export async function getConversations(req: Request, res: Response) {
       },
     });
 
+    console.log(c);
+
     const conversations = c.map((c) => ({
       ...c,
       companion:
@@ -86,9 +88,14 @@ export async function addMessage(message: any) {
       data: { lastMessage: { connect: { id: newMessage.id } } },
     });
 
-    await prisma.userChatRead.update({
+    await prisma.userChatRead.upsert({
       where: { userId_chatId: { userId: senderUser.id, chatId: chat.id } },
-      data: { lastReadMessageId: newMessage.id },
+      update: { lastReadMessageId: newMessage.id },
+      create: {
+        userId: senderUser.id,
+        chatId: chat.id,
+        lastReadMessageId: newMessage.id,
+      },
     });
 
     return newMessage;
