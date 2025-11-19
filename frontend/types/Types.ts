@@ -3,6 +3,9 @@ type User = {
   name: string;
   id: number;
   profilePicture: string;
+  notifications: {
+    messages: number;
+  };
 };
 
 type Friend = {

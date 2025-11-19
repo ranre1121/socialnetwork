@@ -99,26 +99,41 @@ export async function welcome(req: Request, res: Response) {
 
   const chats = await prisma.userChatRead.findMany({
     where: { userId: user.id },
+    select: {
+      chatId: true,
+      lastReadMessageId: true,
+    },
   });
 
-  const messageIds = (
-    await Promise.all(
-      chats.map((c) =>
-        prisma.chat.findUnique({
-          where: { id: c.id },
-          select: { lastMessageId: true },
-        })
-      )
-    )
-  ).map((result) => {});
+  const chatIds = chats.map((c) => c.chatId);
+
+  const chatData = await prisma.chat.findMany({
+    where: { id: { in: chatIds } },
+    select: {
+      id: true,
+      lastMessageId: true,
+    },
+  });
+
+  const chatMap = chatData.reduce((acc, chat) => {
+    acc[chat.id] = chat.lastMessageId;
+    return acc;
+  }, {} as Record<number, number | null>);
+
+  const totalUnread = chats.reduce((sum, c) => {
+    const lastMsg = chatMap[c.chatId];
+    const lastRead = c.lastReadMessageId;
+    if (lastMsg == null || lastRead == null) return sum;
+    return sum + Math.max(lastMsg - lastRead, 0);
+  }, 0);
 
   return res.status(200).json({
-    userId: user?.id,
-    username: user?.username,
-    profilePicture: user?.profilePicture,
-    name: user?.name,
-    notification: {
-      messages: "",
+    userId: user.id,
+    username: user.username,
+    profilePicture: user.profilePicture,
+    name: user.name,
+    notifications: {
+      messages: totalUnread,
     },
   });
 }

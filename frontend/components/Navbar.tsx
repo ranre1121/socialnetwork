@@ -88,6 +88,9 @@ export default function Navbar() {
             >
               <span>{button.icon}</span>
               <p>{button.text}</p>
+              <div className="ml-auto bg-red-400 rounded-full font-semibold w-6 h-6 text-xs flex items-center justify-center">
+                {button.text === "Messages" && user?.notifications.messages}
+              </div>
             </button>
           );
         })}

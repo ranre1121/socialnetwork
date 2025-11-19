@@ -5,11 +5,6 @@ import publicPlaceholder from "@/public/images/profile-placeholder.png";
 const ImageComponent = ({ src, size }: { src?: string; size: number }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  useEffect(() => {
-    console.log("src:", src);
-    console.log("size:", size);
-  }, [src, size]);
-
   const imgSrc = src || publicPlaceholder;
 
   return (
@@ -27,7 +22,7 @@ const ImageComponent = ({ src, size }: { src?: string; size: number }) => {
         width={size}
         height={size}
         style={{ width: size, height: size, borderRadius: "50%" }}
-        onLoadingComplete={() => setImageLoaded(true)}
+        onLoad={() => setImageLoaded(true)}
         className={` ${imageLoaded ? "opacity-100" : "opacity-0"}`}
         unoptimized
       />
