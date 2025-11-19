@@ -28,7 +28,7 @@ export default function Home() {
         return;
       }
 
-      const res = await fetch("http://localhost:8000/auth/verify", {
+      const res = await fetch("http://localhost:8000/auth/welcome", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
