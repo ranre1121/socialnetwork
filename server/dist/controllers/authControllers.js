@@ -58,6 +58,32 @@ export async function loginUser(req, res) {
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
             expiresIn: "1h",
         });
+        const chats = await prisma.userChatRead.findMany({
+            where: { userId: user.id },
+            select: {
+                chatId: true,
+                lastReadMessageId: true,
+            },
+        });
+        const chatIds = chats.map((c) => c.chatId);
+        const chatData = await prisma.chat.findMany({
+            where: { id: { in: chatIds } },
+            select: {
+                id: true,
+                lastMessageId: true,
+            },
+        });
+        const chatMap = chatData.reduce((acc, chat) => {
+            acc[chat.id] = chat.lastMessageId;
+            return acc;
+        }, {});
+        const totalUnread = chats.reduce((sum, c) => {
+            const lastMsg = chatMap[c.chatId];
+            const lastRead = c.lastReadMessageId;
+            if (lastMsg == null || lastRead == null)
+                return sum;
+            return sum + Math.max(lastMsg - lastRead, 0);
+        }, 0);
         return res.status(200).json({
             token,
             user: {
@@ -65,6 +91,9 @@ export async function loginUser(req, res) {
                 username: user.username,
                 name: user.name,
                 profilePicture: user.profilePicture,
+                notifications: {
+                    messages: totalUnread,
+                },
             },
         });
     }
@@ -101,12 +130,12 @@ export async function welcome(req, res) {
         acc[chat.id] = chat.lastMessageId;
         return acc;
     }, {});
-    const totalUnread = chats.reduce((sum, c) => {
+    const unreadChatsCount = chats.reduce((count, c) => {
         const lastMsg = chatMap[c.chatId];
         const lastRead = c.lastReadMessageId;
         if (lastMsg == null || lastRead == null)
-            return sum;
-        return sum + Math.max(lastMsg - lastRead, 0);
+            return count;
+        return count + (lastMsg - lastRead > 0 ? 1 : 0);
     }, 0);
     return res.status(200).json({
         userId: user.id,
@@ -114,7 +143,7 @@ export async function welcome(req, res) {
         profilePicture: user.profilePicture,
         name: user.name,
         notifications: {
-            messages: totalUnread,
+            messages: unreadChatsCount,
         },
     });
 }

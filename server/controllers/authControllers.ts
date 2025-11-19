@@ -72,6 +72,36 @@ export async function loginUser(req: Request, res: Response) {
       expiresIn: "1h",
     });
 
+    const chats = await prisma.userChatRead.findMany({
+      where: { userId: user.id },
+      select: {
+        chatId: true,
+        lastReadMessageId: true,
+      },
+    });
+
+    const chatIds = chats.map((c) => c.chatId);
+
+    const chatData = await prisma.chat.findMany({
+      where: { id: { in: chatIds } },
+      select: {
+        id: true,
+        lastMessageId: true,
+      },
+    });
+
+    const chatMap = chatData.reduce((acc, chat) => {
+      acc[chat.id] = chat.lastMessageId;
+      return acc;
+    }, {} as Record<number, number | null>);
+
+    const totalUnread = chats.reduce((sum, c) => {
+      const lastMsg = chatMap[c.chatId];
+      const lastRead = c.lastReadMessageId;
+      if (lastMsg == null || lastRead == null) return sum;
+      return sum + Math.max(lastMsg - lastRead, 0);
+    }, 0);
+
     return res.status(200).json({
       token,
       user: {
@@ -79,6 +109,9 @@ export async function loginUser(req: Request, res: Response) {
         username: user.username,
         name: user.name,
         profilePicture: user.profilePicture,
+        notifications: {
+          messages: totalUnread,
+        },
       },
     });
   } catch (err) {
@@ -120,11 +153,11 @@ export async function welcome(req: Request, res: Response) {
     return acc;
   }, {} as Record<number, number | null>);
 
-  const totalUnread = chats.reduce((sum, c) => {
+  const unreadChatsCount = chats.reduce((count, c) => {
     const lastMsg = chatMap[c.chatId];
     const lastRead = c.lastReadMessageId;
-    if (lastMsg == null || lastRead == null) return sum;
-    return sum + Math.max(lastMsg - lastRead, 0);
+    if (lastMsg == null || lastRead == null) return count;
+    return count + (lastMsg - lastRead > 0 ? 1 : 0);
   }, 0);
 
   return res.status(200).json({
@@ -133,7 +166,7 @@ export async function welcome(req: Request, res: Response) {
     profilePicture: user.profilePicture,
     name: user.name,
     notifications: {
-      messages: totalUnread,
+      messages: unreadChatsCount,
     },
   });
 }

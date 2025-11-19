@@ -56,7 +56,7 @@ export async function addMessage(message) {
             },
         });
         if (!chat)
-            return "no chat found";
+            return "No chat found";
         const newMessage = await prisma.message.create({
             data: {
                 senderId: senderUser.id,
@@ -73,6 +73,10 @@ export async function addMessage(message) {
         await prisma.chat.update({
             where: { id: chat.id },
             data: { lastMessage: { connect: { id: newMessage.id } } },
+        });
+        await prisma.userChatRead.update({
+            where: { userId_chatId: { userId: senderUser.id, chatId: chat.id } },
+            data: { lastReadMessageId: newMessage.id },
         });
         return newMessage;
     }
