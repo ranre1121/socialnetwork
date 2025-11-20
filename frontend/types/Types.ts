@@ -59,6 +59,7 @@ type MessageData = {
   lastRead: number;
   companionLastRead: number;
   messages: Message[];
+  totalMessages: number;
 };
 
 type Conversation = {

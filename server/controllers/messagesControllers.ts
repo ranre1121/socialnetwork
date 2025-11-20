@@ -170,6 +170,7 @@ export async function getMessages(req: Request, res: Response) {
       lastRead: chatRecord?.messagesRead || 0,
       companionLastRead: companionChatRecord?.messagesRead || 0,
       messages: formattedMessages,
+      totalMessages: chat.totalMessages,
     };
 
     res.status(200).json(formatted);

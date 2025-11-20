@@ -14,6 +14,8 @@ const Chat = () => {
   const { username } = useParams<{ username: string }>();
   const [firstMount, setFirstMount] = useState(false);
   const [newMessage, setNewMessage] = useState("");
+  const [totalMessages, setTotalMessages] = useState(0);
+  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [hasMore, setHasMore] = useState(true);
@@ -81,18 +83,6 @@ const Chat = () => {
     fetchMessages("");
   }, [user, username]);
 
-  //scrolling on mount  to last read message
-  useEffect(() => {
-    if (!initialLastRead) return;
-
-    const el = messageRefs.current[initialLastRead];
-    console.log(messageRefs.current[initialLastRead]);
-    if (!el) return;
-
-    el.scrollIntoView({ behavior: "auto", block: "center" });
-    setFirstMount(true);
-  }, [initialLastRead, messages]);
-
   //socket connection
   useEffect(() => {
     if (!user || socketRef.current) return;
@@ -108,6 +98,19 @@ const Chat = () => {
       socketRef.current = null;
     };
   }, [user]);
+
+  //scrolling on mount to last read message
+  useEffect(() => {
+    if (!initialLastRead) return;
+    if (firstMount) return;
+
+    const el = messageRefs.current[initialLastRead];
+    console.log(messageRefs.current[initialLastRead]);
+    if (!el) return;
+
+    el.scrollIntoView({ behavior: "auto", block: "center" });
+    setFirstMount(true);
+  }, [initialLastRead, messages]);
 
   //intersection observers for reading handling
   useEffect(() => {
@@ -133,7 +136,7 @@ const Chat = () => {
                 messageCount: messageCount,
                 username: user.username,
               });
-              console.log(messageCount);
+
               setLastRead(messageCount);
             }
 
@@ -180,12 +183,17 @@ const Chat = () => {
 
     socketRef.current.emit("private_message", pendingMessage);
 
-    const container = scrollRef.current;
-    if (container) {
-      container.scrollTop = container.scrollHeight;
-    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+      });
+    });
 
     setNewMessage("");
+    setSent(true);
+    setLastRead(totalMessages + 1);
   };
 
   //fetching logic
@@ -242,6 +250,7 @@ const Chat = () => {
         setInitialLastRead(data.lastRead);
         setChatId(data.messages[0].chatId);
         setCompanionLastRead(data.companionLastRead);
+        setTotalMessages(data.totalMessages);
 
         return merged;
       });
@@ -301,6 +310,7 @@ const Chat = () => {
         return updated;
       });
     }
+    setTotalMessages((prev) => prev + 1);
   };
 
   return (
@@ -343,14 +353,8 @@ const Chat = () => {
                   </p>
                 </div>
 
-                {messages[date].map((msg, idx, arr) => {
+                {messages[date].map((msg, idx) => {
                   const isLast = idx === 0;
-                  const showNewMessageBanner =
-                    msg.countId === initialLastRead &&
-                    !(
-                      date === Object.keys(messages).at(-1) &&
-                      idx === messages[date].length - 1
-                    );
 
                   return (
                     <div key={idx}>
@@ -400,11 +404,13 @@ const Chat = () => {
                         </span>
                       </div>
 
-                      {showNewMessageBanner && (
-                        <div className="w-full text-center my-2 py-1 bg-yellow-200 dark:bg-yellow-600 text-black dark:text-white rounded-md">
-                          New messages
-                        </div>
-                      )}
+                      {msg.countId === initialLastRead &&
+                        msg.countId !== totalMessages &&
+                        !sent && (
+                          <div className="w-full text-center my-2 py-1 bg-yellow-200 dark:bg-yellow-600 text-black dark:text-white rounded-md">
+                            New messages
+                          </div>
+                        )}
                     </div>
                   );
                 })}
@@ -426,7 +432,11 @@ const Chat = () => {
             onClick={sendMessage}
             className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
-            {lastRead}
+            lastRead:{lastRead}
+            <br></br>
+            lastCompanionRead:{companionLastRead}
+            <br></br>
+            totalMessages:{totalMessages}
           </button>
         </div>
       </div>
