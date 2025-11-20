@@ -18,6 +18,7 @@ const Chat = () => {
   const [hasMore, setHasMore] = useState(true);
   const [lastRead, setLastRead] = useState<number>(0);
   const [companionLastRead, setCompanionLastRead] = useState(0);
+  const [initialLastRead, setInitialLastRead] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const [chatId, setChatId] = useState<number | null>(null);
@@ -48,29 +49,29 @@ const Chat = () => {
   }, [messages, hasMore]);
 
   //set user handling
-  useEffect(() => {
-    const allMessages = Object.values(messages).flat();
-    if (!allMessages.length) return;
+  // useEffect(() => {
+  //   const allMessages = Object.values(messages).flat();
+  //   if (!allMessages.length) return;
 
-    const latestMessage = allMessages[0];
-    const latestCountId = latestMessage?.countId;
+  //   const latestMessage = allMessages[0];
+  //   const latestCountId = latestMessage?.countId;
 
-    if (!latestCountId) return;
+  //   if (!latestCountId) return;
 
-    if (lastRead >= latestCountId) {
-      setUser((prev) => {
-        if (!prev) return prev;
+  //   if (lastRead >= latestCountId) {
+  //     setUser((prev) => {
+  //       if (!prev) return prev;
 
-        return {
-          ...prev,
-          notifications: {
-            ...prev.notifications,
-            messages: Math.max((prev.notifications?.messages ?? 0) - 1, 0),
-          },
-        };
-      });
-    }
-  }, [lastRead]);
+  //       return {
+  //         ...prev,
+  //         notifications: {
+  //           ...prev.notifications,
+  //           messages: Math.max((prev.notifications?.messages ?? 0) - 1, 0),
+  //         },
+  //       };
+  //     });
+  //   }
+  // }, [lastRead]);
 
   //initial fetch
   useEffect(() => {
@@ -81,17 +82,17 @@ const Chat = () => {
 
   //scrolling on mount  to last read message
   useEffect(() => {
-    if (!lastRead) return;
-    console.log(lastRead);
+    if (!initialLastRead) return;
+
     const id = setTimeout(() => {
-      const el = messageRefs.current[lastRead];
+      const el = messageRefs.current[initialLastRead];
       if (el) {
         el.scrollIntoView({ behavior: "auto", block: "center" });
       }
     }, 50);
 
     return () => clearTimeout(id);
-  }, [lastRead, messages]);
+  }, [initialLastRead]);
 
   //socket connection
   useEffect(() => {
@@ -133,6 +134,7 @@ const Chat = () => {
                 messageCount: messageCount,
                 username: user.username,
               });
+              console.log(messageCount);
               setLastRead(messageCount);
             }
 
@@ -148,7 +150,7 @@ const Chat = () => {
     });
 
     return () => observer.disconnect();
-  }, [messages, chatId]);
+  }, [messages, chatId, lastRead]);
 
   //send message
   const sendMessage = () => {
@@ -238,6 +240,7 @@ const Chat = () => {
         }
 
         setLastRead(data.lastRead);
+        setInitialLastRead(data.lastRead);
         setChatId(data.messages[0].chatId);
         setCompanionLastRead(data.companionLastRead);
 
@@ -368,6 +371,7 @@ const Chat = () => {
                           <p className="whitespace-pre-line wrap-break-word text-left">
                             {msg.content}
                           </p>
+                          <p>{msg.countId}</p>
 
                           <span className="flex gap-3 items-center">
                             <p
@@ -416,7 +420,7 @@ const Chat = () => {
             onClick={sendMessage}
             className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
-            {lastRead}
+            {companionLastRead}
           </button>
         </div>
       </div>
