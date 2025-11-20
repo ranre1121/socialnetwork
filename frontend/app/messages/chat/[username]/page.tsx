@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "@/context/UserContext";
 import type { MessageData, Message } from "@/types/Types";
@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 const Chat = () => {
   const { user, setUser } = useUser();
   const { username } = useParams<{ username: string }>();
+  const [firstMount, setFirstMount] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
@@ -84,15 +85,13 @@ const Chat = () => {
   useEffect(() => {
     if (!initialLastRead) return;
 
-    const id = setTimeout(() => {
-      const el = messageRefs.current[initialLastRead];
-      if (el) {
-        el.scrollIntoView({ behavior: "auto", block: "center" });
-      }
-    }, 50);
+    const el = messageRefs.current[initialLastRead];
+    console.log(messageRefs.current[initialLastRead]);
+    if (!el) return;
 
-    return () => clearTimeout(id);
-  }, [initialLastRead]);
+    el.scrollIntoView({ behavior: "auto", block: "center" });
+    setFirstMount(true);
+  }, [initialLastRead, messages]);
 
   //socket connection
   useEffect(() => {
@@ -183,7 +182,7 @@ const Chat = () => {
 
     const container = scrollRef.current;
     if (container) {
-      container.scrollTop = 0;
+      container.scrollTop = container.scrollHeight;
     }
 
     setNewMessage("");
@@ -298,14 +297,11 @@ const Chat = () => {
       setMessages((prev) => {
         const updated = { ...prev };
         if (!updated[key]) updated[key] = [];
-        updated[key] = [...updated[key], message].sort(
-          (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
-        );
+        updated[key] = [...updated[key], message];
         return updated;
       });
     }
   };
-  //
 
   return (
     <div className="flex flex-col h-screen w-full items-center justify-center py-10">
@@ -329,7 +325,7 @@ const Chat = () => {
           </h2>
         </div>
         <div
-          className="flex-1 overflow-y-auto flex flex-col-reverse gap-3 px-5 py-3"
+          className="flex-1 overflow-y-auto flex flex-col gap-3 px-5 py-3"
           ref={scrollRef}
         >
           {loading ? (
@@ -339,71 +335,68 @@ const Chat = () => {
               No messages yet
             </div>
           ) : (
-            Object.keys(messages)
-              .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
-              .map((date) => (
-                <div key={date} className="flex flex-col gap-2">
-                  <div className=" sticky top-0 my-2 flex w-full justify-center">
-                    <p className="dark:bg-gray-900 dark:text-white bg-gray-200 text-black rounded-md px-2">
-                      {formatMessageDate(date)}
-                    </p>
-                  </div>
-
-                  {messages[date].map((msg, idx) => {
-                    const isLast = idx === 0;
-                    return (
-                      <div key={idx}>
-                        <div
-                          ref={(el) => {
-                            if (el) messageRefs.current[msg.countId] = el;
-                            else delete messageRefs.current[msg.countId];
-
-                            if (isLast) lastMessageRef.current = el;
-                          }}
-                          data-sent-at={isLast ? msg.sentAt : undefined}
-                          data-message-count={msg.countId}
-                          className={`p-3 rounded-2xl w-fit max-w-[70%] ${
-                            msg.status === "sent" || msg.status === "pending"
-                              ? "ml-auto bg-blue-600 text-white"
-                              : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
-                          }`}
-                        >
-                          <p className="whitespace-pre-line wrap-break-word text-left">
-                            {msg.content}
-                          </p>
-                          <p>{msg.countId}</p>
-
-                          <span className="flex gap-3 items-center">
-                            <p
-                              className={`text-sm text-gray-300 mt-1 ${
-                                msg.status === "sent" ||
-                                msg.status === "pending"
-                                  ? "ml-auto"
-                                  : "mr-auto"
-                              }`}
-                            >
-                              {new Date(msg.sentAt).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
-                            </p>
-
-                            {msg.status === "pending" ? (
-                              <Clock3 className="mt-1 size-4 text-gray-300" />
-                            ) : msg.status === "sent" &&
-                              companionLastRead < msg.countId ? (
-                              <Check className="mt-1 size-4 text-gray-300" />
-                            ) : msg.status === "sent" &&
-                              companionLastRead >= msg.countId ? (
-                              <CheckCheck className="mt-1 size-4 text-gray-300" />
-                            ) : null}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
+            Object.keys(messages).map((date) => (
+              <div key={date} className="flex flex-col gap-2">
+                <div className=" sticky top-0 my-2 flex w-full justify-center">
+                  <p className="dark:bg-gray-900 dark:text-white bg-gray-200 text-black rounded-md px-2">
+                    {formatMessageDate(date)}
+                  </p>
                 </div>
-              ))
+
+                {messages[date].map((msg, idx) => {
+                  const isLast = idx === 0;
+                  return (
+                    <div key={idx}>
+                      <div
+                        ref={(el) => {
+                          if (el) messageRefs.current[msg.countId] = el;
+                          else delete messageRefs.current[msg.countId];
+
+                          if (isLast) lastMessageRef.current = el;
+                        }}
+                        data-sent-at={isLast ? msg.sentAt : undefined}
+                        data-message-count={msg.countId}
+                        className={`p-3 rounded-2xl w-fit max-w-[70%] ${
+                          msg.status === "sent" || msg.status === "pending"
+                            ? "ml-auto bg-blue-600 text-white"
+                            : "mr-auto bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+                        }`}
+                      >
+                        <p className="whitespace-pre-line wrap-break-word text-left">
+                          {msg.content}
+                        </p>
+                        <p>{msg.countId}</p>
+
+                        <span className="flex gap-3 items-center">
+                          <p
+                            className={`text-sm text-gray-300 mt-1 ${
+                              msg.status === "sent" || msg.status === "pending"
+                                ? "ml-auto"
+                                : "mr-auto"
+                            }`}
+                          >
+                            {new Date(msg.sentAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+
+                          {msg.status === "pending" ? (
+                            <Clock3 className="mt-1 size-4 text-gray-300" />
+                          ) : msg.status === "sent" &&
+                            companionLastRead < msg.countId ? (
+                            <Check className="mt-1 size-4 text-gray-300" />
+                          ) : msg.status === "sent" &&
+                            companionLastRead >= msg.countId ? (
+                            <CheckCheck className="mt-1 size-4 text-gray-300" />
+                          ) : null}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))
           )}
         </div>
 
@@ -420,7 +413,7 @@ const Chat = () => {
             onClick={sendMessage}
             className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
-            {companionLastRead}
+            {initialLastRead}
           </button>
         </div>
       </div>
