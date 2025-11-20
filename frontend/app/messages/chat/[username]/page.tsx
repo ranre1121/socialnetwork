@@ -343,8 +343,15 @@ const Chat = () => {
                   </p>
                 </div>
 
-                {messages[date].map((msg, idx) => {
+                {messages[date].map((msg, idx, arr) => {
                   const isLast = idx === 0;
+                  const showNewMessageBanner =
+                    msg.countId === initialLastRead &&
+                    !(
+                      date === Object.keys(messages).at(-1) &&
+                      idx === messages[date].length - 1
+                    );
+
                   return (
                     <div key={idx}>
                       <div
@@ -392,6 +399,12 @@ const Chat = () => {
                           ) : null}
                         </span>
                       </div>
+
+                      {showNewMessageBanner && (
+                        <div className="w-full text-center my-2 py-1 bg-yellow-200 dark:bg-yellow-600 text-black dark:text-white rounded-md">
+                          New messages
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -413,7 +426,7 @@ const Chat = () => {
             onClick={sendMessage}
             className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
-            {initialLastRead}
+            {lastRead}
           </button>
         </div>
       </div>
