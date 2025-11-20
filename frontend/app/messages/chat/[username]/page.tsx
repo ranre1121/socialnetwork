@@ -10,7 +10,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 const Chat = () => {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const { username } = useParams<{ username: string }>();
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
@@ -159,6 +159,31 @@ const Chat = () => {
     observer.observe(lastMessage);
     return () => observer.disconnect();
   }, [messages, hasMore]);
+  useEffect(() => {
+    const allMessages = Object.values(messages).flat();
+    if (!allMessages.length) return;
+
+    // sorted oldest → newest
+    const latestMessage = allMessages[0];
+    const latestCountId = latestMessage?.countId;
+
+    if (!latestCountId) return;
+
+    // When user reads a NEW message
+    if (lastRead >= latestCountId) {
+      setUser((prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          notifications: {
+            ...prev.notifications,
+            messages: Math.max((prev.notifications?.messages ?? 0) - 1, 0),
+          },
+        };
+      });
+    }
+  }, [lastRead]);
 
   useEffect(() => {
     if (!user || !username) return;

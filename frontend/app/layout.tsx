@@ -54,6 +54,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("token");
       } else {
         setUser(data);
+        console.log(data);
         router.push(pathname);
       }
     } catch (err) {
