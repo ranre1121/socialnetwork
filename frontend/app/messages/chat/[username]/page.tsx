@@ -25,6 +25,169 @@ const Chat = () => {
   const socketRef = useRef<Socket | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
+  //intersection observers for infinite scroll
+  useEffect(() => {
+    const lastMessage = lastMessageRef.current;
+    if (!lastMessage || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry.isIntersecting) {
+          const date = entry.target.getAttribute("data-sent-at");
+          if (date) {
+            fetchMessages(date);
+          }
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(lastMessage);
+    return () => observer.disconnect();
+  }, [messages, hasMore]);
+
+  //set user handling
+  useEffect(() => {
+    const allMessages = Object.values(messages).flat();
+    if (!allMessages.length) return;
+
+    const latestMessage = allMessages[0];
+    const latestCountId = latestMessage?.countId;
+
+    if (!latestCountId) return;
+
+    if (lastRead >= latestCountId) {
+      setUser((prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          notifications: {
+            ...prev.notifications,
+            messages: Math.max((prev.notifications?.messages ?? 0) - 1, 0),
+          },
+        };
+      });
+    }
+  }, [lastRead]);
+
+  //initial fetch
+  useEffect(() => {
+    if (!user || !username) return;
+    setHasMore(true);
+    fetchMessages("");
+  }, [user, username]);
+
+  //scrolling on mount  to last read message
+  useEffect(() => {
+    if (!lastRead) return;
+    console.log(lastRead);
+    const id = setTimeout(() => {
+      const el = messageRefs.current[lastRead];
+      if (el) {
+        el.scrollIntoView({ behavior: "auto", block: "center" });
+      }
+    }, 50);
+
+    return () => clearTimeout(id);
+  }, [lastRead, messages]);
+
+  //socket connection
+  useEffect(() => {
+    if (!user || socketRef.current) return;
+    const socket = io("http://localhost:8000");
+    socketRef.current = socket;
+    socket.on("connect", () => socket.emit("join", user.username));
+    socket.on("private_message", handlePrivateMessage);
+    socket.on("read_message", handleReadMessage);
+
+    return () => {
+      socket.off("private_message", handlePrivateMessage);
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, [user]);
+
+  //intersection observers for reading handling
+  useEffect(() => {
+    if (!user || !chatId) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const messageCount = Number(
+              entry.target.getAttribute("data-message-count")
+            );
+            if (!messageCount) return;
+
+            const message = Object.values(messages)
+              .flat()
+              .find((m) => m.countId === messageCount);
+            if (!message || message.status === "sent") return;
+
+            if (messageCount > lastRead) {
+              socketRef.current?.emit("read_message", {
+                chatId: chatId,
+                messageCount: messageCount,
+                username: user.username,
+              });
+              setLastRead(messageCount);
+            }
+
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    Object.values(messageRefs.current).forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, [messages, chatId]);
+
+  //send message
+  const sendMessage = () => {
+    if (!newMessage.trim() || !user || !socketRef.current) return;
+
+    const pendingMessage: Message = {
+      tempId: crypto.randomUUID(),
+      id: Date.now(),
+      chatId: 0,
+      content: newMessage.trim(),
+      senderUsername: user.username,
+      receiverUsername: username,
+      sentAt: new Date().toISOString(),
+      status: "pending",
+    } as any;
+
+    const date = new Date(pendingMessage.sentAt);
+    const key = `${date.getFullYear()}:${
+      date.getMonth() + 1
+    }:${date.getDate()}`;
+
+    setMessages((prev) => {
+      const updated = { ...prev };
+      if (!updated[key]) updated[key] = [];
+      updated[key] = [...updated[key], pendingMessage];
+      return updated;
+    });
+
+    socketRef.current.emit("private_message", pendingMessage);
+
+    const container = scrollRef.current;
+    if (container) {
+      container.scrollTop = 0;
+    }
+
+    setNewMessage("");
+  };
+
+  //fetching logic
   async function fetchMessages(date: string) {
     const container = scrollRef.current;
     const prevScrollHeight = container?.scrollHeight || 0;
@@ -95,6 +258,7 @@ const Chat = () => {
     }
   }
 
+  //socket event handlers
   const handleReadMessage = (messageId: number) => {
     setCompanionLastRead(messageId);
   };
@@ -138,166 +302,7 @@ const Chat = () => {
       });
     }
   };
-
-  useEffect(() => {
-    const lastMessage = lastMessageRef.current;
-    if (!lastMessage || !hasMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry.isIntersecting) {
-          const date = entry.target.getAttribute("data-sent-at");
-          if (date) {
-            fetchMessages(date);
-          }
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(lastMessage);
-    return () => observer.disconnect();
-  }, [messages, hasMore]);
-  useEffect(() => {
-    const allMessages = Object.values(messages).flat();
-    if (!allMessages.length) return;
-
-    // sorted oldest → newest
-    const latestMessage = allMessages[0];
-    const latestCountId = latestMessage?.countId;
-
-    if (!latestCountId) return;
-
-    // When user reads a NEW message
-    if (lastRead >= latestCountId) {
-      setUser((prev) => {
-        if (!prev) return prev;
-
-        return {
-          ...prev,
-          notifications: {
-            ...prev.notifications,
-            messages: Math.max((prev.notifications?.messages ?? 0) - 1, 0),
-          },
-        };
-      });
-    }
-  }, [lastRead]);
-
-  useEffect(() => {
-    if (!user || !username) return;
-    setHasMore(true);
-    fetchMessages("");
-  }, [user, username]);
-
-  useEffect(() => {
-    if (!lastRead) return;
-
-    let attempts = 0;
-
-    const tryScroll = () => {
-      const el = messageRefs.current[lastRead];
-      if (el) {
-        el.scrollIntoView({ behavior: "auto", block: "center" });
-      } else if (attempts < 10) {
-        attempts++;
-        requestAnimationFrame(tryScroll);
-      }
-    };
-
-    requestAnimationFrame(tryScroll);
-  }, [messages]);
-
-  useEffect(() => {
-    if (!user || socketRef.current) return;
-    const socket = io("http://localhost:8000");
-    socketRef.current = socket;
-    socket.on("connect", () => socket.emit("join", user.username));
-    socket.on("private_message", handlePrivateMessage);
-    socket.on("read_message", handleReadMessage);
-
-    return () => {
-      socket.off("private_message", handlePrivateMessage);
-      socket.disconnect();
-      socketRef.current = null;
-    };
-  }, [user]);
-
-  const sendMessage = () => {
-    if (!newMessage.trim() || !user || !socketRef.current) return;
-
-    const pendingMessage: Message = {
-      tempId: crypto.randomUUID(),
-      id: Date.now(),
-      chatId: 0,
-      content: newMessage.trim(),
-      senderUsername: user.username,
-      receiverUsername: username,
-      sentAt: new Date().toISOString(),
-      status: "pending",
-    } as any;
-
-    const date = new Date(pendingMessage.sentAt);
-    const key = `${date.getFullYear()}:${
-      date.getMonth() + 1
-    }:${date.getDate()}`;
-
-    setMessages((prev) => {
-      const updated = { ...prev };
-      if (!updated[key]) updated[key] = [];
-      updated[key] = [...updated[key], pendingMessage];
-      return updated;
-    });
-
-    socketRef.current.emit("private_message", pendingMessage);
-
-    const container = scrollRef.current;
-    if (container) {
-      container.scrollTop = 0;
-    }
-
-    setNewMessage("");
-  };
-  useEffect(() => {
-    if (!user || !chatId) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const messageCount = Number(
-              entry.target.getAttribute("data-message-count")
-            );
-            if (!messageCount) return;
-
-            const message = Object.values(messages)
-              .flat()
-              .find((m) => m.countId === messageCount);
-            if (!message || message.status === "sent") return;
-
-            if (messageCount > lastRead) {
-              socketRef.current?.emit("read_message", {
-                chatId: chatId,
-                messageCount: messageCount,
-                username: user.username,
-              });
-              setLastRead(messageCount);
-            }
-
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    Object.values(messageRefs.current).forEach((el) => {
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, [messages, chatId]);
+  //
 
   return (
     <div className="flex flex-col h-screen w-full items-center justify-center py-10">
@@ -347,8 +352,8 @@ const Chat = () => {
                       <div key={idx}>
                         <div
                           ref={(el) => {
-                            if (el) messageRefs.current[msg.id] = el;
-                            else delete messageRefs.current[msg.id];
+                            if (el) messageRefs.current[msg.countId] = el;
+                            else delete messageRefs.current[msg.countId];
 
                             if (isLast) lastMessageRef.current = el;
                           }}
@@ -411,7 +416,7 @@ const Chat = () => {
             onClick={sendMessage}
             className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
-            Send
+            {lastRead}
           </button>
         </div>
       </div>
