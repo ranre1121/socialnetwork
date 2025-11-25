@@ -267,13 +267,13 @@ const Chat = () => {
 
       // ------------------------
 
-      requestAnimationFrame(() => {
-        if (container) {
-          const newScrollHeight = container.scrollHeight;
-          const diff = newScrollHeight - prevScrollHeight;
-          container.scrollTop += diff;
-        }
-      });
+      // requestAnimationFrame(() => {
+      //   if (container) {
+      //     const newScrollHeight = container.scrollHeight;
+      //     const diff = newScrollHeight - prevScrollHeight;
+      //     container.scrollTop += diff;
+      //   }
+      // });
     } catch (err) {
       console.error(err);
     } finally {
