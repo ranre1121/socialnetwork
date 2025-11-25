@@ -110,11 +110,12 @@ const Chat = () => {
 
     el.scrollIntoView({ behavior: "auto", block: "center" });
     setFirstMount(true);
-  }, [initialLastRead, messages]);
+  }, [firstMount, initialLastRead, messages]);
 
   //intersection observers for reading handling
   useEffect(() => {
     if (!user || !chatId) return;
+    if (!firstMount) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -131,13 +132,16 @@ const Chat = () => {
             if (!message || message.status === "sent") return;
 
             if (messageCount > lastRead) {
+              console.log(`${messageCount} is greater than ${lastRead}`);
               socketRef.current?.emit("read_message", {
                 chatId: chatId,
                 messageCount: messageCount,
                 username: user.username,
               });
-              console.log(messageCount);
+
               setLastRead(messageCount);
+              console.log("Set message in intersection observer");
+              console.log(messageCount);
             }
 
             observer.unobserve(entry.target);
@@ -152,7 +156,7 @@ const Chat = () => {
     });
 
     return () => observer.disconnect();
-  }, [messages, chatId, lastRead]);
+  }, [messages, chatId, firstMount, lastRead]);
 
   //send message
   const sendMessage = () => {
@@ -197,6 +201,7 @@ const Chat = () => {
   };
 
   //fetching logic
+  //fetching logic
   async function fetchMessages(date: string) {
     const container = scrollRef.current;
     const prevScrollHeight = container?.scrollHeight || 0;
@@ -229,6 +234,9 @@ const Chat = () => {
         grouped[key].push(m);
       }
 
+      // --- THIS IS THE FIX ---
+
+      // 1. Update the messages state
       setMessages((prev) => {
         const merged = { ...prev };
 
@@ -245,15 +253,19 @@ const Chat = () => {
             );
           }
         }
-
-        setLastRead(data.lastRead);
-        setInitialLastRead(data.lastRead);
-        setChatId(data.messages[0].chatId);
-        setCompanionLastRead(data.companionLastRead);
-        setTotalMessages(data.totalMessages);
-
         return merged;
       });
+
+      // 2. Set all other state *afterwards*.
+      // React will batch these with the setMessages update.
+      setLastRead(data.lastRead);
+      console.log("set last read in fetch");
+      setInitialLastRead(data.lastRead);
+      setChatId(data.messages[0].chatId);
+      setCompanionLastRead(data.companionLastRead);
+      setTotalMessages(data.totalMessages);
+
+      // ------------------------
 
       requestAnimationFrame(() => {
         if (container) {
