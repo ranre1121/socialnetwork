@@ -6,6 +6,7 @@ import type { MessageData, Message } from "@/types/Types";
 import { formatMessageDate } from "@/utils/utils";
 import { ArrowLeft, CheckCheck, Clock3 } from "lucide-react";
 import { Check } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
@@ -100,12 +101,11 @@ const Chat = () => {
   }, [user]);
 
   //scrolling on mount to last read message
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!initialLastRead) return;
     if (firstMount) return;
 
     const el = messageRefs.current[initialLastRead];
-    console.log(messageRefs.current[initialLastRead]);
     if (!el) return;
 
     el.scrollIntoView({ behavior: "auto", block: "center" });
@@ -125,6 +125,7 @@ const Chat = () => {
               entry.target.getAttribute("data-message-count")
             );
             if (!messageCount) return;
+            console.log(messageCount);
 
             const message = Object.values(messages)
               .flat()
@@ -140,8 +141,6 @@ const Chat = () => {
               });
 
               setLastRead(messageCount);
-              console.log("Set message in intersection observer");
-              console.log(messageCount);
             }
 
             observer.unobserve(entry.target);
@@ -234,9 +233,6 @@ const Chat = () => {
         grouped[key].push(m);
       }
 
-      // --- THIS IS THE FIX ---
-
-      // 1. Update the messages state
       setMessages((prev) => {
         const merged = { ...prev };
 
@@ -256,24 +252,22 @@ const Chat = () => {
         return merged;
       });
 
-      // 2. Set all other state *afterwards*.
-      // React will batch these with the setMessages update.
       setLastRead(data.lastRead);
-      console.log("set last read in fetch");
+
       setInitialLastRead(data.lastRead);
       setChatId(data.messages[0].chatId);
       setCompanionLastRead(data.companionLastRead);
       setTotalMessages(data.totalMessages);
 
-      // ------------------------
-
-      // requestAnimationFrame(() => {
-      //   if (container) {
-      //     const newScrollHeight = container.scrollHeight;
-      //     const diff = newScrollHeight - prevScrollHeight;
-      //     container.scrollTop += diff;
-      //   }
-      // });
+      if (firstMount) {
+        requestAnimationFrame(() => {
+          if (container) {
+            const newScrollHeight = container.scrollHeight;
+            const diff = newScrollHeight - prevScrollHeight;
+            container.scrollTop += diff;
+          }
+        });
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -288,7 +282,6 @@ const Chat = () => {
 
   const handlePrivateMessage = (message: Message) => {
     if (!message) return;
-    console.log(message);
 
     if (message.sender?.username === user?.username) {
       setMessages((prev) => {
@@ -388,7 +381,6 @@ const Chat = () => {
                         <p className="whitespace-pre-line wrap-break-word text-left">
                           {msg.content}
                         </p>
-                        <p>{msg.countId}</p>
 
                         <span className="flex gap-3 items-center">
                           <p
@@ -418,6 +410,7 @@ const Chat = () => {
 
                       {msg.countId === initialLastRead &&
                         msg.countId !== totalMessages &&
+                        lastRead !== totalMessages &&
                         !sent && (
                           <div className="w-full text-center my-2 py-1 bg-gray-300 dark:bg-gray-600 text-black dark:text-white rounded-md">
                             New messages
@@ -431,7 +424,7 @@ const Chat = () => {
           )}
         </div>
 
-        <div className="flex items-center border-t pt-3 pb-4 px-5 backdrop-blur">
+        <div className="flex items-center relative border-t border-gray-300 dark:border-gray-600 pt-3 pb-4 px-5 backdrop-blur">
           <input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
@@ -444,12 +437,18 @@ const Chat = () => {
             onClick={sendMessage}
             className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
-            lastRead:{lastRead}
-            <br></br>
-            lastCompanionRead:{companionLastRead}
-            <br></br>
-            totalMessages:{totalMessages}
+            Send
           </button>
+          {totalMessages > lastRead && (
+            <>
+              <div className="absolute -top-15 right-5 bg-gray-300 dark:bg-gray-600 border border-gray-500 size-10 cursor-pointer flex items-center justify-center rounded-full">
+                <ChevronDown />
+                <div className="absolute flex items-center justify-center size-6 text-xs text-white bg-blue-400 -top-3 rounded-full">
+                  {totalMessages - lastRead}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

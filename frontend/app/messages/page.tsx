@@ -50,7 +50,7 @@ export default function Messages() {
 
                     <div className="flex ml-auto items-center text-sm text-gray-500 dark:text-gray-300">
                       {(c.unreadMessages ?? 0) > 0 && (
-                        <div className="ml-auto bg-red-500 mr-5 rounded-full font-semibold w-6 h-6 text-xs flex items-center justify-center">
+                        <div className="ml-auto bg-red-500 mr-5 text-white rounded-full font-semibold w-6 h-6 text-xs flex items-center justify-center">
                           {c.unreadMessages ?? 0}
                         </div>
                       )}
