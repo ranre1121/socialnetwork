@@ -136,7 +136,7 @@ const Chat = () => {
                 messageCount: messageCount,
                 username: user.username,
               });
-
+              console.log(messageCount);
               setLastRead(messageCount);
             }
 
@@ -380,7 +380,7 @@ const Chat = () => {
 
                         <span className="flex gap-3 items-center">
                           <p
-                            className={`text-sm text-gray-300 mt-1 ${
+                            className={`text-sm dark:text-gray-300 mt-1 ${
                               msg.status === "sent" || msg.status === "pending"
                                 ? "ml-auto"
                                 : "mr-auto"
@@ -407,7 +407,7 @@ const Chat = () => {
                       {msg.countId === initialLastRead &&
                         msg.countId !== totalMessages &&
                         !sent && (
-                          <div className="w-full text-center my-2 py-1 bg-yellow-200 dark:bg-yellow-600 text-black dark:text-white rounded-md">
+                          <div className="w-full text-center my-2 py-1 bg-gray-300 dark:bg-gray-600 text-black dark:text-white rounded-md">
                             New messages
                           </div>
                         )}
