@@ -125,7 +125,6 @@ const Chat = () => {
               entry.target.getAttribute("data-message-count")
             );
             if (!messageCount) return;
-            console.log(messageCount);
 
             const message = Object.values(messages)
               .flat()
@@ -133,7 +132,6 @@ const Chat = () => {
             if (!message || message.status === "sent") return;
 
             if (messageCount > lastRead) {
-              console.log(`${messageCount} is greater than ${lastRead}`);
               socketRef.current?.emit("read_message", {
                 chatId: chatId,
                 messageCount: messageCount,
@@ -410,7 +408,6 @@ const Chat = () => {
 
                       {msg.countId === initialLastRead &&
                         msg.countId !== totalMessages &&
-                        lastRead !== totalMessages &&
                         !sent && (
                           <div className="w-full text-center my-2 py-1 bg-gray-300 dark:bg-gray-600 text-black dark:text-white rounded-md">
                             New messages
