@@ -16,7 +16,7 @@ const Me = () => {
   return (
     <div className="flex h-full min-h-screen w-screen py-10 bg-gray-50 dark:bg-gray-900 text-black dark:text-white">
       <div className="flex flex-1 flex-col items-center justify-start gap-5">
-        <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 border border-gray-200 dark:border-gray-700">
+        <div className="w-[850px] bg-white dark:bg-gray-800 rounded-2xl shadow-md p-6 flex flex-col gap-4 ">
           <h1 className="text-xl font-semibold">Create a Post</h1>
 
           <textarea
@@ -41,7 +41,7 @@ const Me = () => {
           </div>
         </div>
 
-        <div className="w-[850px] h-[550px] bg-white relative dark:bg-gray-800 rounded-2xl shadow-md border border-gray-200 dark:border-gray-700 overflow-y-auto">
+        <div className="w-[850px] h-full bg-white relative dark:bg-gray-800 rounded-2xl shadow-md  overflow-y-auto">
           <div className="sticky top-0 z-10 w-full rounded-t-2xl dark:bg-gray-800 py-3 px-6 border-b border-gray-700">
             <h1 className="text-xl font-semibold">Posts</h1>
           </div>

@@ -138,6 +138,7 @@ const Chat = () => {
                 messageCount: messageCount,
                 username: user.username,
               });
+              console.log(messageCount);
 
               setLastRead(messageCount);
             }
@@ -196,6 +197,7 @@ const Chat = () => {
     setNewMessage("");
     setSent(true);
     setLastRead(totalMessages + 1);
+    console.log(`send message emitted`);
   };
 
   //fetching logic
@@ -379,6 +381,8 @@ const Chat = () => {
                       >
                         <p className="whitespace-pre-line wrap-break-word text-left">
                           {msg.content}
+                          <br></br>
+                          {msg.countId}
                         </p>
 
                         <span className="flex gap-3 items-center">
