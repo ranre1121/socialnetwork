@@ -102,10 +102,10 @@ const Chat = () => {
 
   //scrolling on mount to last read message
   useLayoutEffect(() => {
-    if (!initialLastRead) return;
+    if (!initialLastRead && initialLastRead !== 0) return;
     if (firstMount) return;
 
-    const el = messageRefs.current[initialLastRead];
+    const el = messageRefs.current[initialLastRead === 0 ? 1 : initialLastRead];
     if (!el) return;
 
     el.scrollIntoView({ behavior: "auto", block: "center" });
@@ -115,6 +115,7 @@ const Chat = () => {
   //intersection observers for reading handling
   useEffect(() => {
     if (!user || !chatId) return;
+
     if (!firstMount) return;
 
     const observer = new IntersectionObserver(
@@ -434,7 +435,7 @@ const Chat = () => {
             onClick={sendMessage}
             className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
-            Send
+            {initialLastRead}
           </button>
           {totalMessages > lastRead && (
             <>
