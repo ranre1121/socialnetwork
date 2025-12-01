@@ -381,8 +381,6 @@ const Chat = () => {
                       >
                         <p className="whitespace-pre-line wrap-break-word text-left">
                           {msg.content}
-                          <br></br>
-                          {msg.countId}
                         </p>
 
                         <span className="flex gap-3 items-center">
