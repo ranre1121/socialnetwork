@@ -11,7 +11,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 const Chat = () => {
-  const { user, setUser } = useUser();
+  const { user } = useUser();
   const { username } = useParams<{ username: string }>();
   const [firstMount, setFirstMount] = useState(false);
   const [newMessage, setNewMessage] = useState("");
