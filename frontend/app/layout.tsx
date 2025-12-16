@@ -1,7 +1,8 @@
 "use client";
 import "./globals.css";
 import { UserProvider } from "@/context/UserContext";
-import { ThemeProvider } from "@/app/theme-provider";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { SocketProvider } from "@/context/SocketContext";
 import Navbar from "@/components/Navbar";
 import { useUser } from "@/context/UserContext";
 import { usePathname, useRouter } from "next/navigation";
@@ -16,9 +17,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <UserProvider>
-          <ThemeProvider>
-            <AppContent>{children}</AppContent>
-          </ThemeProvider>
+          <SocketProvider>
+            <ThemeProvider>
+              <AppContent>{children}</AppContent>
+            </ThemeProvider>
+          </SocketProvider>
         </UserProvider>
       </body>
     </html>

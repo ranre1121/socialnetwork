@@ -116,8 +116,8 @@ const Chat = () => {
   //intersection observers for reading handling
   useEffect(() => {
     if (!user || !chatId) return;
-
     if (!firstMount) return;
+    if (noReadFiring) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -139,7 +139,7 @@ const Chat = () => {
                 messageCount: messageCount,
                 username: user.username,
               });
-              console.log(messageCount);
+
               setLastRead(messageCount);
             }
 
@@ -377,8 +377,6 @@ const Chat = () => {
                       >
                         <p className="whitespace-pre-line wrap-break-word text-left">
                           {msg.content}
-                          <br></br>
-                          {msg.countId}
                         </p>
 
                         <span className="flex gap-3 items-center">

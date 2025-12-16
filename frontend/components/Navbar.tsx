@@ -12,7 +12,7 @@ import {
   Sun,
 } from "lucide-react";
 import { useUser } from "@/context/UserContext";
-import { useTheme } from "@/app/theme-provider";
+import { useTheme } from "@/context/ThemeContext";
 import ImageComponent from "./ImageComponent";
 
 const buttons = [

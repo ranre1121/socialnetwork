@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Moon, Sun } from "lucide-react";
 import { useUser } from "@/context/UserContext";
-import { useTheme } from "../theme-provider";
+import { useTheme } from "@/context/ThemeContext";
 
 const Login = () => {
   const router = useRouter();
