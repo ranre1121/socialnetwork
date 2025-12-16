@@ -138,7 +138,6 @@ const Chat = () => {
                 messageCount: messageCount,
                 username: user.username,
               });
-              console.log(messageCount);
 
               setLastRead(messageCount);
             }
@@ -197,10 +196,8 @@ const Chat = () => {
     setNewMessage("");
     setSent(true);
     setLastRead(totalMessages + 1);
-    console.log(`send message emitted`);
   };
 
-  //fetching logic
   //fetching logic
   async function fetchMessages(date: string) {
     const container = scrollRef.current;
