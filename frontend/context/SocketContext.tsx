@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { useUser } from "@/context/UserContext";
 
@@ -14,29 +14,29 @@ const SocketContext = createContext<SocketContextType>({
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useUser();
-  const socketRef = useRef<Socket | null>(null);
+  const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    if (!user || socketRef.current) return;
+    if (!user) return;
 
-    const socket = io("http://localhost:8000", {
+    const newSocket = io("http://localhost:8000", {
       transports: ["websocket"],
     });
 
-    socketRef.current = socket;
-
-    socket.on("connect", () => {
-      socket.emit("join", user.username);
+    newSocket.on("connect", () => {
+      newSocket.emit("join", user.username);
     });
 
+    setSocket(newSocket);
+
     return () => {
-      socket.disconnect();
-      socketRef.current = null;
+      newSocket.disconnect();
+      setSocket(null);
     };
   }, [user]);
 
   return (
-    <SocketContext.Provider value={{ socket: socketRef.current }}>
+    <SocketContext.Provider value={{ socket }}>
       {children}
     </SocketContext.Provider>
   );

@@ -1,17 +1,18 @@
 "use client";
 import { useEffect, useState, useRef, useLayoutEffect } from "react";
-import { io, Socket } from "socket.io-client";
 import { useUser } from "@/context/UserContext";
 import type { MessageData, Message } from "@/types/Types";
 import { formatMessageDate } from "@/utils/utils";
 import { ArrowLeft, CheckCheck, Clock3 } from "lucide-react";
 import { Check } from "lucide-react";
+import { useSocket } from "@/context/SocketContext";
 import { ChevronDown } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 const Chat = () => {
   const { user } = useUser();
+  const { socket } = useSocket();
   const { username } = useParams<{ username: string }>();
   const [firstMount, setFirstMount] = useState(false);
   const [newMessage, setNewMessage] = useState("");
@@ -27,7 +28,7 @@ const Chat = () => {
   const router = useRouter();
   const [chatId, setChatId] = useState<number | null>(null);
   const messageRefs = useRef<Record<number, HTMLDivElement | null>>({});
-  const socketRef = useRef<Socket | null>(null);
+
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
   const [noReadFiring, setNoReadFiring] = useState(false);
 
@@ -87,19 +88,16 @@ const Chat = () => {
 
   //socket connection
   useEffect(() => {
-    if (!user || socketRef.current) return;
-    const socket = io("http://localhost:8000");
-    socketRef.current = socket;
-    socket.on("connect", () => socket.emit("join", user.username));
+    if (!socket) return;
+
     socket.on("private_message", handlePrivateMessage);
     socket.on("read_message", handleReadMessage);
 
     return () => {
       socket.off("private_message", handlePrivateMessage);
-      socket.disconnect();
-      socketRef.current = null;
+      socket.off("read_message", handleReadMessage);
     };
-  }, [user]);
+  }, [socket]);
 
   //scrolling on mount to last read message
   useLayoutEffect(() => {
@@ -134,7 +132,7 @@ const Chat = () => {
             if (!message || message.status === "sent") return;
 
             if (messageCount > lastRead) {
-              socketRef.current?.emit("read_message", {
+              socket?.emit("read_message", {
                 chatId: chatId,
                 messageCount: messageCount,
                 username: user.username,
@@ -159,7 +157,7 @@ const Chat = () => {
 
   //send message
   const sendMessage = () => {
-    if (!newMessage.trim() || !user || !socketRef.current) return;
+    if (!newMessage.trim() || !user || !socket) return;
 
     const pendingMessage: Message = {
       tempId: crypto.randomUUID(),
@@ -184,7 +182,7 @@ const Chat = () => {
       return updated;
     });
 
-    socketRef.current.emit("private_message", pendingMessage);
+    socket.emit("private_message", pendingMessage);
 
     requestAnimationFrame(() => {
       if (scrollRef.current) {
@@ -433,7 +431,7 @@ const Chat = () => {
             onClick={sendMessage}
             className="ml-3 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
           >
-            {initialLastRead}
+            Send
           </button>
           {totalMessages > lastRead && (
             <>
@@ -446,7 +444,7 @@ const Chat = () => {
                     }
                     setNoReadFiring(true);
                     setLastRead(totalMessages);
-                    socketRef.current?.emit("read_message", {
+                    socket?.emit("read_message", {
                       chatId: chatId,
                       messageCount: totalMessages,
                       username: user?.username,
