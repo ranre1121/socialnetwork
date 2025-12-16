@@ -29,6 +29,7 @@ const Chat = () => {
   const messageRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const socketRef = useRef<Socket | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
+  const [noReadFiring, setNoReadFiring] = useState(false);
 
   //intersection observers for infinite scroll
   useEffect(() => {
@@ -138,7 +139,7 @@ const Chat = () => {
                 messageCount: messageCount,
                 username: user.username,
               });
-
+              console.log(messageCount);
               setLastRead(messageCount);
             }
 
@@ -376,6 +377,8 @@ const Chat = () => {
                       >
                         <p className="whitespace-pre-line wrap-break-word text-left">
                           {msg.content}
+                          <br></br>
+                          {msg.countId}
                         </p>
 
                         <span className="flex gap-3 items-center">
@@ -443,6 +446,14 @@ const Chat = () => {
                       scrollRef.current.scrollTop =
                         scrollRef.current.scrollHeight;
                     }
+                    setNoReadFiring(true);
+                    setLastRead(totalMessages);
+                    socketRef.current?.emit("read_message", {
+                      chatId: chatId,
+                      messageCount: totalMessages,
+                      username: user?.username,
+                    });
+                    setNoReadFiring(false);
                   }}
                 />
                 <div className="absolute flex items-center justify-center size-6 text-xs text-white bg-blue-400 -top-3 rounded-full">

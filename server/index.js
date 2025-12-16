@@ -52,6 +52,7 @@ io.on("connection", (socket) => {
 
   socket.on("read_message", async (payload) => {
     const { chatId, messageCount, username } = payload;
+    console.log(messageCount);
 
     const user = await prisma.user.findUnique({ where: { username } });
     if (!user) return;
@@ -67,7 +68,7 @@ io.on("connection", (socket) => {
 
     if (!message) return;
 
-    await prisma.userChatRead.upsert({
+    const upserted = await prisma.userChatRead.upsert({
       where: {
         userId_chatId: {
           userId: user.id,
@@ -83,6 +84,8 @@ io.on("connection", (socket) => {
         messagesRead: 0,
       },
     });
+
+    console.log(upserted);
 
     io.to(message.sender.username).emit("read_message", messageCount);
   });
