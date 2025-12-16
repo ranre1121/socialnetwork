@@ -186,11 +186,9 @@ const Chat = () => {
     socketRef.current.emit("private_message", pendingMessage);
 
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (scrollRef.current) {
-          scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
-      });
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
     });
 
     setNewMessage("");
@@ -439,7 +437,14 @@ const Chat = () => {
           {totalMessages > lastRead && (
             <>
               <div className="absolute -top-15 right-5 bg-gray-300 dark:bg-gray-600 border border-gray-500 size-10 cursor-pointer flex items-center justify-center rounded-full">
-                <ChevronDown />
+                <ChevronDown
+                  onClick={() => {
+                    if (scrollRef.current) {
+                      scrollRef.current.scrollTop =
+                        scrollRef.current.scrollHeight;
+                    }
+                  }}
+                />
                 <div className="absolute flex items-center justify-center size-6 text-xs text-white bg-blue-400 -top-3 rounded-full">
                   {totalMessages - lastRead}
                 </div>
