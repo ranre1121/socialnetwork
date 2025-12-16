@@ -26,6 +26,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     newSocket.on("connect", () => {
       newSocket.emit("join", user.username);
     });
+    newSocket.on("private_message", (payload) => console.log(payload));
 
     setSocket(newSocket);
 

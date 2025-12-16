@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import { useUser } from "@/context/UserContext";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import MessageNotification from "@/components/MessageNotification";
 
 export default function RootLayout({
   children,
@@ -19,7 +20,10 @@ export default function RootLayout({
         <UserProvider>
           <SocketProvider>
             <ThemeProvider>
-              <AppContent>{children}</AppContent>
+              <AppContent>
+                {children}
+                <MessageNotification />
+              </AppContent>
             </ThemeProvider>
           </SocketProvider>
         </UserProvider>
