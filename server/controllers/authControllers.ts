@@ -79,27 +79,34 @@ export async function loginUser(req: Request, res: Response) {
         messagesRead: true,
         chat: {
           select: {
-            lastMessageId: true,
             totalMessages: true,
+            id: true,
           },
         },
       },
     });
 
-    const unreadChatsCount = userChats.filter(
-      (uc) =>
-        uc.chat.totalMessages != null &&
-        uc.messagesRead != null &&
-        uc.chat.totalMessages > uc.messagesRead
-    ).length;
+    const unreadChatsCount = userChats
+      .filter(
+        (uc) =>
+          uc.chat.totalMessages != null &&
+          uc.messagesRead != null &&
+          uc.chat.totalMessages > uc.messagesRead
+      )
+      .map((uc) => {
+        return {
+          chatId: uc.chatId,
+          unreadMessages: uc.chat.totalMessages - uc.messagesRead,
+        };
+      });
 
     return res.status(200).json({
       token,
       user: {
-        id: user.id,
+        userId: user.id,
         username: user.username,
-        name: user.name,
         profilePicture: user.profilePicture,
+        name: user.name,
         notifications: {
           messages: unreadChatsCount,
         },

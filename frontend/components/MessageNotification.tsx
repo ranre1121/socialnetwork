@@ -67,7 +67,7 @@ export default function MessageNotification() {
               e.stopPropagation();
               removeNotification(n.id);
             }}
-            className="ml-2 text-white font-bold text-lg leading-none"
+            className="rounded-md hover:text-red-500 ml-2 text-white font-bold text-lg leading-none"
           />
         </div>
       ))}

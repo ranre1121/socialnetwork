@@ -56,31 +56,23 @@ const Chat = () => {
 
   // set user handling
   useEffect(() => {
-    const allMessages = Object.values(messages).flat();
-    if (!allMessages.length) return;
+    if (!user || !chatId) return;
+    if (lastRead !== totalMessages) return;
 
-    const latestMessage = allMessages[0];
-    const latestCountId = latestMessage?.countId;
+    setUser((prev) => {
+      if (!prev) return prev;
 
-    if (!latestCountId) return;
-
-    if (lastRead == totalMessages) {
-      setUser((prev) => {
-        if (!prev) return prev;
-
-        return {
-          ...prev,
-          notifications: {
-            ...prev.notifications,
-            messages: prev.notifications.messages.filter((chat) => {
-              chat.chatId !== chatId;
-            }),
-          },
-        };
-      });
-    }
-    console.log(user);
-  }, [lastRead]);
+      return {
+        ...prev,
+        notifications: {
+          ...prev.notifications,
+          messages: prev.notifications.messages.filter(
+            (m) => m.chatId !== chatId
+          ),
+        },
+      };
+    });
+  }, [lastRead, totalMessages, chatId]);
 
   //initial fetch
   useEffect(() => {
@@ -251,7 +243,6 @@ const Chat = () => {
       });
 
       setLastRead(data.lastRead);
-
       setInitialLastRead(data.lastRead);
       setChatId(data.messages[0].chatId);
       setCompanionLastRead(data.companionLastRead);
@@ -407,8 +398,8 @@ const Chat = () => {
                       </div>
 
                       {msg.countId === initialLastRead &&
-                        msg.countId !== totalMessages &&
-                        !sent && (
+                        !sent &&
+                        msg.countId !== totalMessages && (
                           <div className="w-full text-center my-2 py-1 bg-gray-300 dark:bg-gray-600 text-black dark:text-white rounded-md">
                             New messages
                           </div>
