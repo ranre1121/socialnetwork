@@ -64,7 +64,7 @@ const Chat = () => {
 
     if (!latestCountId) return;
 
-    if (lastRead >= latestCountId) {
+    if (lastRead == totalMessages) {
       setUser((prev) => {
         if (!prev) return prev;
 
@@ -72,10 +72,11 @@ const Chat = () => {
           ...prev,
           notifications: {
             ...prev.notifications,
-            messages: Math.max(
-              (prev.notifications?.messages.length ?? 0) - 1,
-              0
-            ),
+            messages: {
+              ...prev.notifications.messages.filter(
+                (chat) => chat.chatId !== chatId
+              ),
+            },
           },
         };
       });

@@ -27,9 +27,30 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     newSocket.on("connect", () => {
       newSocket.emit("join", user.username);
     });
-    newSocket.on("private_message", (payload) =>
-      
-    );
+    newSocket.on("private_message", (payload) => {
+      if (payload.sender.username === user.username) return;
+      setUser((prev) => {
+        if (!prev) return prev;
+
+        const messages = prev.notifications.messages;
+        const existing = messages.find((c) => c.chatId === payload.chatId);
+
+        return {
+          ...prev,
+          notifications: {
+            ...prev.notifications,
+            messages: existing
+              ? messages.map((c) =>
+                  c.chatId === payload.chatId
+                    ? { ...c, unreadMessages: c.unreadMessages + 1 }
+                    : c
+                )
+              : [...messages, { chatId: payload.chatId, unreadMessages: 1 }],
+          },
+        };
+      });
+      console.log(payload);
+    });
 
     setSocket(newSocket);
 
