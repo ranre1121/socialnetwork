@@ -11,7 +11,7 @@ import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 const Chat = () => {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const { socket } = useSocket();
   const { username } = useParams<{ username: string }>();
   const [firstMount, setFirstMount] = useState(false);
@@ -54,30 +54,33 @@ const Chat = () => {
     return () => observer.disconnect();
   }, [messages, hasMore]);
 
-  //set user handling
-  // useEffect(() => {
-  //   const allMessages = Object.values(messages).flat();
-  //   if (!allMessages.length) return;
+  // set user handling
+  useEffect(() => {
+    const allMessages = Object.values(messages).flat();
+    if (!allMessages.length) return;
 
-  //   const latestMessage = allMessages[0];
-  //   const latestCountId = latestMessage?.countId;
+    const latestMessage = allMessages[0];
+    const latestCountId = latestMessage?.countId;
 
-  //   if (!latestCountId) return;
+    if (!latestCountId) return;
 
-  //   if (lastRead >= latestCountId) {
-  //     setUser((prev) => {
-  //       if (!prev) return prev;
+    if (lastRead >= latestCountId) {
+      setUser((prev) => {
+        if (!prev) return prev;
 
-  //       return {
-  //         ...prev,
-  //         notifications: {
-  //           ...prev.notifications,
-  //           messages: Math.max((prev.notifications?.messages ?? 0) - 1, 0),
-  //         },
-  //       };
-  //     });
-  //   }
-  // }, [lastRead]);
+        return {
+          ...prev,
+          notifications: {
+            ...prev.notifications,
+            messages: Math.max(
+              (prev.notifications?.messages.length ?? 0) - 1,
+              0
+            ),
+          },
+        };
+      });
+    }
+  }, [lastRead]);
 
   //initial fetch
   useEffect(() => {

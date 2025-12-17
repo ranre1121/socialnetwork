@@ -129,17 +129,25 @@ export async function welcome(req: Request, res: Response) {
       chat: {
         select: {
           totalMessages: true,
+          id: true,
         },
       },
     },
   });
 
-  const unreadChatsCount = userChats.filter(
-    (uc) =>
-      uc.chat.totalMessages != null &&
-      uc.messagesRead != null &&
-      uc.chat.totalMessages > uc.messagesRead
-  ).length;
+  const unreadChatsCount = userChats
+    .filter(
+      (uc) =>
+        uc.chat.totalMessages != null &&
+        uc.messagesRead != null &&
+        uc.chat.totalMessages > uc.messagesRead
+    )
+    .map((uc) => {
+      return {
+        chatId: uc.chatId,
+        unreadMessages: uc.chat.totalMessages - uc.messagesRead,
+      };
+    });
 
   return res.status(200).json({
     userId: user.id,

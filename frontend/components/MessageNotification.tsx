@@ -49,7 +49,7 @@ export default function MessageNotification() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 flex flex-col gap-2 z-50">
+    <div className="fixed bottom-5 w-[250px] right-5 flex flex-col gap-2 z-50">
       {notifications.map((n) => (
         <div
           key={n.id}
@@ -59,7 +59,7 @@ export default function MessageNotification() {
           }}
         >
           <div>
-            <p className="font-semibold">{n.sender}</p>
+            <p className="font-semibold">@{n.sender}</p>
             <p className="text-sm">{n.content}</p>
           </div>
           <X

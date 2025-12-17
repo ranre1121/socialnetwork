@@ -13,7 +13,8 @@ const SocketContext = createContext<SocketContextType>({
 });
 
 export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useUser();
+  const { user, setUser } = useUser();
+
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
@@ -26,7 +27,9 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
     newSocket.on("connect", () => {
       newSocket.emit("join", user.username);
     });
-    newSocket.on("private_message", (payload) => console.log(payload));
+    newSocket.on("private_message", (payload) =>
+      
+    );
 
     setSocket(newSocket);
 

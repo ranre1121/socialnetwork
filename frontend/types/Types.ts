@@ -4,7 +4,7 @@ type User = {
   id: number;
   profilePicture: string;
   notifications: {
-    messages: number;
+    messages: { chatId: number; unreadMessages: number }[];
   };
 };
 

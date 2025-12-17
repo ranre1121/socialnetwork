@@ -89,9 +89,9 @@ export default function Navbar() {
               <span>{button.icon}</span>
               <p>{button.text}</p>
               {button.text === "Messages" &&
-                (user?.notifications.messages ?? 0) > 0 && (
+                (user?.notifications.messages.length ?? 0) > 0 && (
                   <div className="ml-auto bg-red-500 rounded-full font-semibold w-6 h-6 text-xs flex items-center justify-center">
-                    {user?.notifications.messages ?? 0}
+                    {user?.notifications.messages.length ?? 0}
                   </div>
                 )}
             </button>

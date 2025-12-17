@@ -20,7 +20,6 @@ export async function getConversations(req, res) {
                 },
                 lastMessage: true,
                 userReads: { where: { userId } },
-                messages: { orderBy: { sentAt: "asc" } },
             },
             orderBy: { lastMessageId: "desc" },
         });
@@ -33,7 +32,6 @@ export async function getConversations(req, res) {
                 companion,
                 unreadMessages: Math.max(totalMessages - totalRead, 0),
                 lastMessage: chat.lastMessage,
-                messages: chat.messages,
                 createdAt: chat.createdAt,
             };
         });
