@@ -72,15 +72,14 @@ const Chat = () => {
           ...prev,
           notifications: {
             ...prev.notifications,
-            messages: {
-              ...prev.notifications.messages.filter(
-                (chat) => chat.chatId !== chatId
-              ),
-            },
+            messages: prev.notifications.messages.filter((chat) => {
+              chat.chatId !== chatId;
+            }),
           },
         };
       });
     }
+    console.log(user);
   }, [lastRead]);
 
   //initial fetch
