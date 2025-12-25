@@ -229,7 +229,7 @@ const Chat = () => {
         for (const date in grouped) {
           if (!merged[date]) merged[date] = grouped[date];
           else {
-            const combined = [...merged[date], ...grouped[date]];
+            const combined = [...grouped[date], ...merged[date]];
             const unique = Array.from(
               new Map(combined.map((m) => [m.id, m])).values()
             );
