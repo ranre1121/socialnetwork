@@ -1,19 +1,19 @@
 import type { Request, Response } from "express";
 export declare function getConversations(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined>;
 export declare function addMessage(message: any): Promise<"No user found" | "No chat found" | ({
-    sender: {
+    receiver: {
         username: string;
     };
-    receiver: {
+    sender: {
         username: string;
     };
 } & {
     id: number;
     chatId: number;
+    receiverId: number;
     tempId: string;
     countId: number;
     senderId: number;
-    receiverId: number;
     content: string;
     sentAt: Date;
 }) | null>;
