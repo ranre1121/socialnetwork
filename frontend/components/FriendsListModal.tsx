@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import profilePlaceholder from "@/public/images/profile-placeholder.png";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import ImageComponent from "./ImageComponent";
 
 const ProfileFriendsModal = ({
@@ -23,7 +21,7 @@ const ProfileFriendsModal = ({
         if (!token) return;
 
         const res = await fetch(
-          `http://localhost:8000/friends/list/${username}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/friends/list/${username}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }

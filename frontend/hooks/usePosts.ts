@@ -16,7 +16,7 @@ export const usePosts = () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:8000/posts/feed", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/feed`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -44,7 +44,7 @@ export const usePosts = () => {
 
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:8000/posts/create", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/create`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

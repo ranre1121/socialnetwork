@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, UserPlus } from "lucide-react";
-import profilePlaceholder from "@/public/images/profile-placeholder.png";
 import { useUser } from "@/context/UserContext";
 import { Plus } from "lucide-react";
-import Image from "next/image";
 import ImageComponent from "./ImageComponent";
 
 const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
@@ -14,7 +12,7 @@ const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleAddRequest = async (receiverUsername: string) => {
     const token = localStorage.getItem("token");
-    await fetch("http://localhost:8000/friends/add", {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/friends/add`, {
       method: "POST",
       headers: {
         "Content-type": "application/json",
@@ -34,7 +32,7 @@ const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleCancelRequest = async (receiverUsername: string) => {
     const token = localStorage.getItem("token");
-    await fetch("http://localhost:8000/friends/cancel", {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/friends/cancel`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +69,7 @@ const AddFriendModal = ({ onClose }: { onClose: () => void }) => {
         }
 
         const res = await fetch(
-          `http://localhost:8000/friends/find?query=${encodeURIComponent(
+          `${process.env.NEXT_PUBLIC_API_URL}/friends/find?query=${encodeURIComponent(
             query
           )}`,
           {

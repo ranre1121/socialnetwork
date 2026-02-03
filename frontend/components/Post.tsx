@@ -1,4 +1,3 @@
-import profilePlaceholder from "@/public/images/profile-placeholder.png";
 import { Trash2Icon, Check, X } from "lucide-react";
 import { useUser } from "../context/UserContext";
 
@@ -8,10 +7,12 @@ import { Heart } from "lucide-react";
 import { MessageCircleMore } from "lucide-react";
 import Image from "next/image";
 import heart from "@/public/images/heart.svg";
-import CommentsModal from "./CommentsModal";
+import dynamic from "next/dynamic";
 import { formatPostDate } from "@/utils/utils";
 import { useRouter } from "next/navigation";
 import ImageComponent from "./ImageComponent";
+
+const CommentsModal = dynamic(() => import("./CommentsModal"));
 
 type PostTypes = {
   post: PostType;
@@ -30,7 +31,7 @@ const Post = ({ post, onFetch }: PostTypes) => {
     if (!user) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:8000/posts/${postId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/${postId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +50,7 @@ const Post = ({ post, onFetch }: PostTypes) => {
     if (!user) return;
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:8000/posts/like/${postId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/posts/like/${postId}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

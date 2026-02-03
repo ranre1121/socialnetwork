@@ -20,7 +20,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (!user) return;
 
-    const newSocket = io("http://localhost:8000", {
+    const newSocket = io(process.env.NEXT_PUBLIC_API_URL!, {
       transports: ["websocket"],
     });
 

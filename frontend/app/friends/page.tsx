@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import AddFriendModal from "@/components/AddFriendModal";
-import FriendRequestsModal from "@/components/FriendRequestsModal";
+import dynamic from "next/dynamic";
 import { UserMinusIcon, Users, Check, X, Mail } from "lucide-react";
+
+const AddFriendModal = dynamic(() => import("@/components/AddFriendModal"));
+const FriendRequestsModal = dynamic(() => import("@/components/FriendRequestsModal"));
 import { useUser } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
 import ImageComponent from "@/components/ImageComponent";

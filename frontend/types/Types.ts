@@ -52,7 +52,7 @@ type Message = {
   receiver: User;
   content: string;
   sentAt: string;
-  status: "sent" | "received" | "pending";
+  status: "sent" | "received" | "pending" | "unread" | "read";
 };
 
 type MessageData = {

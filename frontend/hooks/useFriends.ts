@@ -16,7 +16,7 @@ export const useFriends = () => {
       if (!token) return;
 
       const res = await fetch(
-        `http://localhost:8000/friends/list/${user.username}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/friends/list/${user.username}`,
         {
           method: "GET",
           headers: { Authorization: `Bearer ${token}` },
@@ -46,7 +46,7 @@ export const useFriends = () => {
         const token = localStorage.getItem("token");
         if (!token) return;
 
-        const res = await fetch("http://localhost:8000/friends/delete", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/friends/delete`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -16,7 +16,7 @@ export const useConversations = () => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
-      const res = await fetch("http://localhost:8000/messages/conversations", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/messages/conversations`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

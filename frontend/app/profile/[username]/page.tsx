@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
 import Post from "@/components/Post";
-import EditProfileModal from "@/components/EditProfileModal";
-import FriendsListModal from "@/components/FriendsListModal";
+import dynamic from "next/dynamic";
 import ImageComponent from "@/components/ImageComponent";
+
+const EditProfileModal = dynamic(() => import("@/components/EditProfileModal"));
+const FriendsListModal = dynamic(() => import("@/components/FriendsListModal"));
 import { Mail } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 

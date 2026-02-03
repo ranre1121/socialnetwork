@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { io, Socket } from "socket.io-client";
 import { useUser } from "../context/UserContext";
+import { useSocket } from "../context/SocketContext";
 import type { Message } from "../types/Types";
 import { formatMessageDate } from "../utils/utils";
 import { CheckCheck, Clock3 } from "lucide-react";
@@ -13,13 +13,13 @@ type ChatProps = {
 
 const Chat = ({ friendUsername }: ChatProps) => {
   const { user } = useUser();
+  const { socket } = useSocket();
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Record<string, Message[]>>({});
   const [hasMore, setHasMore] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const socketRef = useRef<Socket | null>(null);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
 
   async function fetchMessages(date: string) {
@@ -30,8 +30,8 @@ const Chat = ({ friendUsername }: ChatProps) => {
       const token = localStorage.getItem("token");
       const res = await fetch(
         date === ""
-          ? `http://localhost:8000/messages/${friendUsername}`
-          : `http://localhost:8000/messages/${friendUsername}?before=${date}`,
+          ? `${process.env.NEXT_PUBLIC_API_URL}/messages/${friendUsername}`
+          : `${process.env.NEXT_PUBLIC_API_URL}/messages/${friendUsername}?before=${date}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) throw new Error("Failed to fetch messages");
@@ -148,21 +148,16 @@ const Chat = ({ friendUsername }: ChatProps) => {
   }, [user, friendUsername]);
 
   useEffect(() => {
-    if (!user || socketRef.current) return;
-    const socket = io("http://localhost:8000");
-    socketRef.current = socket;
-    socket.on("connect", () => socket.emit("join", user.username));
+    if (!socket) return;
     socket.on("private_message", handlePrivateMessage);
 
     return () => {
       socket.off("private_message", handlePrivateMessage);
-      socket.disconnect();
-      socketRef.current = null;
     };
-  }, [user]);
+  }, [socket, user]);
 
   const sendMessage = () => {
-    if (!newMessage.trim() || !user || !socketRef.current) return;
+    if (!newMessage.trim() || !user || !socket) return;
 
     const pendingMessage: Message = {
       tempId: crypto.randomUUID(),
@@ -187,7 +182,7 @@ const Chat = ({ friendUsername }: ChatProps) => {
       return updated;
     });
 
-    socketRef.current.emit("private_message", pendingMessage);
+    socket.emit("private_message", pendingMessage);
 
     const container = scrollRef.current;
     if (container) {
@@ -211,7 +206,11 @@ const Chat = ({ friendUsername }: ChatProps) => {
           </div>
         ) : (
           Object.keys(messages)
-            .sort((a, b) => new Date(b).getTime() - new Date(a).getTime())
+            .sort((a, b) => {
+              const [ay, am, ad] = a.split(":").map(Number);
+              const [by, bm, bd] = b.split(":").map(Number);
+              return new Date(by, bm - 1, bd).getTime() - new Date(ay, am - 1, ad).getTime();
+            })
             .map((date) => (
               <div key={date} className="flex flex-col gap-2">
                 <div className="text-white sticky top-0 my-2 flex w-full justify-center">

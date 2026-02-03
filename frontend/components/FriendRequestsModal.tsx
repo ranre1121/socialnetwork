@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { X, Loader2, UserCheck, UserX } from "lucide-react";
 import { useUser } from "@/context/UserContext";
-import profilePlaceholder from "@/public/images/profile-placeholder.png";
-import Image from "next/image";
 import ImageComponent from "./ImageComponent";
 
 const FriendRequestsModal = ({
@@ -21,7 +19,7 @@ const FriendRequestsModal = ({
     setLoading(true);
     const token = localStorage.getItem("token");
     const res = await fetch(
-      `http://localhost:8000/friends/requests?type=${type}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/friends/requests?type=${type}`,
       {
         method: "GET",
         headers: {
@@ -36,7 +34,7 @@ const FriendRequestsModal = ({
 
   const handleAccept = async (senderUsername: string) => {
     const token = localStorage.getItem("token");
-    await fetch("http://localhost:8000/friends/accept", {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/friends/accept`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -52,7 +50,7 @@ const FriendRequestsModal = ({
 
   const handleDecline = async (senderUsername: string) => {
     const token = localStorage.getItem("token");
-    await fetch("http://localhost:8000/friends/decline", {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/friends/decline`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -67,7 +65,7 @@ const FriendRequestsModal = ({
 
   const handleCancel = async (receiverUsername: string) => {
     const token = localStorage.getItem("token");
-    await fetch("http://localhost:8000/friends/cancel", {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/friends/cancel`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

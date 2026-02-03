@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 import { Upload } from "lucide-react";
 import ImageComponent from "./ImageComponent";
 
@@ -47,7 +46,7 @@ const EditProfileModal = ({
         formData.append("bio", bio);
         formData.append("isProfileOwner", "true");
 
-        const res = await fetch("http://localhost:8000/profiles/update", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/profiles/update`, {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import publicPlaceholder from "@/public/images/profile-placeholder.png";
 
 const ImageComponent = ({ src, size }: { src?: string; size: number }) => {

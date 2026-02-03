@@ -199,8 +199,8 @@ const Chat = () => {
       const token = localStorage.getItem("token");
       const res = await fetch(
         date === ""
-          ? `http://localhost:8000/messages/${username}`
-          : `http://localhost:8000/messages/${username}?before=${date}`,
+          ? `${process.env.NEXT_PUBLIC_API_URL}/messages/${username}`
+          : `${process.env.NEXT_PUBLIC_API_URL}/messages/${username}?before=${date}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) throw new Error("Failed to fetch messages");
@@ -308,8 +308,9 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen w-full items-center justify-center py-10">
-      <div className="bg-white dark:bg-gray-800 w-full max-w-[850px] h-full max-h-[900px] flex flex-col border-gray-700 rounded-2xl overflow-hidden backdrop-blur">
+    <div className="flex h-screen w-screen py-10 pl-[370px] bg-gray-50 dark:bg-gray-900">
+      <div className="flex flex-1 flex-col items-center justify-start">
+      <div className="bg-white dark:bg-gray-800 w-[850px] h-[900px] flex flex-col border-gray-700 rounded-2xl overflow-hidden backdrop-blur">
         <div className="flex items-center gap-3 border-gray-700 border-b p-5">
           <button
             onClick={() => {
@@ -339,7 +340,13 @@ const Chat = () => {
               No messages yet
             </div>
           ) : (
-            Object.keys(messages).map((date) => (
+            (() => {
+              const sortedKeys = Object.keys(messages).sort((a, b) => {
+                const [ay, am, ad] = a.split(":").map(Number);
+                const [by, bm, bd] = b.split(":").map(Number);
+                return new Date(ay, am - 1, ad).getTime() - new Date(by, bm - 1, bd).getTime();
+              });
+              return sortedKeys.map((date, dateIdx) => (
               <div key={date} className="flex flex-col gap-2">
                 <div className=" sticky top-0 my-2 flex w-full justify-center">
                   <p className="dark:bg-gray-900 dark:text-white bg-gray-200 text-black rounded-md px-2">
@@ -348,7 +355,7 @@ const Chat = () => {
                 </div>
 
                 {messages[date].map((msg, idx) => {
-                  const isLast = idx === 0;
+                  const isScrollTrigger = dateIdx === 0 && idx === 0;
 
                   return (
                     <div key={idx}>
@@ -357,9 +364,9 @@ const Chat = () => {
                           if (el) messageRefs.current[msg.countId] = el;
                           else delete messageRefs.current[msg.countId];
 
-                          if (isLast) lastMessageRef.current = el;
+                          if (isScrollTrigger) lastMessageRef.current = el;
                         }}
-                        data-sent-at={isLast ? msg.sentAt : undefined}
+                        data-sent-at={isScrollTrigger ? msg.sentAt : undefined}
                         data-message-count={msg.countId}
                         className={`p-3 rounded-2xl w-fit max-w-[70%] ${
                           msg.status === "sent" || msg.status === "pending"
@@ -408,7 +415,8 @@ const Chat = () => {
                   );
                 })}
               </div>
-            ))
+            ));
+            })()
           )}
         </div>
 
@@ -453,6 +461,7 @@ const Chat = () => {
             </>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

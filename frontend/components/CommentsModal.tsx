@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { Check, Loader2, Trash2, X } from "lucide-react";
 import type { Post as PostType } from "@/types/Types";
-import profilePlaceholder from "@/public/images/profile-placeholder.png";
 import { formatPostDate } from "@/utils/utils";
 import type { Comment } from "@/types/Types";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import ImageComponent from "./ImageComponent";
 
 type CommentsModalProps = {
@@ -26,7 +24,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `http://localhost:8000/posts/comment/${post.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/posts/comment/${post.id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -49,7 +47,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `http://localhost:8000/posts/comment/${post.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/posts/comment/${post.id}`,
         {
           method: "POST",
           headers: {
@@ -76,7 +74,7 @@ const CommentsModal = ({ post, onRefetch, onClose }: CommentsModalProps) => {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `http://localhost:8000/posts/comment/${commentId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/posts/comment/${commentId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
