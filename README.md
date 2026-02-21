@@ -4,10 +4,10 @@ A full-stack social network application with real-time messaging, friend managem
 
 ## Tech Stack
 
-**Frontend:** Next.js, React, TypeScript, Tailwind CSS
-**Backend:** Node.js, Express, TypeScript
-**Database:** SQLite with Prisma ORM
-**Real-time:** Socket.IO
+- **Frontend:** Next.js, React, TypeScript, Tailwind CSS
+- **Backend:** Node.js, Express, TypeScript
+- **Database:** SQLite with Prisma ORM
+- **Real-time:** Socket.IO
 
 ## Features
 
